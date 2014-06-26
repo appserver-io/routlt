@@ -59,7 +59,7 @@ abstract class ControllerServlet extends HttpServlet
      *
      * @return array The array with the available routes
      */
-    protected abstract function getRoutes();
+    abstract protected function getRoutes();
 
     /**
      * Implements Http GET method.
