@@ -20,7 +20,7 @@
  * @link      http://www.appserver.io
  */
 
-namespace AppserverIo\Routlt\Controller;
+namespace AppserverIo\Routlt;
 
 use TechDivision\Servlet\Http\HttpServletRequest;
 use TechDivision\Servlet\Http\HttpServletResponse;

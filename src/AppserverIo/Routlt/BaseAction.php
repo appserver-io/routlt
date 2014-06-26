@@ -20,7 +20,7 @@
  * @link      http://www.appserver.io
  */
 
-namespace Rout\Lt\Controller;
+namespace AppserverIo\Routlt;
 
 use TechDivision\Lang\Object;
 use TechDivision\Context\Context;

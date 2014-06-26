@@ -20,7 +20,7 @@
  * @link      http://www.appserver.io
  */
 
-namespace Rout\Lt\Controller;
+namespace AppserverIo\Routlt;
 
 /**
  * This is the exception that is thrown if the spedified request parameter is not
