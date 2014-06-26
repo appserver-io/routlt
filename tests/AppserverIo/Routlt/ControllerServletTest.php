@@ -108,6 +108,44 @@ class ControllerServletTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * This tests the doGet() method with a request without any path info.
+     *
+     * @return void
+     */
+    public function testGetRoutes()
+    {
+
+        // initialize the controller with mocked methods
+        $controller = $this->getMock('AppserverIo\Routlt\ControllerServlet', array('getInitParameter'));
+
+        // mock the configuration file name
+        $controller->expects($this->once())
+            ->method('getInitParameter')
+            ->will($this->returnValue('WEB-INF/routes.json'));
+
+        // initialize the servlet configuration
+        $servletConfig = $this->getMock('TechDivision\Servlet\ServletConfig');
+        $servletConfig->expects($this->once())
+            ->method('getWebappPath')
+            ->will($this->returnValue('AppserverIo/Routlt'));
+
+        // invoke the method we want to test
+        $controller->init($servletConfig);
+
+        // create a mock servlet request instance
+        $servletRequest = $this->getMock('TechDivision\Servlet\Http\HttpServletRequest');
+        $servletRequest->expects($this->once())
+            ->method('getPathInfo')
+            ->will($this->returnValue('/test'));
+
+        // create a mock servlet response instance
+        $servletResponse = $this->getMock('TechDivision\Servlet\Http\HttpServletResponse');
+
+        // invoke the method we want to test
+        $controller->doGet($servletRequest, $servletResponse);
+    }
+
+    /**
      * This tests the doGet() method with a request without any registered routes.
      *
      * @expectedException TechDivision\Server\Exceptions\ModuleException
