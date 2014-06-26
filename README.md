@@ -137,6 +137,7 @@ class IndexAction extends DispatchAction
         $servletResponse->appendBodyStream('Hello World!');
     }
 }
+```
 
 That's pretty simple. After restarting the appserver.io open the URL ```http://127.0.0.1:9080/myapp/index.do/index```
 with your browser. You should see ```Hello World!``` there.
