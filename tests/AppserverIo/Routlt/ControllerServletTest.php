@@ -180,4 +180,25 @@ class ControllerServletTest extends \PHPUnit_Framework_TestCase
         // invoke the method we want to test
         $this->controller->doPost($servletRequest, $servletResponse);
     }
+
+    /**
+     * This tests the init method with mocked servlet configuration.
+     *
+     * @return void
+     */
+    public function testInit()
+    {
+
+        // initialize the servlet configuration
+        $servletConfig = $this->getMock('TechDivision\Servlet\ServletConfig');
+
+        // assert that the array with the routes will be loaded
+        $this->controller->expects($this->once())
+            ->method('initMappings');
+        $this->controller->expects($this->once())
+            ->method('initRoutes');
+
+        // invoke the method we want to test
+        $this->controller->init($servletConfig);
+    }
 }
