@@ -54,4 +54,17 @@ class MockDispatchAction extends DispatchAction
     public function indexAction(HttpServletRequest $servletRequest, HttpServletResponse $servletResponse)
     {
     }
+
+
+    /**
+     * Dummy action implementation.
+     *
+     * @param \TechDivision\Servlet\Http\HttpServletRequest  $servletRequest  The request instance
+     * @param \TechDivision\Servlet\Http\HttpServletResponse $servletResponse The response instance
+     *
+     * @return void
+     */
+    public function testAction(HttpServletRequest $servletRequest, HttpServletResponse $servletResponse)
+    {
+    }
 }
