@@ -1,0 +1,20 @@
+{
+    "name": "appserver-io/routlt",
+    "type": "package",
+    "description": "Servlet based micro router and controller implementation.",
+    "homepage": "https://github.com/appserver-io/routlt",
+    "license": ["OSL-3.0"],
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "https://github.com/appserver-io/routlt"
+        }
+    ],
+    "require": {
+        "php" : ">=5.3.0",
+        "appserver-io/routlt" : "dev-master"
+    },
+    "autoload": {
+        "psr-0": {"appserver-io": "src/"}
+    }
+}
