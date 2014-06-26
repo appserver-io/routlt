@@ -22,8 +22,6 @@ your application only, you do this by add
 
 to your ```composer.json``` and invoke ```composer update``` in your project.
 
-That's all!
-
 ## Usage
 
 As routlt is based on a servlet, you first need an ```web.xml``` inside the ```WEB-INF``` folder of your application.
