@@ -42,7 +42,7 @@ use TechDivision\Servlet\Http\HttpServletResponse;
  * @link      http://github.com/appserver-io/routlt
  * @link      http://www.appserver.io
  */
-abstract class ControllerServlet extends HttpServlet
+class ControllerServlet extends HttpServlet
 {
 
     /**

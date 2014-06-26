@@ -45,15 +45,7 @@ class ControllerServletTest extends \PHPUnit_Framework_TestCase
     {
 
         // initialize the controller with mocked methods
-        $controller = $this->getMockForAbstractClass(
-            'AppserverIo\Routlt\ControllerServlet',
-            array(),
-            '',
-            true,
-            true,
-            true,
-            array('getRoutes', 'initRoutes', 'initMappings')
-        );
+        $controller = $this->getMock('AppserverIo\Routlt\ControllerServlet', array('getRoutes', 'initRoutes', 'initMappings'));
 
         // create a mock servlet request instance
         $servletRequest = $this->getMock('TechDivision\Servlet\Http\HttpServletRequest');
@@ -91,15 +83,7 @@ class ControllerServletTest extends \PHPUnit_Framework_TestCase
     {
 
         // initialize the controller with mocked methods
-        $controller = $this->getMockForAbstractClass(
-            'AppserverIo\Routlt\ControllerServlet',
-            array(),
-            '',
-            true,
-            true,
-            true,
-            array('getRoutes', 'initRoutes', 'initMappings')
-        );
+        $controller = $this->getMock('AppserverIo\Routlt\ControllerServlet', array('getRoutes', 'initRoutes', 'initMappings'));
 
         // create a mock servlet request + response instance
         $servletRequest = $this->getMock('TechDivision\Servlet\Http\HttpServletRequest');
@@ -133,15 +117,7 @@ class ControllerServletTest extends \PHPUnit_Framework_TestCase
     {
 
         // initialize the controller with mocked methods
-        $controller = $this->getMockForAbstractClass(
-            'AppserverIo\Routlt\ControllerServlet',
-            array(),
-            '',
-            true,
-            true,
-            true,
-            array('getRoutes', 'initRoutes', 'initMappings')
-        );
+        $controller = $this->getMock('AppserverIo\Routlt\ControllerServlet', array('getRoutes', 'initRoutes', 'initMappings'));
 
         // create a mock servlet request + response instance
         $servletRequest = $this->getMock('TechDivision\Servlet\Http\HttpServletRequest');
@@ -165,15 +141,7 @@ class ControllerServletTest extends \PHPUnit_Framework_TestCase
     {
 
         // initialize the controller with mocked methods
-        $controller = $this->getMockForAbstractClass(
-            'AppserverIo\Routlt\ControllerServlet',
-            array(),
-            '',
-            true,
-            true,
-            true,
-            array('getRoutes', 'initRoutes', 'initMappings')
-        );
+        $controller = $this->getMock('AppserverIo\Routlt\ControllerServlet', array('getRoutes', 'initRoutes', 'initMappings'));
 
         // create a mock servlet request + response instance
         $servletRequest = $this->getMock('TechDivision\Servlet\Http\HttpServletRequest');
@@ -215,15 +183,7 @@ class ControllerServletTest extends \PHPUnit_Framework_TestCase
     {
 
         // initialize the controller with mocked methods
-        $controller = $this->getMockForAbstractClass(
-            'AppserverIo\Routlt\ControllerServlet',
-            array(),
-            '',
-            true,
-            true,
-            true,
-            array('getRoutes', 'initRoutes', 'initMappings')
-        );
+        $controller = $this->getMock('AppserverIo\Routlt\ControllerServlet', array('getRoutes', 'initRoutes', 'initMappings'));
 
         // initialize the servlet configuration
         $servletConfig = $this->getMock('TechDivision\Servlet\ServletConfig');
@@ -247,15 +207,7 @@ class ControllerServletTest extends \PHPUnit_Framework_TestCase
     {
 
         // initialize the controller with mocked methods
-        $controller = $this->getMockForAbstractClass(
-            'AppserverIo\Routlt\ControllerServlet',
-            array(),
-            '',
-            true,
-            true,
-            true,
-            array('getInitParameter', 'getWebappPath')
-        );
+        $controller = $this->getMock('AppserverIo\Routlt\ControllerServlet', array('getInitParameter', 'getWebappPath'));
 
         // mock the configuration file name
         $controller->expects($this->once())
