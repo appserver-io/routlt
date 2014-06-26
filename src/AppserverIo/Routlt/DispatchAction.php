@@ -89,7 +89,9 @@ abstract class DispatchAction extends BaseAction
         $explodedPathInfo = explode($actionDelimiter, trim($servletRequest->getPathInfo(), $actionDelimiter));
 
         // try to set the default method, if we can't find one in the path info
-        if (!isset($explodedPathInfo[$this->getRequestedMethodNameKey()])) {
+        if (isset($explodedPathInfo[$this->getRequestedMethodNameKey()])) {
+            $requestedMethodName = $explodedPathInfo[$this->getRequestedMethodNameKey()];
+        } else {
             $requestedMethodName = $this->getDefaultMethod();
         }
 
