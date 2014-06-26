@@ -41,6 +41,13 @@ abstract class DispatchAction extends BaseAction
 {
 
     /**
+     * The key where to find the requested method name in the path information.
+     *
+     * @var integer
+     */
+    const REQUESTED_METHOD_NAME_KEY = 1;
+
+    /**
      * The default action method suffix.
      *
      * @var string
@@ -78,26 +85,35 @@ abstract class DispatchAction extends BaseAction
         // the action delimiter we use to extract the action method name
         $actionDelimiter = $this->getActionDelimiter();
 
-        // load the first part of the path info => that is the action name by default
-        list (, $requestedMethodName) = explode($actionDelimiter, trim($servletRequest->getPathInfo(), $actionDelimiter));
+        // load the first part of the path info => that is the requested method name by default
+        $explodedPathInfo = explode($actionDelimiter, trim($servletRequest->getPathInfo(), $actionDelimiter));
 
-        // try to set the default method, if one is specified in the path info
-        if ($requestedMethodName == null) {
+        // try to set the default method, if we can't find one in the path info
+        if (!isset($explodedPathInfo[$this->getRequestedMethodNameKey()])) {
             $requestedMethodName = $this->getDefaultMethod();
         }
 
-        // if yes, concatenate it to create a valid action name
+        // concatenate it witht the configured suffix and create a valid action name
         $requestedActionMethod = $this->getActionSuffix($requestedMethodName);
 
         // check if the requested action method is a class method
-        if (in_array($requestedActionMethod, get_class_methods($this))) {
-            $actionMethod = $requestedActionMethod;
-        } else {
+        if (!in_array($requestedActionMethod, get_class_methods($this))) {
             throw new MethodNotFoundException(sprintf('Specified method %s not implemented by class %s', $requestedActionMethod, get_class($this)));
         }
 
         // invoke the requested action method
-        $this->$actionMethod($servletRequest, $servletResponse);
+        $this->$requestedActionMethod($servletRequest, $servletResponse);
+    }
+
+    /**
+     * This method returns the key where we can find the name of the requested method name, when
+     * we explode the path info with a slash.
+     *
+     * @return string The default action method name that has to be invoked
+     */
+    protected function getRequestedMethodNameKey()
+    {
+        return DispatchAction::REQUESTED_METHOD_NAME_KEY;
     }
 
     /**
@@ -130,11 +146,8 @@ abstract class DispatchAction extends BaseAction
      *
      * @return string The action suffix or the action method name, prepended with the action suffix
      */
-    protected function getActionSuffix($requestedMethodName = null)
+    protected function getActionSuffix($requestedMethodName)
     {
-        if ($requestedMethodName == null) {
-            return DispatchAction::ACTION_SUFFIX;
-        }
         return $requestedMethodName . DispatchAction::ACTION_SUFFIX;
     }
 }
