@@ -23,6 +23,7 @@
 namespace AppserverIo\Routlt;
 
 use TechDivision\Server\Exceptions\ModuleException;
+use TechDivision\Context\BaseContext;
 use TechDivision\Servlet\ServletConfig;
 use TechDivision\Servlet\Http\HttpServlet;
 use TechDivision\Servlet\Http\HttpSession;
@@ -113,7 +114,11 @@ abstract class ControllerServlet extends HttpServlet
         }
 
         // explode the mappings from the content we found
-        $this->mappings = json_decode($content);
+        $stdClass = json_decode($content);
+
+        foreach ($stdClass->routes as $route) {
+            $this->mappings[$route->urlMapping] = $route->actionClass;
+        }
     }
 
     /**
@@ -123,8 +128,8 @@ abstract class ControllerServlet extends HttpServlet
      */
     protected function initRoutes()
     {
-        foreach ($this->getMappings() as $route => $mapping) {
-            $this->routes[$route] = new $mapping(new BaseContext());
+        foreach ($this->getMappings() as $urlMapping => $actionClass) {
+            $this->routes[$urlMapping] = new $actionClass(new BaseContext());
         }
     }
 

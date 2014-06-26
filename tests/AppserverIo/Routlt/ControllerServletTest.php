@@ -37,20 +37,15 @@ class ControllerServletTest extends \PHPUnit_Framework_TestCase
 {
 
     /**
-     * The controller servlet instance to test.
-     *
-     * @var \AppserverIo\Routlt\ControllerServlet
-     */
-    protected $controller;
-
-    /**
-     * Initializes the controller servlet to test.
+     * This tests the doGet() method with a request, prepared with a path info.
      *
      * @return void
      */
-    public function setUp()
+    public function testDoGetWithPathInfo()
     {
-        $this->controller = $this->getMockForAbstractClass(
+
+        // initialize the controller with mocked methods
+        $controller = $this->getMockForAbstractClass(
             'AppserverIo\Routlt\ControllerServlet',
             array(),
             '',
@@ -59,15 +54,6 @@ class ControllerServletTest extends \PHPUnit_Framework_TestCase
             true,
             array('getRoutes', 'initRoutes', 'initMappings')
         );
-    }
-
-    /**
-     * This tests the doGet() method with a request, prepared with a path info.
-     *
-     * @return void
-     */
-    public function testDoGetWithPathInfo()
-    {
 
         // create a mock servlet request instance
         $servletRequest = $this->getMock('TechDivision\Servlet\Http\HttpServletRequest');
@@ -88,12 +74,12 @@ class ControllerServletTest extends \PHPUnit_Framework_TestCase
         $routes = array('/test*' => $action);
 
         // assert that the array with the routes will be loaded
-        $this->controller->expects($this->once())
+        $controller->expects($this->once())
             ->method('getRoutes')
             ->will($this->returnValue($routes));
 
         // invoke the method we want to test
-        $this->controller->doGet($servletRequest, $servletResponse);
+        $controller->doGet($servletRequest, $servletResponse);
     }
 
     /**
@@ -104,10 +90,19 @@ class ControllerServletTest extends \PHPUnit_Framework_TestCase
     public function testDoGetWithoutPathInfo()
     {
 
-        // create a mock servlet request instance
-        $servletRequest = $this->getMock('TechDivision\Servlet\Http\HttpServletRequest');
+        // initialize the controller with mocked methods
+        $controller = $this->getMockForAbstractClass(
+            'AppserverIo\Routlt\ControllerServlet',
+            array(),
+            '',
+            true,
+            true,
+            true,
+            array('getRoutes', 'initRoutes', 'initMappings')
+        );
 
-        // create a mock servlet response instance
+        // create a mock servlet request + response instance
+        $servletRequest = $this->getMock('TechDivision\Servlet\Http\HttpServletRequest');
         $servletResponse = $this->getMock('TechDivision\Servlet\Http\HttpServletResponse');
 
         // create a mock action instance
@@ -120,12 +115,12 @@ class ControllerServletTest extends \PHPUnit_Framework_TestCase
         $routes = array('/index*' => $action);
 
         // assert that the array with the routes will be loaded
-        $this->controller->expects($this->once())
+        $controller->expects($this->once())
             ->method('getRoutes')
             ->will($this->returnValue($routes));
 
         // invoke the method we want to test
-        $this->controller->doGet($servletRequest, $servletResponse);
+        $controller->doGet($servletRequest, $servletResponse);
     }
 
     /**
@@ -137,19 +132,28 @@ class ControllerServletTest extends \PHPUnit_Framework_TestCase
     public function testDoGetWithModuleExceptionExpected()
     {
 
-        // create a mock servlet request instance
-        $servletRequest = $this->getMock('TechDivision\Servlet\Http\HttpServletRequest');
+        // initialize the controller with mocked methods
+        $controller = $this->getMockForAbstractClass(
+            'AppserverIo\Routlt\ControllerServlet',
+            array(),
+            '',
+            true,
+            true,
+            true,
+            array('getRoutes', 'initRoutes', 'initMappings')
+        );
 
-        // create a mock servlet response instance
+        // create a mock servlet request + response instance
+        $servletRequest = $this->getMock('TechDivision\Servlet\Http\HttpServletRequest');
         $servletResponse = $this->getMock('TechDivision\Servlet\Http\HttpServletResponse');
 
         // assert that the array with the routes will be loaded
-        $this->controller->expects($this->once())
+        $controller->expects($this->once())
             ->method('getRoutes')
             ->will($this->returnValue(array()));
 
         // invoke the method we want to test
-        $this->controller->doGet($servletRequest, $servletResponse);
+        $controller->doGet($servletRequest, $servletResponse);
     }
 
     /**
@@ -159,6 +163,19 @@ class ControllerServletTest extends \PHPUnit_Framework_TestCase
      */
     public function testDoPostWithPathInfo()
     {
+
+        // initialize the controller with mocked methods
+        $controller = $this->getMockForAbstractClass(
+            'AppserverIo\Routlt\ControllerServlet',
+            array(),
+            '',
+            true,
+            true,
+            true,
+            array('getRoutes', 'initRoutes', 'initMappings')
+        );
+
+        // create a mock servlet request + response instance
         $servletRequest = $this->getMock('TechDivision\Servlet\Http\HttpServletRequest');
         $servletResponse = $this->getMock('TechDivision\Servlet\Http\HttpServletResponse');
 
@@ -181,12 +198,12 @@ class ControllerServletTest extends \PHPUnit_Framework_TestCase
         $routes = array('/test*' => $action);
 
         // assert that the array with the routes will be loaded
-        $this->controller->expects($this->once())
+        $controller->expects($this->once())
             ->method('getRoutes')
             ->will($this->returnValue($routes));
 
         // invoke the method we want to test
-        $this->controller->doPost($servletRequest, $servletResponse);
+        $controller->doPost($servletRequest, $servletResponse);
     }
 
     /**
@@ -197,16 +214,61 @@ class ControllerServletTest extends \PHPUnit_Framework_TestCase
     public function testInit()
     {
 
+        // initialize the controller with mocked methods
+        $controller = $this->getMockForAbstractClass(
+            'AppserverIo\Routlt\ControllerServlet',
+            array(),
+            '',
+            true,
+            true,
+            true,
+            array('getRoutes', 'initRoutes', 'initMappings')
+        );
+
         // initialize the servlet configuration
         $servletConfig = $this->getMock('TechDivision\Servlet\ServletConfig');
 
         // assert that the array with the routes will be loaded
-        $this->controller->expects($this->once())
+        $controller->expects($this->once())
             ->method('initMappings');
-        $this->controller->expects($this->once())
+        $controller->expects($this->once())
             ->method('initRoutes');
 
         // invoke the method we want to test
-        $this->controller->init($servletConfig);
+        $controller->init($servletConfig);
+    }
+
+    /**
+     * This tests the init method with mocked servlet configuration.
+     *
+     * @return void
+     */
+    public function testInitWithRealData()
+    {
+
+        // initialize the controller with mocked methods
+        $controller = $this->getMockForAbstractClass(
+            'AppserverIo\Routlt\ControllerServlet',
+            array(),
+            '',
+            true,
+            true,
+            true,
+            array('getInitParameter', 'getWebappPath')
+        );
+
+        // mock the configuration file name
+        $controller->expects($this->once())
+            ->method('getInitParameter')
+            ->will($this->returnValue('WEB-INF/routes.json'));
+
+        // initialize the servlet configuration
+        $servletConfig = $this->getMock('TechDivision\Servlet\ServletConfig');
+        $servletConfig->expects($this->once())
+            ->method('getWebappPath')
+            ->will($this->returnValue('AppserverIo/Routlt'));
+
+        // invoke the method we want to test
+        $controller->init($servletConfig);
     }
 }

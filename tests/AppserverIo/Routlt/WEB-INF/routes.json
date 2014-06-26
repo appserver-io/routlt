@@ -1,0 +1,8 @@
+{
+    "routes": [
+        {
+            "urlMapping": "/test*",
+            "actionClass": "\\AppserverIo\\Routlt\\Mock\\MockAction"
+        }
+    ]
+}
