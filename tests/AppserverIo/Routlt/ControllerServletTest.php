@@ -50,7 +50,15 @@ class ControllerServletTest extends \PHPUnit_Framework_TestCase
      */
     public function setUp()
     {
-        $this->controller = $this->getMockForAbstractClass('AppserverIo\Routlt\ControllerServlet');
+        $this->controller = $this->getMockForAbstractClass(
+            'AppserverIo\Routlt\ControllerServlet',
+            array(),
+            '',
+            true,
+            true,
+            true,
+            array('getRoutes', 'initRoutes', 'initMappings')
+        );
     }
 
     /**

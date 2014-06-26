@@ -63,7 +63,7 @@ abstract class ControllerServlet extends HttpServlet
      *
      * @var array
      */
-    protected $mappings;
+    protected $mappings = array();
 
     /**
      * The array with the initialized routes.
