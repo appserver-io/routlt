@@ -3,8 +3,8 @@
     
 	<property environment="env" />
 	
-    <property name="namespace" value="AppserverIo" />
-    <property name="module" value="Routlt"/>
+    <property name="namespace" value="appserver-io" />
+    <property name="module" value="routlt"/>
     <property name="codepool" value="vendor"/>
     <property name="unique.name" value="${codepool}/${namespace}/${module}" />
     <property name="php-src.dir" value="${basedir}/src" />
@@ -136,8 +136,8 @@
     <!-- Runs the PHPUnit tests on Travis-CI and generates a report           -->
     <!-- ==================================================================== -->
     <target name="run-tests" depends="copy-tests" description="Runs the PHPUnit tests on Travis-CI and generates a report.">
-        <exec executable="phpunit" dir="${php-target.dir}/${unique.name}/src" failonerror="true">
-        	<arg line="--configuration phpunit.xml.dist" />
+        <exec executable="php" dir="${php-target.dir}/${unique.name}/src" failonerror="true">
+        	<arg line="${php-target.dir}/vendor/bin/phpunit --configuration phpunit.xml.dist" />
         </exec>
     </target>
 

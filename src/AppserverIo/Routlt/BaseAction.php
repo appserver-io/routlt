@@ -92,7 +92,7 @@ abstract class BaseAction extends Object implements Action
     /**
      * Returns the context for the actual request.
      *
-     *  @return \TechDivision\Context\Context The context for the actual request
+     * @return \TechDivision\Context\Context The context for the actual request
      */
     public function getContext()
     {

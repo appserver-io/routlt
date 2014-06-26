@@ -23,14 +23,12 @@
 namespace AppserverIo\Routlt;
 
 use TechDivision\Server\Exceptions\ModuleException;
+use TechDivision\Context\BaseContext;
 use TechDivision\Servlet\ServletConfig;
 use TechDivision\Servlet\Http\HttpServlet;
 use TechDivision\Servlet\Http\HttpSession;
 use TechDivision\Servlet\Http\HttpServletRequest;
 use TechDivision\Servlet\Http\HttpServletResponse;
-use TechDivision\WebServer\Dictionaries\ServerVars;
-use TechDivision\PersistenceContainerClient\ConnectionFactory;
-use TechDivision\Example\Exceptions\LoginException;
 
 /**
  * Abstract example implementation that provides some kind of basic MVC functionality
@@ -48,6 +46,13 @@ abstract class ControllerServlet extends HttpServlet
 {
 
     /**
+     * The key for the init parameter with the path to the configuration file.
+     *
+     * @var string
+     */
+    const INIT_PARAMETER_CONFIGURATION_FILE = 'configurationFile';
+
+    /**
      * The default action if no valid action name was found in the path info.
      *
      * @var string
@@ -55,11 +60,98 @@ abstract class ControllerServlet extends HttpServlet
     const DEFAULT_ROUTE = '/index';
 
     /**
+     * The array with the available route mappings.
+     *
+     * @var array
+     */
+    protected $mappings = array();
+
+    /**
+     * The array with the initialized routes.
+     *
+     * @var array
+     */
+    protected $routes = array();
+
+    /**
+     * Initializes the servlet with the passed configuration.
+     *
+     * @param \TechDivision\Servlet\ServletConfig $config The configuration to initialize the servlet with
+     *
+     * @return void
+     */
+    public function init(ServletConfig $config)
+    {
+
+        // call parent method
+        parent::init($config);
+
+        // loads the mappings from the configuration file and initialize the routes
+        $this->initMappings();
+        $this->initRoutes();
+    }
+
+    /**
+     * Initializes the mappings to create the routes from.
+     *
+     * @return void
+     */
+    protected function initMappings()
+    {
+
+        // load the configuration filename
+        $configurationFileName = $this->getInitParameter(ControllerServlet::INIT_PARAMETER_CONFIGURATION_FILE);
+
+        // load the path to the configuration file
+        $configurationFile = new \SplFileObject(
+            $this->getServletConfig()->getWebappPath() . DIRECTORY_SEPARATOR . $configurationFileName
+        );
+
+        // read the content of the configuration file
+        $content = '';
+        while (!$configurationFile->eof()) {
+            $content .= $configurationFile->fgets();
+        }
+
+        // explode the mappings from the content we found
+        $stdClass = json_decode($content);
+
+        foreach ($stdClass->routes as $route) {
+            $this->mappings[$route->urlMapping] = $route->actionClass;
+        }
+    }
+
+    /**
+     * Initializes the available routes.
+     *
+     * @return void
+     */
+    protected function initRoutes()
+    {
+        foreach ($this->getMappings() as $urlMapping => $actionClass) {
+            $this->routes[$urlMapping] = new $actionClass(new BaseContext());
+        }
+    }
+
+    /**
+     * Returns the mappings to create the routes from.
+     *
+     * @return array The array with the mappings
+     */
+    protected function getMappings()
+    {
+        return $this->mappings;
+    }
+
+    /**
      * Returns the available routes.
      *
      * @return array The array with the available routes
      */
-    protected abstract function getRoutes();
+    protected function getRoutes()
+    {
+        return $this->routes;
+    }
 
     /**
      * Implements Http GET method.

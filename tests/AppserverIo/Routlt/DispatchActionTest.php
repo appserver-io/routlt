@@ -1,7 +1,7 @@
 <?php
 
 /**
- * AppserverIo\Routlt\BaseActionTest
+ * AppserverIo\Routlt\DispatchActionTest
  *
  * NOTICE OF LICENSE
  *
@@ -22,8 +22,10 @@
 
 namespace AppserverIo\Routlt;
 
+use AppserverIo\Routlt\Mock\MockDispatchAction;
+
 /**
- * This is test implementation for the abstract base action implementation.
+ * This is test implementation for the dispatch action implementation.
  *
  * @category  Library
  * @package   Routlt
@@ -33,58 +35,66 @@ namespace AppserverIo\Routlt;
  * @link      http://github.com/appserver-io/routlt
  * @link      http://www.appserver.io
  */
-class BaseActionTest extends \PHPUnit_Framework_TestCase
+class DispatchActionTest extends \PHPUnit_Framework_TestCase
 {
 
     /**
-     * The abstract action instance to test.
+     * The dispatch action instance to test.
      *
-     * @var \AppserverIo\Routlt\BaseAction
+     * @var \AppserverIo\Routlt\DispatchAction
      */
     protected $action;
 
     /**
-     * Initializes the base action to test.
+     * Initializes the dispatch action to test.
      *
      * @return void
      */
     public function setUp()
     {
-        $this->action = $this->getMockForAbstractClass('AppserverIo\Routlt\BaseAction', array($this->getMock('TechDivision\Context\Context')));
+        $this->action = $this->getMockForAbstractClass('AppserverIo\Routlt\DispatchAction', array($this->getMock('TechDivision\Context\Context')));
     }
 
     /**
-     * This test checks the resolved class name.
+     * This tests the perform() method with the requested action method not implemented.
      *
+     * @expectedException AppserverIo\Routlt\MethodNotFoundException
      * @return void
      */
-    public function testGetConstructorAndGetContext()
+    public function testPerformWithMethodNotFoundException()
     {
-        $action = $this->getMockForAbstractClass('AppserverIo\Routlt\BaseAction', array($context = $this->getMock('TechDivision\Context\Context')));
-        $this->assertSame($context, $action->getContext());
-    }
 
-    /**
-     * This tests the preDispatch() method.
-     *
-     * @return void
-     */
-    public function testPreDispatch()
-    {
+        // create a mock servlet request instance
         $servletRequest = $this->getMock('TechDivision\Servlet\Http\HttpServletRequest');
+        $servletRequest->expects($this->once())
+            ->method('getPathInfo')
+            ->will($this->returnValue('/test'));
+
+        // create a mock servlet response instance
         $servletResponse = $this->getMock('TechDivision\Servlet\Http\HttpServletResponse');
-        $this->assertNull($this->action->preDispatch($servletRequest, $servletResponse));
+
+        // invoke the method we want to test
+        $this->action->perform($servletRequest, $servletResponse);
     }
 
     /**
-     * This tests the postDispatch() method.
+     * This tests the perform() method with dummy action implementation.
      *
      * @return void
      */
-    public function testPostDispatch()
+    public function testPerform()
     {
+
+        // create a new mock action implementation
+        $action = new MockDispatchAction($this->getMock('TechDivision\Context\Context'));
+
+        // create a mock servlet request instance
         $servletRequest = $this->getMock('TechDivision\Servlet\Http\HttpServletRequest');
+
+        // create a mock servlet response instance
         $servletResponse = $this->getMock('TechDivision\Servlet\Http\HttpServletResponse');
-        $this->assertNull($this->action->postDispatch($servletRequest, $servletResponse));
+
+        // invoke the method we want to test
+        $action->perform($servletRequest, $servletResponse);
     }
 }
