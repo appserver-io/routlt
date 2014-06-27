@@ -177,8 +177,19 @@ class ControllerServlet extends HttpServlet
 
         // try to find an action that invokes the request
         foreach ($routes as $route => $action) {
+
+            // if the route match, we'll perform the dispatch process
             if (fnmatch($route, $pathInfo)) {
+
+                // we pre-dispatch the action
                 $action->preDispatch($servletRequest, $servletResponse);
+
+                // if the action has been dispatched, we're done
+                if ($servletRequest->isDispatched()) {
+                    return;
+                }
+
+                // if not dispatch the action
                 $action->perform($servletRequest, $servletResponse);
                 $action->postDispatch($servletRequest, $servletResponse);
                 return;
