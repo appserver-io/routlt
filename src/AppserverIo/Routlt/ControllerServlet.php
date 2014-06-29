@@ -22,13 +22,14 @@
 
 namespace AppserverIo\Routlt;
 
-use TechDivision\Server\Exceptions\ModuleException;
 use TechDivision\Context\BaseContext;
 use TechDivision\Servlet\ServletConfig;
+use TechDivision\Servlet\ServletRequest;
+use TechDivision\Servlet\ServletResponse;
 use TechDivision\Servlet\Http\HttpServlet;
-use TechDivision\Servlet\Http\HttpSession;
 use TechDivision\Servlet\Http\HttpServletRequest;
 use TechDivision\Servlet\Http\HttpServletResponse;
+use TechDivision\Server\Exceptions\ModuleException;
 
 /**
  * Abstract example implementation that provides some kind of basic MVC functionality
@@ -154,14 +155,27 @@ class ControllerServlet extends HttpServlet
     }
 
     /**
-     * Implements Http GET method.
+     * Delegates to HTTP method specific functions like doPost() for POST e.g.
      *
-     * @param \TechDivision\Servlet\Http\HttpServletRequest  $servletRequest  The request instance
-     * @param \TechDivision\Servlet\Http\HttpServletResponse $servletResponse The response instance
+     * @param \TechDivision\Servlet\ServletRequest  $servletRequest  The request instance
+     * @param \TechDivision\Servlet\ServletResponse $servletResponse The response sent back to the client
      *
      * @return void
      */
-    public function doGet(HttpServletRequest $servletRequest, HttpServletResponse $servletResponse)
+    public function service(ServletRequest $servletRequest, ServletResponse $servletResponse)
+    {
+        $this->serviceHttpServletRequest($servletRequest, $servletResponse);
+    }
+
+    /**
+     * Handles the HTTP servlet request.
+     *
+     * @param \TechDivision\Servlet\Http\HttpServletRequest  $servletRequest  The request instance
+     * @param \TechDivision\Servlet\Http\HttpServletResponse $servletResponse The response sent back to the client
+     *
+     * @return void
+     */
+    protected function serviceHttpServletRequest(HttpServletRequest $servletRequest, HttpServletResponse $servletResponse)
     {
 
         // load the path info from the servlet request
@@ -198,19 +212,6 @@ class ControllerServlet extends HttpServlet
 
         // we can't find an action that handles this request
         throw new ModuleException(sprintf("No action to handle path info '%s' available.", $pathInfo), 404);
-    }
-
-    /**
-     * Implements Http POST method.
-     *
-     * @param \TechDivision\Servlet\Http\HttpServletRequest  $servletRequest  The request instance
-     * @param \TechDivision\Servlet\Http\HttpServletResponse $servletResponse The response instance
-     *
-     * @return void
-     */
-    public function doPost(HttpServletRequest $servletRequest, HttpServletResponse $servletResponse)
-    {
-        $this->doGet($servletRequest, $servletResponse);
     }
 
     /**

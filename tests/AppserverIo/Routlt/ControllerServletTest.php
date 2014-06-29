@@ -37,11 +37,11 @@ class ControllerServletTest extends \PHPUnit_Framework_TestCase
 {
 
     /**
-     * This tests the doGet() method with a request, prepared with a path info.
+     * This tests the service() method with a request, prepared with a path info.
      *
      * @return void
      */
-    public function testDoGetWithPathInfo()
+    public function testServiceWithPathInfo()
     {
 
         // initialize the controller with mocked methods
@@ -71,15 +71,15 @@ class ControllerServletTest extends \PHPUnit_Framework_TestCase
             ->will($this->returnValue($routes));
 
         // invoke the method we want to test
-        $controller->doGet($servletRequest, $servletResponse);
+        $controller->service($servletRequest, $servletResponse);
     }
 
     /**
-     * This tests the doGet() method with a request without any path info.
+     * This tests the service() method with a request without any path info.
      *
      * @return void
      */
-    public function testDoGetWithoutPathInfo()
+    public function testServiceWithoutPathInfo()
     {
 
         // initialize the controller with mocked methods
@@ -104,11 +104,11 @@ class ControllerServletTest extends \PHPUnit_Framework_TestCase
             ->will($this->returnValue($routes));
 
         // invoke the method we want to test
-        $controller->doGet($servletRequest, $servletResponse);
+        $controller->service($servletRequest, $servletResponse);
     }
 
     /**
-     * This tests the doGet() method with a request without any path info.
+     * This tests the getRoutes() method with a request without any path info.
      *
      * @return void
      */
@@ -142,16 +142,16 @@ class ControllerServletTest extends \PHPUnit_Framework_TestCase
         $servletResponse = $this->getMock('TechDivision\Servlet\Http\HttpServletResponse');
 
         // invoke the method we want to test
-        $controller->doGet($servletRequest, $servletResponse);
+        $controller->service($servletRequest, $servletResponse);
     }
 
     /**
-     * This tests the doGet() method with a request without any registered routes.
+     * This tests the service() method with a request without any registered routes.
      *
      * @expectedException TechDivision\Server\Exceptions\ModuleException
      * @return void
      */
-    public function testDoGetWithModuleExceptionExpected()
+    public function testServiceWithModuleExceptionExpected()
     {
 
         // initialize the controller with mocked methods
@@ -167,49 +167,7 @@ class ControllerServletTest extends \PHPUnit_Framework_TestCase
             ->will($this->returnValue(array()));
 
         // invoke the method we want to test
-        $controller->doGet($servletRequest, $servletResponse);
-    }
-
-    /**
-     * This tests the doPost() method with a request, prepared with a path info.
-     *
-     * @return void
-     */
-    public function testDoPostWithPathInfo()
-    {
-
-        // initialize the controller with mocked methods
-        $controller = $this->getMock('AppserverIo\Routlt\ControllerServlet', array('getRoutes', 'initRoutes', 'initMappings'));
-
-        // create a mock servlet request + response instance
-        $servletRequest = $this->getMock('TechDivision\Servlet\Http\HttpServletRequest');
-        $servletResponse = $this->getMock('TechDivision\Servlet\Http\HttpServletResponse');
-
-        // create a mock servlet request instance
-        $servletRequest = $this->getMock('TechDivision\Servlet\Http\HttpServletRequest');
-        $servletRequest->expects($this->once())
-            ->method('getPathInfo')
-            ->will($this->returnValue('/test'));
-
-        // create a mock servlet response instance
-        $servletResponse = $this->getMock('TechDivision\Servlet\Http\HttpServletResponse');
-
-        // create a mock action instance
-        $action = $this->getMock('AppserverIo\Routlt\Action');
-        $action->expects($this->once())->method('preDispatch');
-        $action->expects($this->once())->method('perform');
-        $action->expects($this->once())->method('postDispatch');
-
-        // create an array with available routes
-        $routes = array('/test*' => $action);
-
-        // assert that the array with the routes will be loaded
-        $controller->expects($this->once())
-            ->method('getRoutes')
-            ->will($this->returnValue($routes));
-
-        // invoke the method we want to test
-        $controller->doPost($servletRequest, $servletResponse);
+        $controller->service($servletRequest, $servletResponse);
     }
 
     /**
