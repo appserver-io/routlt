@@ -3,6 +3,14 @@
     "description": "Servlet based micro router and controller implementation.",
     "homepage": "https://github.com/appserver-io/routlt",
     "license": [ "OSL-3.0" ],
+    "authors": [
+        {
+            "name": "Tim Wagner",
+            "email": "tw@techdivision.com",
+            "homepage": "http://www.techdivision.com",
+            "role": "Developer"
+        }
+    ],
     "require": {
         "php" : ">=5.4.0",
         "techdivision/lang" : "0.1.*",
