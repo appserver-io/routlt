@@ -164,19 +164,6 @@ class ControllerServlet extends HttpServlet
      */
     public function service(ServletRequest $servletRequest, ServletResponse $servletResponse)
     {
-        $this->serviceHttpServletRequest($servletRequest, $servletResponse);
-    }
-
-    /**
-     * Handles the HTTP servlet request.
-     *
-     * @param \TechDivision\Servlet\Http\HttpServletRequest  $servletRequest  The request instance
-     * @param \TechDivision\Servlet\Http\HttpServletResponse $servletResponse The response sent back to the client
-     *
-     * @return void
-     */
-    protected function serviceHttpServletRequest(HttpServletRequest $servletRequest, HttpServletResponse $servletResponse)
-    {
 
         // load the path info from the servlet request
         $pathInfo = $servletRequest->getPathInfo();
