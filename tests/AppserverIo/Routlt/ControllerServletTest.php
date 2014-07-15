@@ -219,4 +219,45 @@ class ControllerServletTest extends \PHPUnit_Framework_TestCase
         // invoke the method we want to test
         $controller->init($servletConfig);
     }
+
+    /**
+     * This tests the that a dispatched request stop request processing.
+     *
+     * @return void
+     */
+    public function testIsDispatchedWithPathInfo()
+    {
+
+        // initialize the controller with mocked methods
+        $controller = $this->getMock('AppserverIo\Routlt\ControllerServlet', array('getRoutes', 'initRoutes', 'initMappings'));
+
+        // create a mock servlet request instance
+        $servletRequest = $this->getMock('TechDivision\Servlet\Http\HttpServletRequest');
+        $servletRequest->expects($this->once())
+            ->method('getPathInfo')
+            ->will($this->returnValue('/test'));
+        $servletRequest->expects($this->once())
+            ->method('isDispatched')
+            ->will($this->returnValue(true));
+
+        // create a mock servlet response instance
+        $servletResponse = $this->getMock('TechDivision\Servlet\Http\HttpServletResponse');
+
+        // create a mock action instance
+        $action = $this->getMock('AppserverIo\Routlt\Action');
+        $action->expects($this->once())->method('preDispatch');
+        $action->expects($this->never())->method('perform');
+        $action->expects($this->never())->method('postDispatch');
+
+        // create an array with available routes
+        $routes = array('/test*' => $action);
+
+        // assert that the array with the routes will be loaded
+        $controller->expects($this->once())
+            ->method('getRoutes')
+            ->will($this->returnValue($routes));
+
+        // invoke the method we want to test
+        $controller->service($servletRequest, $servletResponse);
+    }
 }
