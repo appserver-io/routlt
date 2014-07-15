@@ -221,7 +221,7 @@ class ControllerServletTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * This tests the service() method with a request, prepared with a path info.
+     * This tests the that a dispatched request stop request processing.
      *
      * @return void
      */
