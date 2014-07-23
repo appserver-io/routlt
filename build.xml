@@ -70,7 +70,7 @@
     <target name="phpcs" description="Runs the code sniffer and generates a report.">
         <exec executable="phpcs" failonerror="true">
             <!-- call phpcs without report-file to get error message on build console -->
-            <arg line="-n --extensions=php --standard=phpcs.xml ./"/>
+            <arg line="-n --extensions=php --standard=phpcs.xml ./src"/>
         </exec>
     </target>
 	
