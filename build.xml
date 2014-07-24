@@ -2,6 +2,10 @@
 <project name="routlt" default="deploy" basedir=".">
     
 	<property environment="env" />
+    
+    <property file="${basedir}/build.properties"/>
+    <property file="${basedir}/build.default.properties"/>
+    <property file="${basedir}/build.${os.family}.properties"/>
 	
     <property name="namespace" value="appserver-io" />
     <property name="module" value="routlt"/>
@@ -10,10 +14,6 @@
     <property name="php-src.dir" value="${basedir}/src" />
     <property name="php-test.dir" value="${basedir}/tests" />
     <property name="php-target.dir" value="${basedir}/target"/>
-	
-	<property file="${basedir}/build.properties"/>
-	<property file="${basedir}/build.default.properties"/>
-    <property file="${basedir}/build.${os.family}.properties"/>
 	
 	<!-- ==================================================================== -->
 	<!-- Cleans the directories with the generated source files				  -->
@@ -28,7 +28,6 @@
 	<target name="prepare" depends="clean" description="Prepares all the required directories.">
 		<mkdir dir="${php-target.dir}" />
         <mkdir dir="${php-target.dir}/reports" />
-        <mkdir dir="${php-target.dir}/reports/coverage" />
 	</target>
 	
     <!-- ==================================================================== -->
@@ -70,7 +69,7 @@
     <target name="phpcs" description="Runs the code sniffer and generates a report.">
         <exec executable="phpcs" failonerror="true">
             <!-- call phpcs without report-file to get error message on build console -->
-            <arg line="-n --extensions=php --standard=phpcs.xml ./"/>
+            <arg line="-n --extensions=php --standard=phpcs.xml ./src"/>
         </exec>
     </target>
 	
@@ -111,42 +110,17 @@
     </target>
 
     <!-- ==================================================================== -->
-    <!-- Copies the test sources to the target directory					  -->
-    <!-- ==================================================================== -->
-    <target name="copy-tests" depends="copy" description="Copies the test sources to the target directory.">
-    	<!-- copy the test classes to the target directory -->
-        <copy todir="${php-target.dir}/${unique.name}/src">
-            <fileset dir="${php-test.dir}">
-                <include name="**/*" />
-            </fileset>
-            <filterchain>
-                <expandproperties/>
-            </filterchain>
-        </copy>
-    	<!-- copy the composer configuration file to the target directory -->
-    	<copy file="${basedir}/composer.json" todir="${php-target.dir}" />
-        <!-- install composer packages -->
-        <exec dir="${php-target.dir}" executable="composer">
-            <env key="PATH" value="${instance.base.dir}/bin:${env.PATH}"/>
-            <arg line="--no-interaction update"/>
-        </exec>
-    </target>
-
-    <!-- ==================================================================== -->
     <!-- Runs the PHPUnit tests on Travis-CI and generates a report           -->
     <!-- ==================================================================== -->
-    <target name="run-tests" depends="copy-tests" description="Runs the PHPUnit tests on Travis-CI and generates a report.">
-        <exec executable="php" dir="${php-target.dir}/${unique.name}/src" failonerror="true">
-        	<arg line="${php-target.dir}/vendor/bin/phpunit --configuration phpunit.xml.dist" />
+    <target name="run-tests" depends="copy" description="Runs the PHPUnit tests on Travis-CI and generates a report.">
+        <!-- install composer packages -->
+        <exec dir="${basedir}" executable="composer">
+            <env key="PATH" value="${instance.base.dir}/bin:${env.PATH}" />
+            <arg line="--no-interaction update"/>
         </exec>
-    </target>
-
-    <!-- ==================================================================== -->
-    <!-- Runs the PHPUnit tests and generates a report                        -->
-    <!-- ==================================================================== -->
-    <target name="run-tests-in-runtime" depends="copy-tests" description="Runs the PHPUnit tests and generates a report.">
-        <exec executable="${instance.base.dir}/bin/php" dir="${php-target.dir}/${unique.name}/src" failonerror="true">
-        	<arg line="-d zend_extension=xdebug.so ${instance.base.dir}/app/code/vendor/bin/phpunit --configuration phpunit.xml.dist" />
+    	<!-- run the tests -->
+        <exec executable="php" failonerror="true">
+        	<arg line="vendor/bin/phpunit --configuration phpunit.xml" />
         </exec>
     </target>
 	

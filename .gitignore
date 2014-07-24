@@ -4,4 +4,7 @@
 /.buildpath
 /.project
 /pear-src
+/vendor/
+/composer.lock
+/composer.phar
 /.idea
