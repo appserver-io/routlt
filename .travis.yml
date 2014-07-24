@@ -12,7 +12,7 @@ before_install:
   - wget https://scrutinizer-ci.com/ocular.phar
   
 script:
-  - ant build
+  - ant composer-init build
   - php ocular.phar code-coverage:upload --format=php-clover $TRAVIS_BUILD_DIR/target/reports/unit/clover.xml
 
 notifications:
