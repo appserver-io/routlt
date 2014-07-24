@@ -33,11 +33,5 @@
 		"github-oauth" : {
 			"github.com" : "604a3b5943228e434a5b52c2ba3cf72286d30db9"
 		}
-	},
-	"repositories" : [{
-			"type" : "git",
-			"url" : "file:///Users/wagnert/Workspace/appserver/master/build",
-			"name" : "Development"
-		}
-	]
+	}
 }
