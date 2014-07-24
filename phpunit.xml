@@ -1,6 +1,6 @@
 <phpunit>
     <testsuites>
-	    <testsuite name="Lang Unit Tests">
+	    <testsuite name="appserver-io/routlt PHPUnit testsuite">
 	        <directory suffix="Test.php">tests</directory>
 	    </testsuite>
 	</testsuites>

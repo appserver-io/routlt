@@ -1,10 +1,10 @@
-/build.properties
-/target
+/.idea
 /.settings
 /.buildpath
 /.project
-/pear-src
-/vendor/
+/target
+/instance-src
+/vendor
+/build.properties
 /composer.lock
 /composer.phar
-/.idea

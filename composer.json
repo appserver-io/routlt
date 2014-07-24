@@ -1,34 +1,37 @@
 {
-    "name": "appserver-io/routlt",
-    "description": "Servlet based micro router and controller implementation.",
-    "homepage": "https://github.com/appserver-io/routlt",
-    "license": [ "OSL-3.0" ],
-    "authors": [
-        {
-            "name": "Tim Wagner",
-            "email": "tw@techdivision.com",
-            "homepage": "http://www.techdivision.com",
-            "role": "Developer"
-        }
-    ],
-    "require": {
-        "php" : ">=5.4.0",
-        "techdivision/lang" : "0.1.*",
-        "techdivision/servlet" : "0.5.*",
-        "techdivision/context" : "0.5.*",
-        "techdivision/server" : "0.1.*"
-    },
-    "require-dev": {
-        "phpunit/phpunit": "4.1.*"
-    },
-    "autoload": {
-        "psr-0": { 
-            "AppserverIo\\Routlt": [ "src/", "tests/" ]
-        }
-    },
-    "config":{
-        "github-oauth":{
-            "github.com":"604a3b5943228e434a5b52c2ba3cf72286d30db9"
-        }
-    }
+	"name" : "appserver-io/routlt",
+	"description" : "Servlet based micro router and controller implementation.",
+	"homepage" : "https://github.com/appserver-io/routlt",
+	"license" : "OSL-3.0",
+	"authors" : [{
+			"name" : "Tim Wagner",
+			"email" : "tw@techdivision.com",
+			"homepage" : "http://www.techdivision.com",
+			"role" : "Developer"
+		}
+	],
+	"require" : {
+		"php" : ">=5.4.0",
+		"techdivision/lang" : "0.1.*",
+		"techdivision/servlet" : "0.5.*",
+		"techdivision/context" : "0.5.*",
+		"techdivision/server" : "0.1.*"
+	},
+	"require-dev" : {
+		"phpunit/phpunit" : "4.1.*",
+		"appserver-io/build" : "0.1.*"
+	},
+	"autoload" : {
+		"psr-0" : {
+			"AppserverIo\\Routlt" : [
+				"src/",
+				"tests/"
+			]
+		}
+	},
+	"config" : {
+		"github-oauth" : {
+			"github.com" : "604a3b5943228e434a5b52c2ba3cf72286d30db9"
+		}
+	}
 }
