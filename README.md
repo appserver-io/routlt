@@ -126,3 +126,10 @@ class IndexAction extends DispatchAction
 
 That's pretty simple. After restarting the appserver.io open the URL ```http://127.0.0.1:9080/myapp/index.do/index```
 with your browser. You should see ```Hello World!``` there.
+
+# External Links
+
+* Documentation at [appserver.io](http://docs.appserver.io)
+* Documentation on [GitHub](https://github.com/techdivision/TechDivision_AppserverDocumentation)
+* [Getting started](https://github.com/techdivision/TechDivision_AppserverDocumentation/tree/master/docs/getting-started)
+* [Servlet Engine](https://github.com/techdivision/TechDivision_AppserverDocumentation/blob/master/docs/components/engines/servletengine.md)
