@@ -1,3 +1,13 @@
+# Version 0.1.2
+
+## Bugfixes
+
+* None
+
+## Features
+
+* Move composer dependencies from require => require-dev
+
 # Version 0.1.1
 
 ## Bugfixes
