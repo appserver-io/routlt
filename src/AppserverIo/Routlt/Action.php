@@ -22,8 +22,8 @@
 
 namespace AppserverIo\Routlt;
 
-use TechDivision\Servlet\Http\HttpServletRequest;
-use TechDivision\Servlet\Http\HttpServletResponse;
+use AppserverIo\Psr\Servlet\Http\HttpServletRequest;
+use AppserverIo\Psr\Servlet\Http\HttpServletResponse;
 
 /**
  * This is the interface for all actions.
@@ -44,8 +44,8 @@ interface Action
     /**
      * Method that will be invoked before we dispatch the request.
      *
-     * @param \TechDivision\Servlet\Http\HttpServletRequest  $servletRequest  The request instance
-     * @param \TechDivision\Servlet\Http\HttpServletResponse $servletResponse The response instance
+     * @param \AppserverIo\Psr\Servlet\Http\HttpServletRequest  $servletRequest  The request instance
+     * @param \AppserverIo\Psr\Servlet\Http\HttpServletResponse $servletResponse The response instance
      *
      * @return void
      */
@@ -58,8 +58,8 @@ interface Action
      * ActionForward object that is necessary for further application flow controlled by the
      * ActionController.
      *
-     * @param \TechDivision\Servlet\Http\HttpServletRequest  $servletRequest  The request instance
-     * @param \TechDivision\Servlet\Http\HttpServletResponse $servletResponse The response instance
+     * @param \AppserverIo\Psr\Servlet\Http\HttpServletRequest  $servletRequest  The request instance
+     * @param \AppserverIo\Psr\Servlet\Http\HttpServletResponse $servletResponse The response instance
      *
      * @return void
      */
@@ -68,8 +68,8 @@ interface Action
     /**
      * Method that will be invoked after we've dispatched the request.
      *
-     * @param \TechDivision\Servlet\Http\HttpServletRequest  $servletRequest  The request instance
-     * @param \TechDivision\Servlet\Http\HttpServletResponse $servletResponse The response instance
+     * @param \AppserverIo\Psr\Servlet\Http\HttpServletRequest  $servletRequest  The request instance
+     * @param \AppserverIo\Psr\Servlet\Http\HttpServletResponse $servletResponse The response instance
      *
      * @return void
      */

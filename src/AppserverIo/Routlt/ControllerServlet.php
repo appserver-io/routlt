@@ -22,14 +22,14 @@
 
 namespace AppserverIo\Routlt;
 
-use TechDivision\Context\BaseContext;
-use TechDivision\Servlet\ServletConfig;
-use TechDivision\Servlet\ServletRequest;
-use TechDivision\Servlet\ServletResponse;
-use TechDivision\Servlet\Http\HttpServlet;
-use TechDivision\Servlet\Http\HttpServletRequest;
-use TechDivision\Servlet\Http\HttpServletResponse;
-use TechDivision\Server\Exceptions\ModuleException;
+use AppserverIo\Psr\Context\ArrayContext;
+use AppserverIo\Psr\Servlet\ServletConfig;
+use AppserverIo\Psr\Servlet\ServletRequest;
+use AppserverIo\Psr\Servlet\ServletResponse;
+use AppserverIo\Psr\Servlet\Http\HttpServlet;
+use AppserverIo\Psr\Servlet\Http\HttpServletRequest;
+use AppserverIo\Psr\Servlet\Http\HttpServletResponse;
+use AppserverIo\Server\Exceptions\ModuleException;
 
 /**
  * Abstract example implementation that provides some kind of basic MVC functionality
@@ -77,7 +77,7 @@ class ControllerServlet extends HttpServlet
     /**
      * Initializes the servlet with the passed configuration.
      *
-     * @param \TechDivision\Servlet\ServletConfig $config The configuration to initialize the servlet with
+     * @param \AppserverIo\Psr\Servlet\ServletConfig $config The configuration to initialize the servlet with
      *
      * @return void
      */
@@ -130,7 +130,7 @@ class ControllerServlet extends HttpServlet
     protected function initRoutes()
     {
         foreach ($this->getMappings() as $urlMapping => $actionClass) {
-            $this->routes[$urlMapping] = new $actionClass(new BaseContext());
+            $this->routes[$urlMapping] = new $actionClass(new ArrayContext());
         }
     }
 
@@ -157,8 +157,8 @@ class ControllerServlet extends HttpServlet
     /**
      * Delegates to HTTP method specific functions like doPost() for POST e.g.
      *
-     * @param \TechDivision\Servlet\ServletRequest  $servletRequest  The request instance
-     * @param \TechDivision\Servlet\ServletResponse $servletResponse The response sent back to the client
+     * @param \AppserverIo\Psr\Servlet\ServletRequest  $servletRequest  The request instance
+     * @param \AppserverIo\Psr\Servlet\ServletResponse $servletResponse The response sent back to the client
      *
      * @return void
      */

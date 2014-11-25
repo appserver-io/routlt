@@ -22,8 +22,8 @@
 
 namespace AppserverIo\Routlt;
 
-use TechDivision\Servlet\Http\HttpServletRequest;
-use TechDivision\Servlet\Http\HttpServletResponse;
+use AppserverIo\Psr\Servlet\Http\HttpServletRequest;
+use AppserverIo\Psr\Servlet\Http\HttpServletResponse;
 
 /**
  * This class implements the functionality to invoke a method on its subclass specified
@@ -74,8 +74,8 @@ abstract class DispatchAction extends BaseAction
      * The method that should be invoked has to be specified by a HTTPServletRequest parameter
      * which name is specified in the configuration file as parameter for the ActionMapping.
      *
-     * @param \TechDivision\Servlet\Http\HttpServletRequest  $servletRequest  The request instance
-     * @param \TechDivision\Servlet\Http\HttpServletResponse $servletResponse The response instance
+     * @param \AppserverIo\Psr\Servlet\Http\HttpServletRequest  $servletRequest  The request instance
+     * @param \AppserverIo\Psr\Servlet\Http\HttpServletResponse $servletResponse The response instance
      *
      * @return void
      */

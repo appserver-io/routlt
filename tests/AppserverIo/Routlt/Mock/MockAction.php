@@ -24,8 +24,8 @@
 namespace AppserverIo\Routlt\Mock;
 
 use AppserverIo\Routlt\BaseAction;
-use TechDivision\Servlet\Http\HttpServletRequest;
-use TechDivision\Servlet\Http\HttpServletResponse;
+use AppserverIo\Psr\Servlet\Http\HttpServletRequest;
+use AppserverIo\Psr\Servlet\Http\HttpServletResponse;
 
 /**
  * This mock action implementation.
@@ -46,8 +46,8 @@ class MockAction extends BaseAction
     /**
      * Dummy action implementation.
      *
-     * @param \TechDivision\Servlet\Http\HttpServletRequest  $servletRequest  The request instance
-     * @param \TechDivision\Servlet\Http\HttpServletResponse $servletResponse The response instance
+     * @param \AppserverIo\Psr\Servlet\Http\HttpServletRequest  $servletRequest  The request instance
+     * @param \AppserverIo\Psr\Servlet\Http\HttpServletResponse $servletResponse The response instance
      *
      * @return void
      */
