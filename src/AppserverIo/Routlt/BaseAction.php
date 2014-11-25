@@ -22,10 +22,10 @@
 
 namespace AppserverIo\Routlt;
 
-use TechDivision\Lang\Object;
-use TechDivision\Context\Context;
-use TechDivision\Servlet\Http\HttpServletRequest;
-use TechDivision\Servlet\Http\HttpServletResponse;
+use AppserverIo\Lang\Object;
+use AppserverIo\Psr\Context\Context;
+use AppserverIo\Psr\Servlet\Http\HttpServletRequest;
+use AppserverIo\Psr\Servlet\Http\HttpServletResponse;
 
 /**
  * This class is the abstract base class for all Actions.
@@ -44,7 +44,7 @@ abstract class BaseAction extends Object implements Action
     /**
      * The context for the actual request.
      *
-     * @var \TechDivision\Context\Context
+     * @var \AppserverIo\Psr\Context\Context
      */
     protected $context = null;
 
@@ -52,7 +52,7 @@ abstract class BaseAction extends Object implements Action
      * Initializes the action with the context for the
      * actual request.
      *
-     * @param \TechDivision\Context\Context $context The context for the actual request
+     * @param \AppserverIo\Psr\Context\Context $context The context for the actual request
      *
      * @return void
      */
@@ -64,8 +64,8 @@ abstract class BaseAction extends Object implements Action
     /**
      * Method that will be invoked before we dispatch the request.
      *
-     * @param \TechDivision\Servlet\Http\HttpServletRequest  $servletRequest  The request instance
-     * @param \TechDivision\Servlet\Http\HttpServletResponse $servletResponse The response instance
+     * @param \AppserverIo\Psr\Servlet\Http\HttpServletRequest  $servletRequest  The request instance
+     * @param \AppserverIo\Psr\Servlet\Http\HttpServletResponse $servletResponse The response instance
      *
      * @return void
      * @see \TechDivision\Example\Controller\Action::preDispatch()
@@ -78,8 +78,8 @@ abstract class BaseAction extends Object implements Action
     /**
      * Method that will be invoked after we've dispatched the request.
      *
-     * @param \TechDivision\Servlet\Http\HttpServletRequest  $servletRequest  The request instance
-     * @param \TechDivision\Servlet\Http\HttpServletResponse $servletResponse The response instance
+     * @param \AppserverIo\Psr\Servlet\Http\HttpServletRequest  $servletRequest  The request instance
+     * @param \AppserverIo\Psr\Servlet\Http\HttpServletResponse $servletResponse The response instance
      *
      * @return void
      * @see \TechDivision\Example\Controller\Action::preDispatch()
@@ -92,7 +92,7 @@ abstract class BaseAction extends Object implements Action
     /**
      * Returns the context for the actual request.
      *
-     * @return \TechDivision\Context\Context The context for the actual request
+     * @return \AppserverIo\Psr\Context\Context The context for the actual request
      */
     public function getContext()
     {

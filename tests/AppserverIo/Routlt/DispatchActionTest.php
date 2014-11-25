@@ -52,7 +52,7 @@ class DispatchActionTest extends \PHPUnit_Framework_TestCase
      */
     public function setUp()
     {
-        $this->action = $this->getMockForAbstractClass('AppserverIo\Routlt\DispatchAction', array($this->getMock('TechDivision\Context\Context')));
+        $this->action = $this->getMockForAbstractClass('AppserverIo\Routlt\DispatchAction', array($this->getMock('AppserverIo\Psr\Context\Context')));
     }
 
     /**
@@ -65,13 +65,13 @@ class DispatchActionTest extends \PHPUnit_Framework_TestCase
     {
 
         // create a mock servlet request instance
-        $servletRequest = $this->getMock('TechDivision\Servlet\Http\HttpServletRequest');
+        $servletRequest = $this->getMock('AppserverIo\Psr\Servlet\Http\HttpServletRequest');
         $servletRequest->expects($this->once())
             ->method('getPathInfo')
             ->will($this->returnValue('/test'));
 
         // create a mock servlet response instance
-        $servletResponse = $this->getMock('TechDivision\Servlet\Http\HttpServletResponse');
+        $servletResponse = $this->getMock('AppserverIo\Psr\Servlet\Http\HttpServletResponse');
 
         // invoke the method we want to test
         $this->action->perform($servletRequest, $servletResponse);
@@ -89,14 +89,14 @@ class DispatchActionTest extends \PHPUnit_Framework_TestCase
         $action = $this->getMock(
             'AppserverIo\Routlt\Mock\MockDispatchAction',
             array('indexAction'),
-            array($this->getMock('TechDivision\Context\Context'))
+            array($this->getMock('AppserverIo\Psr\Context\Context'))
         );
         $action->expects($this->once())
             ->method('indexAction');
 
         // create a mock servlet request + response instance
-        $servletRequest = $this->getMock('TechDivision\Servlet\Http\HttpServletRequest');
-        $servletResponse = $this->getMock('TechDivision\Servlet\Http\HttpServletResponse');
+        $servletRequest = $this->getMock('AppserverIo\Psr\Servlet\Http\HttpServletRequest');
+        $servletResponse = $this->getMock('AppserverIo\Psr\Servlet\Http\HttpServletResponse');
 
         // invoke the method we want to test
         $action->perform($servletRequest, $servletResponse);
@@ -114,19 +114,19 @@ class DispatchActionTest extends \PHPUnit_Framework_TestCase
         $action = $this->getMock(
             'AppserverIo\Routlt\Mock\MockDispatchAction',
             array('testAction'),
-            array($this->getMock('TechDivision\Context\Context'))
+            array($this->getMock('AppserverIo\Psr\Context\Context'))
         );
         $action->expects($this->once())
             ->method('testAction');
 
         // create a mock servlet request instance
-        $servletRequest = $this->getMock('TechDivision\Servlet\Http\HttpServletRequest');
+        $servletRequest = $this->getMock('AppserverIo\Psr\Servlet\Http\HttpServletRequest');
         $servletRequest->expects($this->once())
             ->method('getPathInfo')
             ->will($this->returnValue('/test/test'));
 
         // create a mock servlet response instance
-        $servletResponse = $this->getMock('TechDivision\Servlet\Http\HttpServletResponse');
+        $servletResponse = $this->getMock('AppserverIo\Psr\Servlet\Http\HttpServletResponse');
 
         // invoke the method we want to test
         $action->perform($servletRequest, $servletResponse);

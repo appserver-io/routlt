@@ -50,7 +50,7 @@ class BaseActionTest extends \PHPUnit_Framework_TestCase
      */
     public function setUp()
     {
-        $this->action = $this->getMockForAbstractClass('AppserverIo\Routlt\BaseAction', array($this->getMock('TechDivision\Context\Context')));
+        $this->action = $this->getMockForAbstractClass('AppserverIo\Routlt\BaseAction', array($this->getMock('AppserverIo\Psr\Context\Context')));
     }
 
     /**
@@ -60,7 +60,7 @@ class BaseActionTest extends \PHPUnit_Framework_TestCase
      */
     public function testGetConstructorAndGetContext()
     {
-        $action = $this->getMockForAbstractClass('AppserverIo\Routlt\BaseAction', array($context = $this->getMock('TechDivision\Context\Context')));
+        $action = $this->getMockForAbstractClass('AppserverIo\Routlt\BaseAction', array($context = $this->getMock('AppserverIo\Psr\Context\Context')));
         $this->assertSame($context, $action->getContext());
     }
 
@@ -71,8 +71,8 @@ class BaseActionTest extends \PHPUnit_Framework_TestCase
      */
     public function testPreDispatch()
     {
-        $servletRequest = $this->getMock('TechDivision\Servlet\Http\HttpServletRequest');
-        $servletResponse = $this->getMock('TechDivision\Servlet\Http\HttpServletResponse');
+        $servletRequest = $this->getMock('AppserverIo\Psr\Servlet\Http\HttpServletRequest');
+        $servletResponse = $this->getMock('AppserverIo\Psr\Servlet\Http\HttpServletResponse');
         $this->assertNull($this->action->preDispatch($servletRequest, $servletResponse));
     }
 
@@ -83,8 +83,8 @@ class BaseActionTest extends \PHPUnit_Framework_TestCase
      */
     public function testPostDispatch()
     {
-        $servletRequest = $this->getMock('TechDivision\Servlet\Http\HttpServletRequest');
-        $servletResponse = $this->getMock('TechDivision\Servlet\Http\HttpServletResponse');
+        $servletRequest = $this->getMock('AppserverIo\Psr\Servlet\Http\HttpServletRequest');
+        $servletResponse = $this->getMock('AppserverIo\Psr\Servlet\Http\HttpServletResponse');
         $this->assertNull($this->action->postDispatch($servletRequest, $servletResponse));
     }
 }

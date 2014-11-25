@@ -1,3 +1,13 @@
+# Version 0.2.0
+
+## Bugfixes
+
+* None
+
+## Features
+
+* Switch to new appversion.io beta version
+
 # Version 0.1.2
 
 ## Bugfixes

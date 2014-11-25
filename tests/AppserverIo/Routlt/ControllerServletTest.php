@@ -48,13 +48,13 @@ class ControllerServletTest extends \PHPUnit_Framework_TestCase
         $controller = $this->getMock('AppserverIo\Routlt\ControllerServlet', array('getRoutes', 'initRoutes', 'initMappings'));
 
         // create a mock servlet request instance
-        $servletRequest = $this->getMock('TechDivision\Servlet\Http\HttpServletRequest');
+        $servletRequest = $this->getMock('AppserverIo\Psr\Servlet\Http\HttpServletRequest');
         $servletRequest->expects($this->once())
             ->method('getPathInfo')
             ->will($this->returnValue('/test'));
 
         // create a mock servlet response instance
-        $servletResponse = $this->getMock('TechDivision\Servlet\Http\HttpServletResponse');
+        $servletResponse = $this->getMock('AppserverIo\Psr\Servlet\Http\HttpServletResponse');
 
         // create a mock action instance
         $action = $this->getMock('AppserverIo\Routlt\Action');
@@ -86,8 +86,8 @@ class ControllerServletTest extends \PHPUnit_Framework_TestCase
         $controller = $this->getMock('AppserverIo\Routlt\ControllerServlet', array('getRoutes', 'initRoutes', 'initMappings'));
 
         // create a mock servlet request + response instance
-        $servletRequest = $this->getMock('TechDivision\Servlet\Http\HttpServletRequest');
-        $servletResponse = $this->getMock('TechDivision\Servlet\Http\HttpServletResponse');
+        $servletRequest = $this->getMock('AppserverIo\Psr\Servlet\Http\HttpServletRequest');
+        $servletResponse = $this->getMock('AppserverIo\Psr\Servlet\Http\HttpServletResponse');
 
         // create a mock action instance
         $action = $this->getMock('AppserverIo\Routlt\Action');
@@ -124,7 +124,7 @@ class ControllerServletTest extends \PHPUnit_Framework_TestCase
             ->will($this->returnValue('WEB-INF/routes.json'));
 
         // initialize the servlet configuration
-        $servletConfig = $this->getMock('TechDivision\Servlet\ServletConfig');
+        $servletConfig = $this->getMock('AppserverIo\Psr\Servlet\ServletConfig');
         $servletConfig->expects($this->once())
             ->method('getWebappPath')
             ->will($this->returnValue(__DIR__));
@@ -133,13 +133,13 @@ class ControllerServletTest extends \PHPUnit_Framework_TestCase
         $controller->init($servletConfig);
 
         // create a mock servlet request instance
-        $servletRequest = $this->getMock('TechDivision\Servlet\Http\HttpServletRequest');
+        $servletRequest = $this->getMock('AppserverIo\Psr\Servlet\Http\HttpServletRequest');
         $servletRequest->expects($this->once())
             ->method('getPathInfo')
             ->will($this->returnValue('/test'));
 
         // create a mock servlet response instance
-        $servletResponse = $this->getMock('TechDivision\Servlet\Http\HttpServletResponse');
+        $servletResponse = $this->getMock('AppserverIo\Psr\Servlet\Http\HttpServletResponse');
 
         // invoke the method we want to test
         $controller->service($servletRequest, $servletResponse);
@@ -148,7 +148,7 @@ class ControllerServletTest extends \PHPUnit_Framework_TestCase
     /**
      * This tests the service() method with a request without any registered routes.
      *
-     * @expectedException TechDivision\Server\Exceptions\ModuleException
+     * @expectedException AppserverIo\Server\Exceptions\ModuleException
      * @return void
      */
     public function testServiceWithModuleExceptionExpected()
@@ -158,8 +158,8 @@ class ControllerServletTest extends \PHPUnit_Framework_TestCase
         $controller = $this->getMock('AppserverIo\Routlt\ControllerServlet', array('getRoutes', 'initRoutes', 'initMappings'));
 
         // create a mock servlet request + response instance
-        $servletRequest = $this->getMock('TechDivision\Servlet\Http\HttpServletRequest');
-        $servletResponse = $this->getMock('TechDivision\Servlet\Http\HttpServletResponse');
+        $servletRequest = $this->getMock('AppserverIo\Psr\Servlet\Http\HttpServletRequest');
+        $servletResponse = $this->getMock('AppserverIo\Psr\Servlet\Http\HttpServletResponse');
 
         // assert that the array with the routes will be loaded
         $controller->expects($this->once())
@@ -182,7 +182,7 @@ class ControllerServletTest extends \PHPUnit_Framework_TestCase
         $controller = $this->getMock('AppserverIo\Routlt\ControllerServlet', array('getRoutes', 'initRoutes', 'initMappings'));
 
         // initialize the servlet configuration
-        $servletConfig = $this->getMock('TechDivision\Servlet\ServletConfig');
+        $servletConfig = $this->getMock('AppserverIo\Psr\Servlet\ServletConfig');
 
         // assert that the array with the routes will be loaded
         $controller->expects($this->once())
@@ -211,7 +211,7 @@ class ControllerServletTest extends \PHPUnit_Framework_TestCase
             ->will($this->returnValue('WEB-INF/routes.json'));
 
         // initialize the servlet configuration
-        $servletConfig = $this->getMock('TechDivision\Servlet\ServletConfig');
+        $servletConfig = $this->getMock('AppserverIo\Psr\Servlet\ServletConfig');
         $servletConfig->expects($this->once())
             ->method('getWebappPath')
             ->will($this->returnValue(__DIR__));
@@ -232,7 +232,7 @@ class ControllerServletTest extends \PHPUnit_Framework_TestCase
         $controller = $this->getMock('AppserverIo\Routlt\ControllerServlet', array('getRoutes', 'initRoutes', 'initMappings'));
 
         // create a mock servlet request instance
-        $servletRequest = $this->getMock('TechDivision\Servlet\Http\HttpServletRequest');
+        $servletRequest = $this->getMock('AppserverIo\Psr\Servlet\Http\HttpServletRequest');
         $servletRequest->expects($this->once())
             ->method('getPathInfo')
             ->will($this->returnValue('/test'));
@@ -241,7 +241,7 @@ class ControllerServletTest extends \PHPUnit_Framework_TestCase
             ->will($this->returnValue(true));
 
         // create a mock servlet response instance
-        $servletResponse = $this->getMock('TechDivision\Servlet\Http\HttpServletResponse');
+        $servletResponse = $this->getMock('AppserverIo\Psr\Servlet\Http\HttpServletResponse');
 
         // create a mock action instance
         $action = $this->getMock('AppserverIo\Routlt\Action');
