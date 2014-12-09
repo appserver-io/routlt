@@ -1,3 +1,13 @@
+# Version 0.2.1
+
+## Bugfixes
+
+* None
+
+## Features
+
+* Add X-Powered-By header with servlet name that handles the request
+
 # Version 0.2.0
 
 ## Bugfixes

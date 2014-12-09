@@ -22,6 +22,7 @@
 
 namespace AppserverIo\Routlt;
 
+use AppserverIo\Psr\HttpMessage\Protocol;
 use AppserverIo\Psr\Context\ArrayContext;
 use AppserverIo\Psr\Servlet\ServletConfig;
 use AppserverIo\Psr\Servlet\ServletRequest;
@@ -164,6 +165,9 @@ class ControllerServlet extends HttpServlet
      */
     public function service(ServletRequest $servletRequest, ServletResponse $servletResponse)
     {
+
+        // pre-initialize response
+        $servletResponse->addHeader(Protocol::HEADER_X_POWERED_BY, get_class($this));
 
         // load the path info from the servlet request
         $pathInfo = $servletRequest->getPathInfo();
