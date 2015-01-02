@@ -22,6 +22,7 @@
 
 namespace AppserverIo\Routlt;
 
+use AppserverIo\Server\Exceptions\ModuleException;
 use AppserverIo\Psr\Context\ArrayContext;
 use AppserverIo\Psr\Servlet\ServletConfig;
 use AppserverIo\Psr\Servlet\ServletRequest;
@@ -29,7 +30,8 @@ use AppserverIo\Psr\Servlet\ServletResponse;
 use AppserverIo\Psr\Servlet\Http\HttpServlet;
 use AppserverIo\Psr\Servlet\Http\HttpServletRequest;
 use AppserverIo\Psr\Servlet\Http\HttpServletResponse;
-use AppserverIo\Server\Exceptions\ModuleException;
+use AppserverIo\Routlt\Description\DirectoryParser;
+use AppserverIo\Routlt\Description\PathDescriptorInterface;
 
 /**
  * Abstract example implementation that provides some kind of basic MVC functionality
@@ -42,9 +44,23 @@ use AppserverIo\Server\Exceptions\ModuleException;
  * @license   http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  * @link      http://github.com/appserver-io/routlt
  * @link      http://www.appserver.io
+ *
+ * @Route(name="controller",
+ *        displayName="Servlet providing controller functionality",
+ *        description="A annotated conntroller servlet implementation.",
+ *        urlPattern={"/", "/*"},
+ *        initParams={{"configurationFile", "WEB-INF/routes.json"},
+ *                    {"action.base.path", "/WEB-INF/classes/"}})
  */
-class ControllerServlet extends HttpServlet
+class ControllerServlet extends HttpServlet implements Controller
 {
+
+    /**
+     * The key for the init parameter with the path to the configuration file.
+     *
+     * @var string
+     */
+    const INIT_PARAMETER_ACTION_BASE_PATH = 'action.base.path';
 
     /**
      * The key for the init parameter with the path to the configuration file.
@@ -59,6 +75,13 @@ class ControllerServlet extends HttpServlet
      * @var string
      */
     const DEFAULT_ROUTE = '/index';
+
+    /**
+     * The array with the path descriptors.
+     *
+     * @var array
+     */
+    protected $paths = array();
 
     /**
      * The array with the available route mappings.
@@ -88,14 +111,48 @@ class ControllerServlet extends HttpServlet
         parent::init($config);
 
         // loads the mappings from the configuration file and initialize the routes
+        $this->initDirectory();
         $this->initMappings();
         $this->initRoutes();
     }
 
     /**
-     * Initializes the mappings to create the routes from.
+     * Initializes the mappings by parsing a directory that has
+     * action classes with annotations.
      *
      * @return void
+     */
+    protected function initDirectory()
+    {
+
+        // load the absolute path to the applications base directory
+        $webappPath = $this->getServletConfig()->getWebappPath();
+
+        // load the relative path to the applications actions
+        $actionBasePath = $this->getServletConfig()->getInitParameter(ControllerServlet::INIT_PARAMETER_ACTION_BASE_PATH);
+
+        // concatenate the action path
+        $actionPath = $webappPath . $actionBasePath;
+
+        // parse the directory for actions
+        $directoryParser = new DirectoryParser();
+        $directoryParser->injectController($this);
+        $directoryParser->parse($actionPath);
+
+        // initialize the mappings
+        foreach ($this->getPathDescriptors() as $pathDescriptor) {
+            $this->mappings[$pathDescriptor->getName()] = $pathDescriptor->getClassName();
+        }
+    }
+
+    /**
+     * Initializes the mappings to create the routes by reading the configuration file.
+     *
+     * Values found in the configuration file will overwrite the ones found in the
+     * annotations parsed by initDirectory() method.
+     *
+     * @return void
+     * @see \AppserverIo\Routlt\ControllerServlet::initDirectory()
      */
     protected function initMappings()
     {
@@ -104,21 +161,29 @@ class ControllerServlet extends HttpServlet
         $configurationFileName = $this->getInitParameter(ControllerServlet::INIT_PARAMETER_CONFIGURATION_FILE);
 
         // load the path to the configuration file
-        $configurationFile = new \SplFileObject(
+        $configurationFile = new \SplFileInfo(
             $this->getServletConfig()->getWebappPath() . DIRECTORY_SEPARATOR . $configurationFileName
         );
 
-        // read the content of the configuration file
-        $content = '';
-        while (!$configurationFile->eof()) {
-            $content .= $configurationFile->fgets();
-        }
+        // if the file is readable
+        if ($configurationFile->isFile() && $configurationFile->isReadable()) {
 
-        // explode the mappings from the content we found
-        $stdClass = json_decode($content);
+            // initialize the variable for the file content
+            $content = '';
 
-        foreach ($stdClass->routes as $route) {
-            $this->mappings[$route->urlMapping] = $route->actionClass;
+            // read the content of the configuration file
+            $fileHandle = $configurationFile->openFile();
+            while (!$fileHandle->eof()) {
+                $content .= $fileHandle->fgets();
+            }
+
+            // explode the mappings from the content we found
+            $stdClass = json_decode($content);
+
+            // add the mappings found in the configuration file
+            foreach ($stdClass->routes as $route) {
+                $this->mappings[$route->urlMapping] = $route->actionClass;
+            }
         }
     }
 
@@ -209,5 +274,27 @@ class ControllerServlet extends HttpServlet
     protected function getDefaultRoute()
     {
         return ControllerServlet::DEFAULT_ROUTE;
+    }
+
+    /**
+     * Returns the array with the path descriptors.
+     *
+     * @return array The array with the path descriptors
+     */
+    protected function getPathDescriptors()
+    {
+        return $this->paths;
+    }
+
+    /**
+     * Adds a path descriptor to the controller.
+     *
+     * @param \AppserverIo\Routlt\Description\PathDescriptorInterface $pathDescriptor The path descriptor to add
+     *
+     * @return void
+     */
+    public function addPathDescriptor(PathDescriptorInterface $pathDescriptor)
+    {
+        $this->paths[] = $pathDescriptor;
     }
 }

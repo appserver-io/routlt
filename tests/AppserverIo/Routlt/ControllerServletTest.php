@@ -125,7 +125,7 @@ class ControllerServletTest extends \PHPUnit_Framework_TestCase
 
         // initialize the servlet configuration
         $servletConfig = $this->getMock('AppserverIo\Psr\Servlet\ServletConfig');
-        $servletConfig->expects($this->once())
+        $servletConfig->expects($this->exactly(2))
             ->method('getWebappPath')
             ->will($this->returnValue(__DIR__));
 
@@ -212,7 +212,7 @@ class ControllerServletTest extends \PHPUnit_Framework_TestCase
 
         // initialize the servlet configuration
         $servletConfig = $this->getMock('AppserverIo\Psr\Servlet\ServletConfig');
-        $servletConfig->expects($this->once())
+        $servletConfig->expects($this->exactly(2))
             ->method('getWebappPath')
             ->will($this->returnValue(__DIR__));
 

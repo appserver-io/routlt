@@ -1,0 +1,70 @@
+<?php
+
+/**
+ * AppserverIo\Routlt\Annotations\Action
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Open Software License (OSL 3.0)
+ * that is available through the world-wide-web at this URL:
+ * http://opensource.org/licenses/osl-3.0.php
+ *
+ * PHP version 5
+ *
+ * @category   Library
+ * @package    Routlt
+ * @subpackage Annotations
+ * @author     Tim Wagner <tw@techdivision.com>
+ * @copyright  2015 TechDivision GmbH <info@techdivision.com>
+ * @license    http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
+ * @link       http://github.com/appserver-io/routlt
+ * @link       http://www.appserver.io
+ */
+
+namespace AppserverIo\Routlt\Annotations;
+
+use AppserverIo\Lang\Reflection\ReflectionAnnotation;
+
+/**
+ * Annotation to map a request path info to an action method.
+ *
+ * @category   Library
+ * @package    Routlt
+ * @subpackage Annotations
+ * @author     Tim Wagner <tw@techdivision.com>
+ * @copyright  2015 TechDivision GmbH <info@techdivision.com>
+ * @license    http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
+ * @link       http://github.com/appserver-io/routlt
+ * @link       http://www.appserver.io
+ */
+class Action extends ReflectionAnnotation
+{
+
+    /**
+     * The annotation to define a servlets routing.
+     *
+     * @var string
+     */
+    const ANNOTATION = 'Action';
+
+    /**
+     * This method returns the class name as
+     * a string.
+     *
+     * @return string
+     */
+    public static function __getClass()
+    {
+        return __CLASS__;
+    }
+
+    /**
+     * Returns the value of the name attribute.
+     *
+     * @return string The annotations name attribute
+     */
+    public function getName()
+    {
+        return $this->values['name'];
+    }
+}
