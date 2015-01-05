@@ -32,6 +32,8 @@ use AppserverIo\Psr\Servlet\Http\HttpServletRequest;
 use AppserverIo\Psr\Servlet\Http\HttpServletResponse;
 use AppserverIo\Routlt\Description\DirectoryParser;
 use AppserverIo\Routlt\Description\PathDescriptorInterface;
+use AppserverIo\Routlt\Util\ServletContextAware;
+use AppserverIo\Properties\Properties;
 
 /**
  * Abstract example implementation that provides some kind of basic MVC functionality
@@ -50,7 +52,8 @@ use AppserverIo\Routlt\Description\PathDescriptorInterface;
  *        description="A annotated conntroller servlet implementation.",
  *        urlPattern={"/", "/*"},
  *        initParams={{"configurationFile", "WEB-INF/routes.json"},
- *                    {"action.base.path", "/WEB-INF/classes/"}})
+ *                    {"action.base.path", "/WEB-INF/classes/"},
+ *                    {"routlt.configuration.file", "WEB-INF/routlt.properties"}})
  */
 class ControllerServlet extends HttpServlet implements Controller
 {
@@ -66,8 +69,16 @@ class ControllerServlet extends HttpServlet implements Controller
      * The key for the init parameter with the path to the configuration file.
      *
      * @var string
+     * @deprecated Since version 0.3.0
      */
     const INIT_PARAMETER_CONFIGURATION_FILE = 'configurationFile';
+
+    /**
+     * The key for the init parameter with the path to the configuration file.
+     *
+     * @var string
+     */
+    const INIT_PARAMETER_ROUTLT_CONFIGURATION_FILE = 'routlt.configuration.file';
 
     /**
      * The default action if no valid action name was found in the path info.
@@ -110,10 +121,44 @@ class ControllerServlet extends HttpServlet implements Controller
         // call parent method
         parent::init($config);
 
-        // loads the mappings from the configuration file and initialize the routes
+        // load the values from the configuration file
+        $this->initConfiguration();
+
+        // initialize the routing
         $this->initDirectory();
         $this->initMappings();
         $this->initRoutes();
+    }
+
+    /**
+     * Loads the values found in the configuration file and merges
+     * them with the servlet context initialization parameters.
+     *
+     * @return void
+     */
+    protected function initConfiguration()
+    {
+
+        // load the relative path to the Routlt configuration file
+        $configurationFileName = $this->getServletConfig()->getInitParameter(ControllerServlet::INIT_PARAMETER_ROUTLT_CONFIGURATION_FILE);
+
+        // load the path to the configuration file
+        $configurationFile = new \SplFileInfo(
+            $this->getServletConfig()->getWebappPath() . DIRECTORY_SEPARATOR . $configurationFileName
+        );
+
+        // if the file is readable
+        if ($configurationFile->isFile() && $configurationFile->isReadable()) {
+
+            // load the  properties from the file
+            $properties = new Properties();
+            $properties->load($configurationFile);
+
+            // append the properties to the servlet context
+            foreach ($properties as $paramName => $paramValue) {
+                $this->getServletContext()->addInitParameter($paramName, $paramValue);
+            }
+        }
     }
 
     /**
@@ -194,8 +239,20 @@ class ControllerServlet extends HttpServlet implements Controller
      */
     protected function initRoutes()
     {
+
+        // iterate over the action mappings and initialize the action instances
         foreach ($this->getMappings() as $urlMapping => $actionClass) {
-            $this->routes[$urlMapping] = new $actionClass(new ArrayContext());
+
+            // initialize a new action instance
+            $action = new $actionClass(new ArrayContext());
+
+            // if the action is servlet context aware
+            if ($action instanceof ServletContextAware) {
+                $action->setServletContext($this->getServletContext());
+            }
+
+            // add the initialized action
+            $this->routes[$urlMapping] = $action;
         }
     }
 

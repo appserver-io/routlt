@@ -18,6 +18,7 @@
 		"appserver-io/lang" : "0.1.*",
 		"appserver-io/build" : "0.1.*",
 		"appserver-io/server" : "0.2.*",
+        "appserver-io/properties" : "0.1.*",
 		"appserver-io-psr/servlet" : "0.6.*",
 		"appserver-io-psr/context" : "0.5.*"
 	},
