@@ -46,14 +46,6 @@ use AppserverIo\Properties\Properties;
  * @license   http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  * @link      http://github.com/appserver-io/routlt
  * @link      http://www.appserver.io
- *
- * @Route(name="controller",
- *        displayName="Servlet providing controller functionality",
- *        description="A annotated conntroller servlet implementation.",
- *        urlPattern={"/", "/*"},
- *        initParams={{"configurationFile", "WEB-INF/routes.json"},
- *                    {"action.base.path", "/WEB-INF/classes/"},
- *                    {"routlt.configuration.file", "WEB-INF/routlt.properties"}})
  */
 class ControllerServlet extends HttpServlet implements Controller
 {
@@ -143,12 +135,10 @@ class ControllerServlet extends HttpServlet implements Controller
         $configurationFileName = $this->getServletConfig()->getInitParameter(ControllerServlet::INIT_PARAMETER_ROUTLT_CONFIGURATION_FILE);
 
         // load the path to the configuration file
-        $configurationFile = new \SplFileInfo(
-            $this->getServletConfig()->getWebappPath() . DIRECTORY_SEPARATOR . $configurationFileName
-        );
+        $configurationFile = $this->getServletConfig()->getWebappPath() . DIRECTORY_SEPARATOR . ltrim($configurationFileName, '/');
 
         // if the file is readable
-        if ($configurationFile->isFile() && $configurationFile->isReadable()) {
+        if (is_file($configurationFile) && is_readable($configurationFile)) {
 
             // load the  properties from the file
             $properties = new Properties();
@@ -177,7 +167,7 @@ class ControllerServlet extends HttpServlet implements Controller
         if ($actionBasePath = $this->getServletConfig()->getInitParameter(ControllerServlet::INIT_PARAMETER_ACTION_BASE_PATH)) {
 
             // concatenate the action path to an absolute path
-            $actionPath = $webappPath . $actionBasePath;
+            $actionPath = $webappPath . DIRECTORY_SEPARATOR . ltrim($actionBasePath, '/');
 
             // parse the directory for actions
             $directoryParser = new DirectoryParser();
