@@ -174,19 +174,20 @@ class ControllerServlet extends HttpServlet implements Controller
         $webappPath = $this->getServletConfig()->getWebappPath();
 
         // load the relative path to the applications actions
-        $actionBasePath = $this->getServletConfig()->getInitParameter(ControllerServlet::INIT_PARAMETER_ACTION_BASE_PATH);
+        if ($actionBasePath = $this->getServletConfig()->getInitParameter(ControllerServlet::INIT_PARAMETER_ACTION_BASE_PATH)) {
 
-        // concatenate the action path
-        $actionPath = $webappPath . $actionBasePath;
+            // concatenate the action path to an absolute path
+            $actionPath = $webappPath . $actionBasePath;
 
-        // parse the directory for actions
-        $directoryParser = new DirectoryParser();
-        $directoryParser->injectController($this);
-        $directoryParser->parse($actionPath);
+            // parse the directory for actions
+            $directoryParser = new DirectoryParser();
+            $directoryParser->injectController($this);
+            $directoryParser->parse($actionPath);
 
-        // initialize the mappings
-        foreach ($this->getPathDescriptors() as $pathDescriptor) {
-            $this->mappings[$pathDescriptor->getName()] = $pathDescriptor->getClassName();
+            // initialize the mappings
+            foreach ($this->getPathDescriptors() as $pathDescriptor) {
+                $this->mappings[$pathDescriptor->getName()] = $pathDescriptor->getClassName();
+            }
         }
     }
 
