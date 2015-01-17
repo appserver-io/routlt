@@ -61,14 +61,6 @@ class ControllerServlet extends HttpServlet implements Controller
      * The key for the init parameter with the path to the configuration file.
      *
      * @var string
-     * @deprecated Since version 0.3.0
-     */
-    const INIT_PARAMETER_CONFIGURATION_FILE = 'configurationFile';
-
-    /**
-     * The key for the init parameter with the path to the configuration file.
-     *
-     * @var string
      */
     const INIT_PARAMETER_ROUTLT_CONFIGURATION_FILE = 'routlt.configuration.file';
 
@@ -78,20 +70,6 @@ class ControllerServlet extends HttpServlet implements Controller
      * @var string
      */
     const DEFAULT_ROUTE = '/index';
-
-    /**
-     * The array with the path descriptors.
-     *
-     * @var array
-     */
-    protected $paths = array();
-
-    /**
-     * The array with the available route mappings.
-     *
-     * @var array
-     */
-    protected $mappings = array();
 
     /**
      * The array with the initialized routes.
@@ -117,8 +95,6 @@ class ControllerServlet extends HttpServlet implements Controller
         $this->initConfiguration();
 
         // initialize the routing
-        $this->initDirectory();
-        $this->initMappings();
         $this->initRoutes();
     }
 
@@ -152,78 +128,6 @@ class ControllerServlet extends HttpServlet implements Controller
     }
 
     /**
-     * Initializes the mappings by parsing a directory that has
-     * action classes with annotations.
-     *
-     * @return void
-     */
-    protected function initDirectory()
-    {
-
-        // load the absolute path to the applications base directory
-        $webappPath = $this->getServletConfig()->getWebappPath();
-
-        // load the relative path to the applications actions
-        if ($actionBasePath = $this->getServletConfig()->getInitParameter(ControllerServlet::INIT_PARAMETER_ACTION_BASE_PATH)) {
-
-            // concatenate the action path to an absolute path
-            $actionPath = $webappPath . DIRECTORY_SEPARATOR . ltrim($actionBasePath, '/');
-
-            // parse the directory for actions
-            $directoryParser = new DirectoryParser();
-            $directoryParser->injectController($this);
-            $directoryParser->parse($actionPath);
-
-            // initialize the mappings
-            foreach ($this->getPathDescriptors() as $pathDescriptor) {
-                $this->mappings[$pathDescriptor->getName()] = $pathDescriptor->getClassName();
-            }
-        }
-    }
-
-    /**
-     * Initializes the mappings to create the routes by reading the configuration file.
-     *
-     * Values found in the configuration file will overwrite the ones found in the
-     * annotations parsed by initDirectory() method.
-     *
-     * @return void
-     * @see \AppserverIo\Routlt\ControllerServlet::initDirectory()
-     */
-    protected function initMappings()
-    {
-
-        // load the configuration filename
-        $configurationFileName = $this->getInitParameter(ControllerServlet::INIT_PARAMETER_CONFIGURATION_FILE);
-
-        // load the path to the configuration file
-        $configurationFile = new \SplFileInfo(
-            $this->getServletConfig()->getWebappPath() . DIRECTORY_SEPARATOR . $configurationFileName
-        );
-
-        // if the file is readable
-        if ($configurationFile->isFile() && $configurationFile->isReadable()) {
-
-            // initialize the variable for the file content
-            $content = '';
-
-            // read the content of the configuration file
-            $fileHandle = $configurationFile->openFile();
-            while (!$fileHandle->eof()) {
-                $content .= $fileHandle->fgets();
-            }
-
-            // explode the mappings from the content we found
-            $stdClass = json_decode($content);
-
-            // add the mappings found in the configuration file
-            foreach ($stdClass->routes as $route) {
-                $this->mappings[$route->urlMapping] = $route->actionClass;
-            }
-        }
-    }
-
-    /**
      * Initializes the available routes.
      *
      * @return void
@@ -231,30 +135,40 @@ class ControllerServlet extends HttpServlet implements Controller
     protected function initRoutes()
     {
 
-        // iterate over the action mappings and initialize the action instances
-        foreach ($this->getMappings() as $urlMapping => $actionClass) {
+        // load the object manager instance
+        $objectManager = $this->getServletContext()->getApplication()->search('ObjectManagerInterface');
 
-            // initialize a new action instance
-            $action = new $actionClass(new ArrayContext());
+        // register the beans located by annotations and the XML configuration
+        foreach ($objectManager->getObjectDescriptors() as $descriptor) {
 
-            // if the action is servlet context aware
-            if ($action instanceof ServletContextAware) {
-                $action->setServletContext($this->getServletContext());
+            // check if we've found a servlet descriptor
+            if ($descriptor instanceof PathDescriptorInterface) {
+
+                // load the class name
+                $className = $descriptor->getClassName();
+
+                // initialize a new action instance
+                $action = new $className(new ArrayContext());
+
+                // if the action is servlet context aware
+                if ($action instanceof ServletContextAware) {
+                    $action->setServletContext($this->getServletContext());
+                }
+
+                // register the EPB references
+                foreach ($descriptor->getEpbReferences() as $epbReference) {
+                    $this->getServletContext()->registerEpbReference($epbReference);
+                }
+
+                // register the resource references
+                foreach ($descriptor->getResReferences() as $resReference) {
+                    $this->getServletContext()->registerResReference($resReference);
+                }
+
+                // add the initialized action
+                $this->routes[$descriptor->getName()] = $action;
             }
-
-            // add the initialized action
-            $this->routes[$urlMapping] = $action;
         }
-    }
-
-    /**
-     * Returns the mappings to create the routes from.
-     *
-     * @return array The array with the mappings
-     */
-    protected function getMappings()
-    {
-        return $this->mappings;
     }
 
     /**
@@ -278,6 +192,12 @@ class ControllerServlet extends HttpServlet implements Controller
     public function service(ServletRequest $servletRequest, ServletResponse $servletResponse)
     {
 
+        // load the application instance
+        $application = $this->getServletContext()->getApplication();
+
+        // inject the dependencies
+        $dependencyInjectionContainer = $application->search('ProviderInterface');
+
         // load the path info from the servlet request
         $pathInfo = $servletRequest->getPathInfo();
 
@@ -294,6 +214,20 @@ class ControllerServlet extends HttpServlet implements Controller
 
             // if the route match, we'll perform the dispatch process
             if (fnmatch($route, $pathInfo)) {
+
+                // check if we've a HTTP session-ID
+                $sessionId = null;
+
+                // if no session has already been load, initialize the session manager
+                if ($manager = $application->search('SessionManager')) {
+                    $requestedSessionName = $manager->getSessionSettings()->getSessionName();
+                    if ($servletRequest->hasCookie($requestedSessionName)) {
+                        $sessionId = $servletRequest->getCookie($requestedSessionName)->getValue();
+                    }
+                }
+
+                // inject the dependencies
+                $dependencyInjectionContainer->injectDependencies($action, $sessionId);
 
                 // we pre-dispatch the action
                 $action->preDispatch($servletRequest, $servletResponse);

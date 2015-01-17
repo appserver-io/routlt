@@ -29,6 +29,10 @@ use AppserverIo\Routlt\Description\ActionDescriptorInterface;
 use AppserverIo\Routlt\Description\DescriptorException;
 use AppserverIo\Lang\Reflection\ClassInterface;
 use AppserverIo\Lang\Reflection\ReflectionAnnotation;
+use AppserverIo\Appserver\DependencyInjectionContainer\Description\EpbReferenceDescriptor;
+use AppserverIo\Appserver\DependencyInjectionContainer\Description\ResReferenceDescriptor;
+use AppserverIo\Appserver\DependencyInjectionContainer\Interfaces\EpbReferenceDescriptorInterface;
+use AppserverIo\Appserver\DependencyInjectionContainer\Interfaces\ResReferenceDescriptorInterface;
 
 /**
  * Annotation to map a request path info to an action method.
@@ -58,6 +62,20 @@ class PathDescriptor implements PathDescriptorInterface
      * @var string
      */
     protected $className;
+
+    /**
+     * The array with the EPB references.
+     *
+     * @var array
+     */
+    protected $epbReferences = array();
+
+    /**
+     * The array with the resource references.
+     *
+     * @var array
+     */
+    protected $resReferences = array();
 
     /**
      * The array with the action methods.
@@ -145,6 +163,84 @@ class PathDescriptor implements PathDescriptorInterface
     }
 
     /**
+     * Adds a EPB reference configuration.
+     *
+     * @param \AppserverIo\Appserver\DependencyInjectionContainer\Interfaces\EpbReferenceDescriptorInterface $epbReference The EPB reference configuration
+     *
+     * @return void
+     */
+    public function addEpbReference(EpbReferenceDescriptorInterface $epbReference)
+    {
+        $this->epbReferences[$epbReference->getName()] = $epbReference;
+    }
+
+    /**
+     * Sets the array with the EPB references.
+     *
+     * @param array $epbReferences The EPB references
+     *
+     * @return void
+     */
+    public function setEpbReferences(array $epbReferences)
+    {
+        $this->epbReferences = $epbReferences;
+    }
+
+    /**
+     * The array with the EPB references.
+     *
+     * @return array The EPB references
+     */
+    public function getEpbReferences()
+    {
+        return $this->epbReferences;
+    }
+
+    /**
+     * Adds a resource reference configuration.
+     *
+     * @param \AppserverIo\Appserver\DependencyInjectionContainer\Interfaces\ResReferenceDescriptorInterface $resReference The resource reference configuration
+     *
+     * @return void
+     */
+    public function addResReference(ResReferenceDescriptorInterface $resReference)
+    {
+        $this->resReferences[$resReference->getName()] = $resReference;
+    }
+
+    /**
+     * Sets the array with the resource references.
+     *
+     * @param array $resReferences The resource references
+     *
+     * @return void
+     */
+    public function setResReferences(array $resReferences)
+    {
+        $this->resReferences = $resReferences;
+    }
+
+    /**
+     * The array with the resource references.
+     *
+     * @return array The resource references
+     */
+    public function getResReferences()
+    {
+        return $this->resReferences;
+    }
+
+    /**
+     * Returns an array with the merge EBP and resource references.
+     *
+     * @return array The array with the merge all bean references
+     */
+    public function getReferences()
+    {
+        return array_merge($this->epbReferences, $this->resReferences);
+    }
+
+    /**
      * Returns a new descriptor instance.
      *
      * @return \AppserverIo\Routlt\Description\PathDescriptorInterface The descriptor instance
@@ -219,6 +315,34 @@ class PathDescriptor implements PathDescriptorInterface
             }
         }
 
+        // we've to check for property annotations that references EPB or resources
+        foreach ($reflectionClass->getProperties() as $reflectionProperty) {
+
+            // load the EPB references
+            if ($epbReference = EpbReferenceDescriptor::newDescriptorInstance()->fromReflectionProperty($reflectionProperty)) {
+                $this->addEpbReference($epbReference);
+            }
+
+            // load the resource references
+            if ($resReference = ResReferenceDescriptor::newDescriptorInstance()->fromReflectionProperty($reflectionProperty)) {
+                $this->addResReference($resReference);
+            }
+        }
+
+        // we've to check for method annotations that references EPB or resources
+        foreach ($reflectionClass->getMethods(\ReflectionMethod::IS_PUBLIC) as $reflectionMethod) {
+
+            // load the EPB references
+            if ($epbReference = EpbReferenceDescriptor::newDescriptorInstance()->fromReflectionMethod($reflectionMethod)) {
+                $this->addEpbReference($epbReference);
+            }
+
+            // load the resource references
+            if ($resReference = ResReferenceDescriptor::newDescriptorInstance()->fromReflectionMethod($reflectionMethod)) {
+                $this->addResReference($resReference);
+            }
+        }
+
         // return the instance
         return $this;
     }
@@ -261,6 +385,16 @@ class PathDescriptor implements PathDescriptorInterface
         // merge the action method descriptors
         foreach ($pathDescriptor->getActions() as $action) {
             $this->addAction($action);
+        }
+
+        // merge the EPB references
+        foreach ($pathDescriptor->getEpbReferences() as $epbReference) {
+            $this->addEpbReference($epbReference);
+        }
+
+        // merge the EPB references
+        foreach ($pathDescriptor->getResReferences() as $resReference) {
+            $this->addResReference($resReference);
         }
     }
 }
