@@ -176,6 +176,9 @@ class PathDescriptor implements PathDescriptorInterface
     public function fromReflectionClass(ClassInterface $reflectionClass)
     {
 
+        // add the annotation alias to the reflection class
+        $reflectionClass->addAnnotationAlias(Path::ANNOTATION, Path::__getClass());
+
         // query if we've an action
         if ($reflectionClass->implementsInterface('AppserverIo\Routlt\Action') === false &&
             $reflectionClass->toPhpReflectionClass()->isAbstract() === false) { // if not, do nothing

@@ -132,6 +132,9 @@ class ActionDescriptor implements ActionDescriptorInterface
     public function fromReflectionMethod(MethodInterface $reflectionMethod)
     {
 
+        // add the annotation alias to the reflection method
+        $reflectionMethod->addAnnotationAlias(Action::ANNOTATION, Action::__getClass());
+
         // query if we've a method with a @Action annotation
         if ($reflectionMethod->hasAnnotation(Action::ANNOTATION) === false) { // if not, do nothing
             return;

@@ -23,6 +23,8 @@
 
 namespace AppserverIo\Routlt\Description;
 
+use AppserverIo\Appserver\DependencyInjectionContainer\Interfaces\DescriptorInterface;
+
 /**
  * Descriptor for a action class implementation.
  *
