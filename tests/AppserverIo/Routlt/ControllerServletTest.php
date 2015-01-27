@@ -11,10 +11,8 @@
  *
  * PHP version 5
  *
- * @category  Library
- * @package   Routlt
  * @author    Tim Wagner <tw@techdivision.com>
- * @copyright 2014 TechDivision GmbH <info@techdivision.com>
+ * @copyright 2015 TechDivision GmbH <info@techdivision.com>
  * @license   http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  * @link      http://github.com/appserver-io/routlt
  * @link      http://www.appserver.io
@@ -25,10 +23,8 @@ namespace AppserverIo\Routlt;
 /**
  * This is test implementation for the controller servlet implementation.
  *
- * @category  Library
- * @package   Routlt
  * @author    Tim Wagner <tw@techdivision.com>
- * @copyright 2014 TechDivision GmbH <info@techdivision.com>
+ * @copyright 2015 TechDivision GmbH <info@techdivision.com>
  * @license   http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  * @link      http://github.com/appserver-io/routlt
  * @link      http://www.appserver.io
@@ -48,16 +44,16 @@ class ControllerServletTest extends \PHPUnit_Framework_TestCase
         $controller = $this->getMock('AppserverIo\Routlt\ControllerServlet', array('getRoutes', 'initRoutes', 'initMappings'));
 
         // create a mock servlet request instance
-        $servletRequest = $this->getMock('AppserverIo\Psr\Servlet\Http\HttpServletRequest');
+        $servletRequest = $this->getMock('AppserverIo\Psr\Servlet\Http\HttpServletRequestInterface');
         $servletRequest->expects($this->once())
             ->method('getPathInfo')
             ->will($this->returnValue('/test'));
 
         // create a mock servlet response instance
-        $servletResponse = $this->getMock('AppserverIo\Psr\Servlet\Http\HttpServletResponse');
+        $servletResponse = $this->getMock('AppserverIo\Psr\Servlet\Http\HttpServletResponseInterface');
 
         // create a mock action instance
-        $action = $this->getMock('AppserverIo\Routlt\Action');
+        $action = $this->getMock('AppserverIo\Routlt\ActionInterface');
         $action->expects($this->once())->method('preDispatch');
         $action->expects($this->once())->method('perform');
         $action->expects($this->once())->method('postDispatch');
@@ -86,11 +82,11 @@ class ControllerServletTest extends \PHPUnit_Framework_TestCase
         $controller = $this->getMock('AppserverIo\Routlt\ControllerServlet', array('getRoutes', 'initRoutes', 'initMappings'));
 
         // create a mock servlet request + response instance
-        $servletRequest = $this->getMock('AppserverIo\Psr\Servlet\Http\HttpServletRequest');
-        $servletResponse = $this->getMock('AppserverIo\Psr\Servlet\Http\HttpServletResponse');
+        $servletRequest = $this->getMock('AppserverIo\Psr\Servlet\Http\HttpServletRequestInterface');
+        $servletResponse = $this->getMock('AppserverIo\Psr\Servlet\Http\HttpServletResponseInterface');
 
         // create a mock action instance
-        $action = $this->getMock('AppserverIo\Routlt\Action');
+        $action = $this->getMock('AppserverIo\Routlt\ActionInterface');
         $action->expects($this->once())->method('preDispatch');
         $action->expects($this->once())->method('perform');
         $action->expects($this->once())->method('postDispatch');
@@ -124,7 +120,7 @@ class ControllerServletTest extends \PHPUnit_Framework_TestCase
             ->will($this->returnValue('WEB-INF/routes.json'));
 
         // initialize the servlet configuration
-        $servletConfig = $this->getMock('AppserverIo\Psr\Servlet\ServletConfig');
+        $servletConfig = $this->getMock('AppserverIo\Psr\Servlet\ServletConfigInterface');
         $servletConfig->expects($this->once())
             ->method('getWebappPath')
             ->will($this->returnValue(__DIR__));
@@ -133,13 +129,13 @@ class ControllerServletTest extends \PHPUnit_Framework_TestCase
         $controller->init($servletConfig);
 
         // create a mock servlet request instance
-        $servletRequest = $this->getMock('AppserverIo\Psr\Servlet\Http\HttpServletRequest');
+        $servletRequest = $this->getMock('AppserverIo\Psr\Servlet\Http\HttpServletRequestInterface');
         $servletRequest->expects($this->once())
             ->method('getPathInfo')
             ->will($this->returnValue('/test'));
 
         // create a mock servlet response instance
-        $servletResponse = $this->getMock('AppserverIo\Psr\Servlet\Http\HttpServletResponse');
+        $servletResponse = $this->getMock('AppserverIo\Psr\Servlet\Http\HttpServletResponseInterface');
 
         // invoke the method we want to test
         $controller->service($servletRequest, $servletResponse);
@@ -148,7 +144,7 @@ class ControllerServletTest extends \PHPUnit_Framework_TestCase
     /**
      * This tests the service() method with a request without any registered routes.
      *
-     * @expectedException AppserverIo\Server\Exceptions\ModuleException
+     * @expectedException \AppserverIo\Server\Exceptions\ModuleException
      * @return void
      */
     public function testServiceWithModuleExceptionExpected()
@@ -158,8 +154,8 @@ class ControllerServletTest extends \PHPUnit_Framework_TestCase
         $controller = $this->getMock('AppserverIo\Routlt\ControllerServlet', array('getRoutes', 'initRoutes', 'initMappings'));
 
         // create a mock servlet request + response instance
-        $servletRequest = $this->getMock('AppserverIo\Psr\Servlet\Http\HttpServletRequest');
-        $servletResponse = $this->getMock('AppserverIo\Psr\Servlet\Http\HttpServletResponse');
+        $servletRequest = $this->getMock('AppserverIo\Psr\Servlet\Http\HttpServletRequestInterface');
+        $servletResponse = $this->getMock('AppserverIo\Psr\Servlet\Http\HttpServletResponseInterface');
 
         // assert that the array with the routes will be loaded
         $controller->expects($this->once())
@@ -182,7 +178,7 @@ class ControllerServletTest extends \PHPUnit_Framework_TestCase
         $controller = $this->getMock('AppserverIo\Routlt\ControllerServlet', array('getRoutes', 'initRoutes', 'initMappings'));
 
         // initialize the servlet configuration
-        $servletConfig = $this->getMock('AppserverIo\Psr\Servlet\ServletConfig');
+        $servletConfig = $this->getMock('AppserverIo\Psr\Servlet\ServletConfigInterface');
 
         // assert that the array with the routes will be loaded
         $controller->expects($this->once())
@@ -211,7 +207,7 @@ class ControllerServletTest extends \PHPUnit_Framework_TestCase
             ->will($this->returnValue('WEB-INF/routes.json'));
 
         // initialize the servlet configuration
-        $servletConfig = $this->getMock('AppserverIo\Psr\Servlet\ServletConfig');
+        $servletConfig = $this->getMock('AppserverIo\Psr\Servlet\ServletConfigInterface');
         $servletConfig->expects($this->once())
             ->method('getWebappPath')
             ->will($this->returnValue(__DIR__));
@@ -232,7 +228,7 @@ class ControllerServletTest extends \PHPUnit_Framework_TestCase
         $controller = $this->getMock('AppserverIo\Routlt\ControllerServlet', array('getRoutes', 'initRoutes', 'initMappings'));
 
         // create a mock servlet request instance
-        $servletRequest = $this->getMock('AppserverIo\Psr\Servlet\Http\HttpServletRequest');
+        $servletRequest = $this->getMock('AppserverIo\Psr\Servlet\Http\HttpServletRequestInterface');
         $servletRequest->expects($this->once())
             ->method('getPathInfo')
             ->will($this->returnValue('/test'));
@@ -241,10 +237,10 @@ class ControllerServletTest extends \PHPUnit_Framework_TestCase
             ->will($this->returnValue(true));
 
         // create a mock servlet response instance
-        $servletResponse = $this->getMock('AppserverIo\Psr\Servlet\Http\HttpServletResponse');
+        $servletResponse = $this->getMock('AppserverIo\Psr\Servlet\Http\HttpServletResponseInterface');
 
         // create a mock action instance
-        $action = $this->getMock('AppserverIo\Routlt\Action');
+        $action = $this->getMock('AppserverIo\Routlt\ActionInterface');
         $action->expects($this->once())->method('preDispatch');
         $action->expects($this->never())->method('perform');
         $action->expects($this->never())->method('postDispatch');

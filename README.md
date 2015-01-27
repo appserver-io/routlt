@@ -1,6 +1,6 @@
 # Routlt
 
-[![Latest Stable Version](https://poser.pugx.org/appserver-io/routlt/v/stable.png)](https://packagist.org/packages/appserver-io/routlt) [![Total Downloads](https://poser.pugx.org/appserver-io/routlt/downloads.png)](https://packagist.org/packages/appserver-io/routlt) [![Latest Unstable Version](https://poser.pugx.org/appserver-io/routlt/v/unstable.png)](https://packagist.org/packages/appserver-io/routlt) [![License](https://poser.pugx.org/appserver-io/routlt/license.png)](https://packagist.org/packages/appserver-io/routlt) [![Build Status](https://travis-ci.org/appserver-io/routlt.png)](https://travis-ci.org/appserver-io/routlt)
+[![Latest Stable Version](https://poser.pugx.org/appserver-io/routlt/v/stable.png)](https://packagist.org/packages/appserver-io/routlt) [![Total Downloads](https://poser.pugx.org/appserver-io/routlt/downloads.png)](https://packagist.org/packages/appserver-io/routlt) [![License](https://poser.pugx.org/appserver-io/routlt/license.png)](https://packagist.org/packages/appserver-io/routlt) [![Build Status](https://travis-ci.org/appserver-io/routlt.png)](https://travis-ci.org/appserver-io/routlt)
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/appserver-io/routlt/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/appserver-io/routlt/?branch=master)[![Code Coverage](https://scrutinizer-ci.com/g/appserver-io/routlt/badges/coverage.png?b=master)](https://scrutinizer-ci.com/g/appserver-io/routlt/?branch=master)
 
 ## Introduction
@@ -32,7 +32,7 @@ Let's assume, you've installed appserver.io on Linux/Mac OS X under ```/opt/apps
 
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
-<web-app version="2.4">
+<web-app xmlns="http://www.appserver.io/appserver">
 
     <display-name>appserver.io example application</display-name>
     <description>This is the example application for the appserver.io servlet engine.</description>
@@ -96,8 +96,8 @@ it there.
 namespace MyApp\Actions;
 
 use AppserverIo\Routlt\DispatchAction;
-use TechDivision\Servlet\Http\HttpServletRequest;
-use TechDivision\Servlet\Http\HttpServletResponse;
+use TechDivision\Servlet\Http\HttpServletRequestInterface;
+use TechDivision\Servlet\Http\HttpServletResponseInterface;
 
 /**
  * Example action.
@@ -112,12 +112,12 @@ class IndexAction extends DispatchAction
     /**
      * Dummy action implementation that writes 'Hello World' to the response.
      *
-     * @param \TechDivision\Servlet\Http\HttpServletRequest  $servletRequest  The request instance
-     * @param \TechDivision\Servlet\Http\HttpServletResponse $servletResponse The response instance
+     * @param \TechDivision\Servlet\Http\HttpServletRequestInterface  $servletRequest  The request instance
+     * @param \TechDivision\Servlet\Http\HttpServletResponseInterface $servletResponse The response instance
      *
      * @return void
      */
-    public function indexAction(HttpServletRequest $servletRequest, HttpServletResponse $servletResponse)
+    public function indexAction(HttpServletRequestInterface $servletRequest, HttpServletResponseInterface $servletResponse)
     {
         $servletResponse->appendBodyStream('Hello World!');
     }
@@ -130,6 +130,3 @@ with your browser. You should see ```Hello World!``` there.
 # External Links
 
 * Documentation at [appserver.io](http://docs.appserver.io)
-* Documentation on [GitHub](https://github.com/techdivision/TechDivision_AppserverDocumentation)
-* [Getting started](https://github.com/techdivision/TechDivision_AppserverDocumentation/tree/master/docs/getting-started)
-* [Servlet Engine](https://github.com/techdivision/TechDivision_AppserverDocumentation/blob/master/docs/components/engines/servletengine.md)

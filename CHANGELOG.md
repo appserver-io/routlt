@@ -1,3 +1,13 @@
+# Version 0.3.0
+
+## Bugfixes
+
+* None
+
+## Features
+
+* Applied new file name and comment naming conventions
+
 # Version 0.2.1
 
 ## Bugfixes
