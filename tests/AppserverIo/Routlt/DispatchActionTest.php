@@ -11,10 +11,8 @@
  *
  * PHP version 5
  *
- * @category  Library
- * @package   Routlt
  * @author    Tim Wagner <tw@techdivision.com>
- * @copyright 2014 TechDivision GmbH <info@techdivision.com>
+ * @copyright 2015 TechDivision GmbH <info@techdivision.com>
  * @license   http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  * @link      http://github.com/appserver-io/routlt
  * @link      http://www.appserver.io
@@ -27,10 +25,8 @@ use AppserverIo\Routlt\Mock\MockDispatchAction;
 /**
  * This is test implementation for the dispatch action implementation.
  *
- * @category  Library
- * @package   Routlt
  * @author    Tim Wagner <tw@techdivision.com>
- * @copyright 2014 TechDivision GmbH <info@techdivision.com>
+ * @copyright 2015 TechDivision GmbH <info@techdivision.com>
  * @license   http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  * @link      http://github.com/appserver-io/routlt
  * @link      http://www.appserver.io
@@ -52,26 +48,26 @@ class DispatchActionTest extends \PHPUnit_Framework_TestCase
      */
     public function setUp()
     {
-        $this->action = $this->getMockForAbstractClass('AppserverIo\Routlt\DispatchAction', array($this->getMock('AppserverIo\Psr\Context\Context')));
+        $this->action = $this->getMockForAbstractClass('AppserverIo\Routlt\DispatchAction', array($this->getMock('AppserverIo\Psr\Context\ContextInterface')));
     }
 
     /**
      * This tests the perform() method with the requested action method not implemented.
      *
-     * @expectedException AppserverIo\Routlt\MethodNotFoundException
+     * @expectedException \AppserverIo\Routlt\MethodNotFoundException
      * @return void
      */
     public function testPerformWithMethodNotFoundException()
     {
 
         // create a mock servlet request instance
-        $servletRequest = $this->getMock('AppserverIo\Psr\Servlet\Http\HttpServletRequest');
+        $servletRequest = $this->getMock('AppserverIo\Psr\Servlet\Http\HttpServletRequestInterface');
         $servletRequest->expects($this->once())
             ->method('getPathInfo')
             ->will($this->returnValue('/test'));
 
         // create a mock servlet response instance
-        $servletResponse = $this->getMock('AppserverIo\Psr\Servlet\Http\HttpServletResponse');
+        $servletResponse = $this->getMock('AppserverIo\Psr\Servlet\Http\HttpServletResponseInterface');
 
         // invoke the method we want to test
         $this->action->perform($servletRequest, $servletResponse);
@@ -89,14 +85,14 @@ class DispatchActionTest extends \PHPUnit_Framework_TestCase
         $action = $this->getMock(
             'AppserverIo\Routlt\Mock\MockDispatchAction',
             array('indexAction'),
-            array($this->getMock('AppserverIo\Psr\Context\Context'))
+            array($this->getMock('AppserverIo\Psr\Context\ContextInterface'))
         );
         $action->expects($this->once())
             ->method('indexAction');
 
         // create a mock servlet request + response instance
-        $servletRequest = $this->getMock('AppserverIo\Psr\Servlet\Http\HttpServletRequest');
-        $servletResponse = $this->getMock('AppserverIo\Psr\Servlet\Http\HttpServletResponse');
+        $servletRequest = $this->getMock('AppserverIo\Psr\Servlet\Http\HttpServletRequestInterface');
+        $servletResponse = $this->getMock('AppserverIo\Psr\Servlet\Http\HttpServletResponseInterface');
 
         // invoke the method we want to test
         $action->perform($servletRequest, $servletResponse);
@@ -114,19 +110,19 @@ class DispatchActionTest extends \PHPUnit_Framework_TestCase
         $action = $this->getMock(
             'AppserverIo\Routlt\Mock\MockDispatchAction',
             array('testAction'),
-            array($this->getMock('AppserverIo\Psr\Context\Context'))
+            array($this->getMock('AppserverIo\Psr\Context\ContextInterface'))
         );
         $action->expects($this->once())
             ->method('testAction');
 
         // create a mock servlet request instance
-        $servletRequest = $this->getMock('AppserverIo\Psr\Servlet\Http\HttpServletRequest');
+        $servletRequest = $this->getMock('AppserverIo\Psr\Servlet\Http\HttpServletRequestInterface');
         $servletRequest->expects($this->once())
             ->method('getPathInfo')
             ->will($this->returnValue('/test/test'));
 
         // create a mock servlet response instance
-        $servletResponse = $this->getMock('AppserverIo\Psr\Servlet\Http\HttpServletResponse');
+        $servletResponse = $this->getMock('AppserverIo\Psr\Servlet\Http\HttpServletResponseInterface');
 
         // invoke the method we want to test
         $action->perform($servletRequest, $servletResponse);

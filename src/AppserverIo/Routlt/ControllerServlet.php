@@ -11,10 +11,8 @@
  *
  * PHP version 5
  *
- * @category  Library
- * @package   Routlt
  * @author    Tim Wagner <tw@techdivision.com>
- * @copyright 2014 TechDivision GmbH <info@techdivision.com>
+ * @copyright 2015 TechDivision GmbH <info@techdivision.com>
  * @license   http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  * @link      http://github.com/appserver-io/routlt
  * @link      http://www.appserver.io
@@ -24,22 +22,18 @@ namespace AppserverIo\Routlt;
 
 use AppserverIo\Psr\HttpMessage\Protocol;
 use AppserverIo\Psr\Context\ArrayContext;
-use AppserverIo\Psr\Servlet\ServletConfig;
-use AppserverIo\Psr\Servlet\ServletRequest;
-use AppserverIo\Psr\Servlet\ServletResponse;
+use AppserverIo\Psr\Servlet\ServletConfigInterface;
+use AppserverIo\Psr\Servlet\ServletRequestInterface;
+use AppserverIo\Psr\Servlet\ServletResponseInterface;
 use AppserverIo\Psr\Servlet\Http\HttpServlet;
-use AppserverIo\Psr\Servlet\Http\HttpServletRequest;
-use AppserverIo\Psr\Servlet\Http\HttpServletResponse;
 use AppserverIo\Server\Exceptions\ModuleException;
 
 /**
  * Abstract example implementation that provides some kind of basic MVC functionality
  * to handle requests by subclasses action methods.
  *
- * @category  Library
- * @package   Routlt
  * @author    Tim Wagner <tw@techdivision.com>
- * @copyright 2014 TechDivision GmbH <info@techdivision.com>
+ * @copyright 2015 TechDivision GmbH <info@techdivision.com>
  * @license   http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  * @link      http://github.com/appserver-io/routlt
  * @link      http://www.appserver.io
@@ -78,11 +72,11 @@ class ControllerServlet extends HttpServlet
     /**
      * Initializes the servlet with the passed configuration.
      *
-     * @param \AppserverIo\Psr\Servlet\ServletConfig $config The configuration to initialize the servlet with
+     * @param \AppserverIo\Psr\Servlet\ServletConfigInterface $config The configuration to initialize the servlet with
      *
      * @return void
      */
-    public function init(ServletConfig $config)
+    public function init(ServletConfigInterface $config)
     {
 
         // call parent method
@@ -158,12 +152,14 @@ class ControllerServlet extends HttpServlet
     /**
      * Delegates to HTTP method specific functions like doPost() for POST e.g.
      *
-     * @param \AppserverIo\Psr\Servlet\ServletRequest  $servletRequest  The request instance
-     * @param \AppserverIo\Psr\Servlet\ServletResponse $servletResponse The response sent back to the client
+     * @param \AppserverIo\Psr\Servlet\ServletRequestInterface  $servletRequest  The request instance
+     * @param \AppserverIo\Psr\Servlet\ServletResponseInterface $servletResponse The response sent back to the client
      *
      * @return void
+     *
+     * @throws \AppserverIo\Server\Exceptions\ModuleException If no action has been found for the requested path
      */
-    public function service(ServletRequest $servletRequest, ServletResponse $servletResponse)
+    public function service(ServletRequestInterface $servletRequest, ServletResponseInterface $servletResponse)
     {
 
         // pre-initialize response
@@ -182,10 +178,8 @@ class ControllerServlet extends HttpServlet
 
         // try to find an action that invokes the request
         foreach ($routes as $route => $action) {
-
             // if the route match, we'll perform the dispatch process
             if (fnmatch($route, $pathInfo)) {
-
                 // we pre-dispatch the action
                 $action->preDispatch($servletRequest, $servletResponse);
 
