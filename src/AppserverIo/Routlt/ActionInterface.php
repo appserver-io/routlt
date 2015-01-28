@@ -1,7 +1,7 @@
 <?php
 
 /**
- * AppserverIo\Routlt\Action
+ * AppserverIo\Routlt\ActionInterface
  *
  * NOTICE OF LICENSE
  *
@@ -11,10 +11,8 @@
  *
  * PHP version 5
  *
- * @category  Library
- * @package   Routlt
  * @author    Tim Wagner <tw@techdivision.com>
- * @copyright 2014 TechDivision GmbH <info@techdivision.com>
+ * @copyright 2015 TechDivision GmbH <info@techdivision.com>
  * @license   http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  * @link      http://github.com/appserver-io/routlt
  * @link      http://www.appserver.io
@@ -22,34 +20,32 @@
 
 namespace AppserverIo\Routlt;
 
-use AppserverIo\Psr\Servlet\Http\HttpServletRequest;
-use AppserverIo\Psr\Servlet\Http\HttpServletResponse;
+use AppserverIo\Psr\Servlet\Http\HttpServletRequestInterface;
+use AppserverIo\Psr\Servlet\Http\HttpServletResponseInterface;
 
 /**
  * This is the interface for all actions.
  *
  * Every action in a project has to implement this interface.
  *
- * @category  Library
- * @package   Routlt
  * @author    Tim Wagner <tw@techdivision.com>
- * @copyright 2014 TechDivision GmbH <info@techdivision.com>
+ * @copyright 2015 TechDivision GmbH <info@techdivision.com>
  * @license   http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  * @link      http://github.com/appserver-io/routlt
  * @link      http://www.appserver.io
  */
-interface Action
+interface ActionInterface
 {
 
     /**
      * Method that will be invoked before we dispatch the request.
      *
-     * @param \AppserverIo\Psr\Servlet\Http\HttpServletRequest  $servletRequest  The request instance
-     * @param \AppserverIo\Psr\Servlet\Http\HttpServletResponse $servletResponse The response instance
+     * @param \AppserverIo\Psr\Servlet\Http\HttpServletRequestInterface  $servletRequest  The request instance
+     * @param \AppserverIo\Psr\Servlet\Http\HttpServletResponseInterface $servletResponse The response instance
      *
      * @return void
      */
-    public function preDispatch(HttpServletRequest $servletRequest, HttpServletResponse $servletResponse);
+    public function preDispatch(HttpServletRequestInterface $servletRequest, HttpServletResponseInterface $servletResponse);
 
     /**
      * All classes extending this class must implement the perform() method.
@@ -58,20 +54,20 @@ interface Action
      * ActionForward object that is necessary for further application flow controlled by the
      * ActionController.
      *
-     * @param \AppserverIo\Psr\Servlet\Http\HttpServletRequest  $servletRequest  The request instance
-     * @param \AppserverIo\Psr\Servlet\Http\HttpServletResponse $servletResponse The response instance
+     * @param \AppserverIo\Psr\Servlet\Http\HttpServletRequestInterface  $servletRequest  The request instance
+     * @param \AppserverIo\Psr\Servlet\Http\HttpServletResponseInterface $servletResponse The response instance
      *
      * @return void
      */
-    public function perform(HttpServletRequest $servletRequest, HttpServletResponse $servletResponse);
+    public function perform(HttpServletRequestInterface $servletRequest, HttpServletResponseInterface $servletResponse);
 
     /**
      * Method that will be invoked after we've dispatched the request.
      *
-     * @param \AppserverIo\Psr\Servlet\Http\HttpServletRequest  $servletRequest  The request instance
-     * @param \AppserverIo\Psr\Servlet\Http\HttpServletResponse $servletResponse The response instance
+     * @param \AppserverIo\Psr\Servlet\Http\HttpServletRequestInterface  $servletRequest  The request instance
+     * @param \AppserverIo\Psr\Servlet\Http\HttpServletResponseInterface $servletResponse The response instance
      *
      * @return void
      */
-    public function postDispatch(HttpServletRequest $servletRequest, HttpServletResponse $servletResponse);
+    public function postDispatch(HttpServletRequestInterface $servletRequest, HttpServletResponseInterface $servletResponse);
 }

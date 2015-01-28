@@ -11,10 +11,8 @@
  *
  * PHP version 5
  *
- * @category  Library
- * @package   Routlt
  * @author    Tim Wagner <tw@techdivision.com>
- * @copyright 2014 TechDivision GmbH <info@techdivision.com>
+ * @copyright 2015 TechDivision GmbH <info@techdivision.com>
  * @license   http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  * @link      http://github.com/appserver-io/routlt
  * @link      http://www.appserver.io
@@ -25,10 +23,8 @@ namespace AppserverIo\Routlt;
 /**
  * This is test implementation for the abstract base action implementation.
  *
- * @category  Library
- * @package   Routlt
  * @author    Tim Wagner <tw@techdivision.com>
- * @copyright 2014 TechDivision GmbH <info@techdivision.com>
+ * @copyright 2015 TechDivision GmbH <info@techdivision.com>
  * @license   http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  * @link      http://github.com/appserver-io/routlt
  * @link      http://www.appserver.io
@@ -50,7 +46,7 @@ class BaseActionTest extends \PHPUnit_Framework_TestCase
      */
     public function setUp()
     {
-        $this->action = $this->getMockForAbstractClass('AppserverIo\Routlt\BaseAction', array($this->getMock('AppserverIo\Psr\Context\Context')));
+        $this->action = $this->getMockForAbstractClass('AppserverIo\Routlt\BaseAction', array($this->getMock('AppserverIo\Psr\Context\ContextInterface')));
     }
 
     /**
@@ -60,7 +56,7 @@ class BaseActionTest extends \PHPUnit_Framework_TestCase
      */
     public function testGetConstructorAndGetContext()
     {
-        $action = $this->getMockForAbstractClass('AppserverIo\Routlt\BaseAction', array($context = $this->getMock('AppserverIo\Psr\Context\Context')));
+        $action = $this->getMockForAbstractClass('AppserverIo\Routlt\BaseAction', array($context = $this->getMock('AppserverIo\Psr\Context\ContextInterface')));
         $this->assertSame($context, $action->getContext());
     }
 
@@ -71,8 +67,8 @@ class BaseActionTest extends \PHPUnit_Framework_TestCase
      */
     public function testPreDispatch()
     {
-        $servletRequest = $this->getMock('AppserverIo\Psr\Servlet\Http\HttpServletRequest');
-        $servletResponse = $this->getMock('AppserverIo\Psr\Servlet\Http\HttpServletResponse');
+        $servletRequest = $this->getMock('AppserverIo\Psr\Servlet\Http\HttpServletRequestInterface');
+        $servletResponse = $this->getMock('AppserverIo\Psr\Servlet\Http\HttpServletResponseInterface');
         $this->assertNull($this->action->preDispatch($servletRequest, $servletResponse));
     }
 
@@ -83,8 +79,8 @@ class BaseActionTest extends \PHPUnit_Framework_TestCase
      */
     public function testPostDispatch()
     {
-        $servletRequest = $this->getMock('AppserverIo\Psr\Servlet\Http\HttpServletRequest');
-        $servletResponse = $this->getMock('AppserverIo\Psr\Servlet\Http\HttpServletResponse');
+        $servletRequest = $this->getMock('AppserverIo\Psr\Servlet\Http\HttpServletRequestInterface');
+        $servletResponse = $this->getMock('AppserverIo\Psr\Servlet\Http\HttpServletResponseInterface');
         $this->assertNull($this->action->postDispatch($servletRequest, $servletResponse));
     }
 }

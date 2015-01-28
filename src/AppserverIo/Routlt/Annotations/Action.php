@@ -11,9 +11,6 @@
  *
  * PHP version 5
  *
- * @category   Library
- * @package    Routlt
- * @subpackage Annotations
  * @author     Tim Wagner <tw@techdivision.com>
  * @copyright  2015 TechDivision GmbH <info@techdivision.com>
  * @license    http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
@@ -28,9 +25,6 @@ use AppserverIo\Lang\Reflection\ReflectionAnnotation;
 /**
  * Annotation to map a request path info to an action method.
  *
- * @category   Library
- * @package    Routlt
- * @subpackage Annotations
  * @author     Tim Wagner <tw@techdivision.com>
  * @copyright  2015 TechDivision GmbH <info@techdivision.com>
  * @license    http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)

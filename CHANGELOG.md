@@ -1,3 +1,23 @@
+# Version 0.3.0
+
+## Bugfixes
+
+* None
+
+## Features
+
+* Applied new file name and comment naming conventions
+
+# Version 0.2.1
+
+## Bugfixes
+
+* None
+
+## Features
+
+* Add X-Powered-By header with servlet name that handles the request
+
 # Version 0.2.0
 
 ## Bugfixes

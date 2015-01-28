@@ -11,9 +11,6 @@
  *
  * PHP version 5
  *
- * @category   Library
- * @package    Routlt
- * @subpackage Descriptor
  * @author     Tim Wagner <tw@techdivision.com>
  * @copyright  2015 TechDivision GmbH <info@techdivision.com>
  * @license    http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
@@ -37,9 +34,6 @@ use AppserverIo\Appserver\DependencyInjectionContainer\Interfaces\ResReferenceDe
 /**
  * Annotation to map a request path info to an action method.
  *
- * @category   Library
- * @package    Routlt
- * @subpackage Descriptor
  * @author     Tim Wagner <tw@techdivision.com>
  * @copyright  2015 TechDivision GmbH <info@techdivision.com>
  * @license    http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
@@ -277,12 +271,14 @@ class PathDescriptor implements PathDescriptorInterface
 
         // query if we've an action
         if ($reflectionClass->implementsInterface('AppserverIo\Routlt\Action') === false &&
-            $reflectionClass->toPhpReflectionClass()->isAbstract() === false) { // if not, do nothing
+            $reflectionClass->toPhpReflectionClass()->isAbstract() === false) {
+            // if not, do nothing
             return;
         }
 
         // query if we've a servlet with a @Path annotation
-        if ($reflectionClass->hasAnnotation(Path::ANNOTATION) === false) { // if not, do nothing
+        if ($reflectionClass->hasAnnotation(Path::ANNOTATION) === false) {
+            // if not, do nothing
             return;
         }
 
@@ -301,7 +297,8 @@ class PathDescriptor implements PathDescriptorInterface
         // load the default name to register in naming directory
         if ($nameAttribute = $annotationInstance->getName()) {
             $name = $nameAttribute;
-        } else { // if @Annotation(name=****) is NOT set, we use the short class name by default
+        } else {
+            // if @Annotation(name=****) is NOT set, we use the short class name by default
             $name = lcfirst(str_replace('Action', '', $reflectionClass->getShortName()));
         }
 
@@ -317,7 +314,6 @@ class PathDescriptor implements PathDescriptorInterface
 
         // we've to check for property annotations that references EPB or resources
         foreach ($reflectionClass->getProperties() as $reflectionProperty) {
-
             // load the EPB references
             if ($epbReference = EpbReferenceDescriptor::newDescriptorInstance()->fromReflectionProperty($reflectionProperty)) {
                 $this->addEpbReference($epbReference);
@@ -331,7 +327,6 @@ class PathDescriptor implements PathDescriptorInterface
 
         // we've to check for method annotations that references EPB or resources
         foreach ($reflectionClass->getMethods(\ReflectionMethod::IS_PUBLIC) as $reflectionMethod) {
-
             // load the EPB references
             if ($epbReference = EpbReferenceDescriptor::newDescriptorInstance()->fromReflectionMethod($reflectionMethod)) {
                 $this->addEpbReference($epbReference);

@@ -11,9 +11,6 @@
  *
  * PHP version 5
  *
- * @category   Library
- * @package    Routlt
- * @subpackage Description
  * @author     Tim Wagner <tw@techdivision.com>
  * @copyright  2015 TechDivision GmbH <info@techdivision.com>
  * @license    http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
@@ -26,9 +23,6 @@ namespace AppserverIo\Routlt\Description;
 /**
  * Exception that will be thrown if an error occures when descriptors are initialized.
  *
- * @category   Library
- * @package    Routlt
- * @subpackage Description
  * @author     Tim Wagner <tw@techdivision.com>
  * @copyright  2015 TechDivision GmbH <info@techdivision.com>
  * @license    http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)

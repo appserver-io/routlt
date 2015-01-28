@@ -11,9 +11,6 @@
  *
  * PHP version 5
  *
- * @category   Library
- * @package    Routlt
- * @subpackage Descriptor
  * @author     Tim Wagner <tw@techdivision.com>
  * @copyright  2015 TechDivision GmbH <info@techdivision.com>
  * @license    http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
@@ -30,9 +27,6 @@ use AppserverIo\Lang\Reflection\ReflectionAnnotation;
 /**
  * Annotation to map a request path info to an action method.
  *
- * @category   Library
- * @package    Routlt
- * @subpackage Descriptor
  * @author     Tim Wagner <tw@techdivision.com>
  * @copyright  2015 TechDivision GmbH <info@techdivision.com>
  * @license    http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
@@ -136,7 +130,8 @@ class ActionDescriptor implements ActionDescriptorInterface
         $reflectionMethod->addAnnotationAlias(Action::ANNOTATION, Action::__getClass());
 
         // query if we've a method with a @Action annotation
-        if ($reflectionMethod->hasAnnotation(Action::ANNOTATION) === false) { // if not, do nothing
+        if ($reflectionMethod->hasAnnotation(Action::ANNOTATION) === false) {
+            // if not, do nothing
             return;
         }
 
@@ -155,7 +150,8 @@ class ActionDescriptor implements ActionDescriptorInterface
         // load the default name to register in naming directory
         if ($nameAttribute = $annotationInstance->getName()) {
             $this->setName($nameAttribute);
-        } else { // if @Annotation(name=****) is NOT set, we use the method name by default
+        } else {
+            // if @Annotation(name=****) is NOT set, we use the method name by default
             $this->setName(lcfirst(str_replace('Action', '', $reflectionMethod->getMethodName())));
         }
 

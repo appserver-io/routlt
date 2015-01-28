@@ -11,33 +11,27 @@
  *
  * PHP version 5
  *
- * @category   Library
- * @package    Routlt
- * @subpackage Mock
- * @author     Tim Wagner <tw@techdivision.com>
- * @copyright  2014 TechDivision GmbH <info@techdivision.com>
- * @license    http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
- * @link       http://github.com/appserver-io/routlt
- * @link       http://www.appserver.io
+ * @author    Tim Wagner <tw@techdivision.com>
+ * @copyright 2015 TechDivision GmbH <info@techdivision.com>
+ * @license   http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
+ * @link      http://github.com/appserver-io/routlt
+ * @link      http://www.appserver.io
  */
 
 namespace AppserverIo\Routlt\Mock;
 
 use AppserverIo\Routlt\DispatchAction;
-use AppserverIo\Psr\Servlet\Http\HttpServletRequest;
-use AppserverIo\Psr\Servlet\Http\HttpServletResponse;
+use AppserverIo\Psr\Servlet\Http\HttpServletRequestInterface;
+use AppserverIo\Psr\Servlet\Http\HttpServletResponseInterface;
 
 /**
  * This class is the abstract base class for all Actions.
  *
- * @category   Library
- * @package    Routlt
- * @subpackage Mock
- * @author     Tim Wagner <tw@techdivision.com>
- * @copyright  2014 TechDivision GmbH <info@techdivision.com>
- * @license    http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
- * @link       http://github.com/appserver-io/routlt
- * @link       http://www.appserver.io
+ * @author    Tim Wagner <tw@techdivision.com>
+ * @copyright 2015 TechDivision GmbH <info@techdivision.com>
+ * @license   http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
+ * @link      http://github.com/appserver-io/routlt
+ * @link      http://www.appserver.io
  */
 class MockDispatchAction extends DispatchAction
 {
@@ -46,12 +40,12 @@ class MockDispatchAction extends DispatchAction
     /**
      * Dummy action implementation.
      *
-     * @param \AppserverIo\Psr\Servlet\Http\HttpServletRequest  $servletRequest  The request instance
-     * @param \AppserverIo\Psr\Servlet\Http\HttpServletResponse $servletResponse The response instance
+     * @param \AppserverIo\Psr\Servlet\Http\HttpServletRequestInterface  $servletRequest  The request instance
+     * @param \AppserverIo\Psr\Servlet\Http\HttpServletResponseInterface $servletResponse The response instance
      *
      * @return void
      */
-    public function indexAction(HttpServletRequest $servletRequest, HttpServletResponse $servletResponse)
+    public function indexAction(HttpServletRequestInterface $servletRequest, HttpServletResponseInterface $servletResponse)
     {
     }
 
@@ -59,12 +53,12 @@ class MockDispatchAction extends DispatchAction
     /**
      * Dummy action implementation.
      *
-     * @param \AppserverIo\Psr\Servlet\Http\HttpServletRequest  $servletRequest  The request instance
-     * @param \AppserverIo\Psr\Servlet\Http\HttpServletResponse $servletResponse The response instance
+     * @param \AppserverIo\Psr\Servlet\Http\HttpServletRequestInterface  $servletRequest  The request instance
+     * @param \AppserverIo\Psr\Servlet\Http\HttpServletResponseInterface $servletResponse The response instance
      *
      * @return void
      */
-    public function testAction(HttpServletRequest $servletRequest, HttpServletResponse $servletResponse)
+    public function testAction(HttpServletRequestInterface $servletRequest, HttpServletResponseInterface $servletResponse)
     {
     }
 }

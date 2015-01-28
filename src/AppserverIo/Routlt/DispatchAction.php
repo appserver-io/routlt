@@ -11,10 +11,8 @@
  *
  * PHP version 5
  *
- * @category  Library
- * @package   Routlt
  * @author    Tim Wagner <tw@techdivision.com>
- * @copyright 2014 TechDivision GmbH <info@techdivision.com>
+ * @copyright 2015 TechDivision GmbH <info@techdivision.com>
  * @license   http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  * @link      http://github.com/appserver-io/routlt
  * @link      http://www.appserver.io
@@ -22,17 +20,15 @@
 
 namespace AppserverIo\Routlt;
 
-use AppserverIo\Psr\Servlet\Http\HttpServletRequest;
-use AppserverIo\Psr\Servlet\Http\HttpServletResponse;
+use AppserverIo\Psr\Servlet\Http\HttpServletRequestInterface;
+use AppserverIo\Psr\Servlet\Http\HttpServletResponseInterface;
 
 /**
  * This class implements the functionality to invoke a method on its subclass specified
  * by the HTTPServletRequest path info.
  *
- * @category  Library
- * @package   Routlt
  * @author    Tim Wagner <tw@techdivision.com>
- * @copyright 2014 TechDivision GmbH <info@techdivision.com>
+ * @copyright 2015 TechDivision GmbH <info@techdivision.com>
  * @license   http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  * @link      http://github.com/appserver-io/routlt
  * @link      http://www.appserver.io
@@ -62,7 +58,7 @@ abstract class DispatchAction extends BaseAction
     const ACTION_DELIMITER = '/';
 
     /**
-     * Holds the name of the default method to invoke if the paramter with the method name to invoke is not specified.
+     * Holds the name of the default method to invoke if the parameter with the method name to invoke is not specified.
      *
      * @var string
      */
@@ -74,12 +70,12 @@ abstract class DispatchAction extends BaseAction
      * The method that should be invoked has to be specified by a HTTPServletRequest parameter
      * which name is specified in the configuration file as parameter for the ActionMapping.
      *
-     * @param \AppserverIo\Psr\Servlet\Http\HttpServletRequest  $servletRequest  The request instance
-     * @param \AppserverIo\Psr\Servlet\Http\HttpServletResponse $servletResponse The response instance
+     * @param \AppserverIo\Psr\Servlet\Http\HttpServletRequestInterface  $servletRequest  The request instance
+     * @param \AppserverIo\Psr\Servlet\Http\HttpServletResponseInterface $servletResponse The response instance
      *
      * @return void
      */
-    public function perform(HttpServletRequest $servletRequest, HttpServletResponse $servletResponse)
+    public function perform(HttpServletRequestInterface $servletRequest, HttpServletResponseInterface $servletResponse)
     {
 
         // the action delimiter we use to extract the action method name
@@ -95,7 +91,7 @@ abstract class DispatchAction extends BaseAction
             $requestedMethodName = $this->getDefaultMethod();
         }
 
-        // concatenate it witht the configured suffix and create a valid action name
+        // concatenate it with the configured suffix and create a valid action name
         $requestedActionMethod = $this->getActionSuffix($requestedMethodName);
 
         // check if the requested action method is a class method

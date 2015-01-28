@@ -11,9 +11,6 @@
  *
  * PHP version 5
  *
- * @category   Library
- * @package    Routlt
- * @subpackage Descriptor
  * @author     Tim Wagner <tw@techdivision.com>
  * @copyright  2015 TechDivision GmbH <info@techdivision.com>
  * @license    http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
@@ -23,18 +20,15 @@
 
 namespace AppserverIo\Routlt\Description;
 
-use AppserverIo\Routlt\Controller;
-use AppserverIo\Routlt\Description\PathDescriptor;
 use AppserverIo\Lang\Reflection\ReflectionClass;
+use AppserverIo\Routlt\ControllerInterface;
 use AppserverIo\Routlt\Annotations\Path;
 use AppserverIo\Routlt\Annotations\Action;
+use AppserverIo\Routlt\Description\PathDescriptor;
 
 /**
  * Parser to parse a directory for annotated action classes.
  *
- * @category   Library
- * @package    Routlt
- * @subpackage Descriptor
  * @author     Tim Wagner <tw@techdivision.com>
  * @copyright  2015 TechDivision GmbH <info@techdivision.com>
  * @license    http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
@@ -47,11 +41,11 @@ class DirectoryParser
     /**
      * Injects the controller instance.
      *
-     * @param \AppserverIo\Routlt\Controller $controller The controller instance
+     * @param \AppserverIo\Routlt\ControllerInterface $controller The controller instance
      *
      * @return void
      */
-    public function injectController(Controller $controller)
+    public function injectController(ControllerInterface $controller)
     {
         $this->controller = $controller;
     }
@@ -59,7 +53,7 @@ class DirectoryParser
     /**
      * Returns the controller instance.
      *
-     * @return \AppserverIo\Routlt\Controller The controller instance
+     * @return \AppserverIo\Routlt\ControllerInterface The controller instance
      */
     public function getController()
     {
@@ -87,9 +81,7 @@ class DirectoryParser
 
         // iterate all php files
         foreach ($phpFiles as $phpFile) {
-
             try {
-
                 // cut off the META-INF directory and replace OS specific directory separators
                 $relativePathToPhpFile = str_replace(DIRECTORY_SEPARATOR, '\\', str_replace($directory, '', $phpFile));
 
@@ -104,8 +96,8 @@ class DirectoryParser
                     $this->getController()->addPathDescriptor($pathDescriptor);
                 }
 
-            } catch (\Exception $e) { // if class can not be reflected continue with next class
-
+            // if class can not be reflected continue with next class
+            } catch (\Exception $e) {
                 // proceed with the nexet bean
                 continue;
             }

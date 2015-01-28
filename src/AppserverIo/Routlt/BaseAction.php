@@ -11,10 +11,8 @@
  *
  * PHP version 5
  *
- * @category  Library
- * @package   Routlt
  * @author    Tim Wagner <tw@techdivision.com>
- * @copyright 2014 TechDivision GmbH <info@techdivision.com>
+ * @copyright 2015 TechDivision GmbH <info@techdivision.com>
  * @license   http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  * @link      http://github.com/appserver-io/routlt
  * @link      http://www.appserver.io
@@ -23,28 +21,26 @@
 namespace AppserverIo\Routlt;
 
 use AppserverIo\Lang\Object;
-use AppserverIo\Psr\Context\Context;
-use AppserverIo\Psr\Servlet\Http\HttpServletRequest;
-use AppserverIo\Psr\Servlet\Http\HttpServletResponse;
+use AppserverIo\Psr\Context\ContextInterface;
+use AppserverIo\Psr\Servlet\Http\HttpServletRequestInterface;
+use AppserverIo\Psr\Servlet\Http\HttpServletResponseInterface;
 
 /**
  * This class is the abstract base class for all Actions.
  *
- * @category  Library
- * @package   Routlt
  * @author    Tim Wagner <tw@techdivision.com>
- * @copyright 2014 TechDivision GmbH <info@techdivision.com>
+ * @copyright 2015 TechDivision GmbH <info@techdivision.com>
  * @license   http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  * @link      http://github.com/appserver-io/routlt
  * @link      http://www.appserver.io
  */
-abstract class BaseAction extends Object implements Action
+abstract class BaseAction extends Object implements ActionInterface
 {
 
     /**
      * The context for the actual request.
      *
-     * @var \AppserverIo\Psr\Context\Context
+     * @var \AppserverIo\Psr\Context\ContextInterface
      */
     protected $context = null;
 
@@ -52,11 +48,9 @@ abstract class BaseAction extends Object implements Action
      * Initializes the action with the context for the
      * actual request.
      *
-     * @param \AppserverIo\Psr\Context\Context $context The context for the actual request
-     *
-     * @return void
+     * @param \AppserverIo\Psr\Context\ContextInterface $context The context for the actual request
      */
-    public function __construct(Context $context)
+    public function __construct(ContextInterface $context)
     {
         $this->context = $context;
     }
@@ -64,13 +58,13 @@ abstract class BaseAction extends Object implements Action
     /**
      * Method that will be invoked before we dispatch the request.
      *
-     * @param \AppserverIo\Psr\Servlet\Http\HttpServletRequest  $servletRequest  The request instance
-     * @param \AppserverIo\Psr\Servlet\Http\HttpServletResponse $servletResponse The response instance
+     * @param \AppserverIo\Psr\Servlet\Http\HttpServletRequestInterface  $servletRequest  The request instance
+     * @param \AppserverIo\Psr\Servlet\Http\HttpServletResponseInterface $servletResponse The response instance
      *
      * @return void
-     * @see \TechDivision\Example\Controller\Action::preDispatch()
+     * @see \AppserverIo\Routlt\ActionInterface::preDispatch()
      */
-    public function preDispatch(HttpServletRequest $servletRequest, HttpServletResponse $servletResponse)
+    public function preDispatch(HttpServletRequestInterface $servletRequest, HttpServletResponseInterface $servletResponse)
     {
         return;
     }
@@ -78,13 +72,13 @@ abstract class BaseAction extends Object implements Action
     /**
      * Method that will be invoked after we've dispatched the request.
      *
-     * @param \AppserverIo\Psr\Servlet\Http\HttpServletRequest  $servletRequest  The request instance
-     * @param \AppserverIo\Psr\Servlet\Http\HttpServletResponse $servletResponse The response instance
+     * @param \AppserverIo\Psr\Servlet\Http\HttpServletRequestInterface  $servletRequest  The request instance
+     * @param \AppserverIo\Psr\Servlet\Http\HttpServletResponseInterface $servletResponse The response instance
      *
      * @return void
-     * @see \TechDivision\Example\Controller\Action::preDispatch()
+     * @see \AppserverIo\Routlt\ActionInterface::postDispatch()
      */
-    public function postDispatch(HttpServletRequest $servletRequest, HttpServletResponse $servletResponse)
+    public function postDispatch(HttpServletRequestInterface $servletRequest, HttpServletResponseInterface $servletResponse)
     {
         return;
     }
@@ -92,7 +86,7 @@ abstract class BaseAction extends Object implements Action
     /**
      * Returns the context for the actual request.
      *
-     * @return \AppserverIo\Psr\Context\Context The context for the actual request
+     * @return \AppserverIo\Psr\Context\ContextInterface The context for the actual request
      */
     public function getContext()
     {
