@@ -15,7 +15,7 @@
 	},
 	"require-dev" : {
 		"appserver-io/lang" : "0.1.*",
-        "appserver-io/http" : "0.2.*",
+		"appserver-io/http" : "0.2.*",
 		"appserver-io/build" : "0.2.*",
 		"appserver-io/server" : "0.2.*",
 		"appserver-io/properties" : "0.1.*",

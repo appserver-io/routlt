@@ -20,7 +20,7 @@
 
 namespace AppserverIo\Routlt\Util;
 
-use AppserverIo\Psr\Servlet\ServletContext;
+use AppserverIo\Psr\Servlet\ServletContextInterface;
 
 /**
  * Interface for a servlet context aware controller servlet
@@ -37,16 +37,16 @@ interface ServletContextAware
     /**
      * Sets the actual servlet context instance.
      *
-     * @param \AppserverIo\Psr\Servlet\ServletContext $servletContext The servlet context instance
+     * @param \AppserverIo\Psr\Servlet\ServletContextInterface $servletContext The servlet context instance
      *
      * @return void
      */
-    public function setServletContext(ServletContext $servletContext);
+    public function setServletContext(ServletContextInterface $servletContext);
 
     /**
      * Returns the servlet context instance.
      *
-     * @return \AppserverIo\Psr\Servlet\ServletContext The servlet context instance
+     * @return \AppserverIo\Psr\Servlet\ServletContextInterface The servlet context instance
      */
     public function getServletContext();
 }
