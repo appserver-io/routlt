@@ -270,7 +270,7 @@ class PathDescriptor implements PathDescriptorInterface
         $reflectionClass->addAnnotationAlias(Path::ANNOTATION, Path::__getClass());
 
         // query if we've an action
-        if ($reflectionClass->implementsInterface('AppserverIo\Routlt\Action') === false &&
+        if ($reflectionClass->implementsInterface('AppserverIo\Routlt\ActionInterface') === false &&
             $reflectionClass->toPhpReflectionClass()->isAbstract() === false) {
             // if not, do nothing
             return;

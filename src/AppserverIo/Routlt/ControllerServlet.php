@@ -29,7 +29,6 @@ use AppserverIo\Psr\Servlet\ServletResponseInterface;
 use AppserverIo\Psr\Servlet\Http\HttpServlet;
 use AppserverIo\Routlt\Util\ServletContextAware;
 use AppserverIo\Server\Exceptions\ModuleException;
-use AppserverIo\Routlt\Description\DirectoryParser;
 use AppserverIo\Routlt\Description\PathDescriptorInterface;
 
 /**
@@ -136,6 +135,7 @@ class ControllerServlet extends HttpServlet implements ControllerInterface
         foreach ($objectManager->getObjectDescriptors() as $descriptor) {
             // check if we've found a servlet descriptor
             if ($descriptor instanceof PathDescriptorInterface) {
+
                 // load the class name
                 $className = $descriptor->getClassName();
 
@@ -214,7 +214,7 @@ class ControllerServlet extends HttpServlet implements ControllerInterface
                 $sessionId = null;
 
                 // if no session has already been load, initialize the session manager
-                if ($manager = $application->search('SessionManager')) {
+                if ($manager = $application->search('SessionManagerInterface')) {
                     $requestedSessionName = $manager->getSessionSettings()->getSessionName();
                     if ($servletRequest->hasCookie($requestedSessionName)) {
                         $sessionId = $servletRequest->getCookie($requestedSessionName)->getValue();
