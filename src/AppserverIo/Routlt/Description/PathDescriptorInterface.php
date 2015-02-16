@@ -20,7 +20,7 @@
 
 namespace AppserverIo\Routlt\Description;
 
-use AppserverIo\Appserver\DependencyInjectionContainer\Interfaces\DescriptorInterface;
+use AppserverIo\Psr\Deployment\DescriptorInterface;
 
 /**
  * Descriptor for a action class implementation.
@@ -54,6 +54,20 @@ interface PathDescriptorInterface extends DescriptorInterface
      * @return array The action method descriptors
      */
     public function getActions();
+
+    /**
+     * The array with the EPB references.
+     *
+     * @return array The EPB references
+     */
+    public function getEpbReferences();
+
+    /**
+     * The array with the resource references.
+     *
+     * @return array The resource references
+     */
+    public function getResReferences();
 
     /**
      * Merges the passed configuration into this one. Configuration values

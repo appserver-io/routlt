@@ -20,7 +20,7 @@
 
 namespace AppserverIo\Routlt\Description;
 
-use AppserverIo\Appserver\DependencyInjectionContainer\Interfaces\DescriptorInterface;
+use AppserverIo\Psr\Deployment\DescriptorInterface;
 
 /**
  * Descriptor for a action method implementation.

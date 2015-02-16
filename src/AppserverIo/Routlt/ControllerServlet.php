@@ -30,6 +30,7 @@ use AppserverIo\Psr\Servlet\Http\HttpServlet;
 use AppserverIo\Routlt\Util\ServletContextAware;
 use AppserverIo\Server\Exceptions\ModuleException;
 use AppserverIo\Routlt\Description\PathDescriptorInterface;
+use AppserverIo\Psr\Context\ContextInterface;
 
 /**
  * Abstract example implementation that provides some kind of basic MVC functionality
@@ -93,6 +94,40 @@ class ControllerServlet extends HttpServlet implements ControllerInterface
     }
 
     /**
+     * Returns the session manager instance.
+     *
+     * @param \AppserverIo\Psr\Servlet\ServletRequestInterface $servletRequest The request instance
+     *
+     * @return \AppserverIo\Appserver\ServletEngine\SessionManagerInterface The session manager instance
+     */
+    protected function getSessionManager(ServletRequestInterface $servletRequest)
+    {
+        return $servletRequest->getContext()->search('SessionManagerInterface');
+    }
+
+    /**
+     * Returns the provide instance.
+     *
+     * @param \AppserverIo\Psr\Servlet\ServletRequestInterface $servletRequest The request instance
+     *
+     * @return \AppserverIo\Appserver\ServletEngine\SessionManagerInterface The provider instance
+     */
+    protected function getProvider(ServletRequestInterface $servletRequest)
+    {
+        return $servletRequest->getContext()->search('ProviderInterface');
+    }
+
+    /**
+     * Returns the object manager instance
+     *
+     * @return \AppserverIo\Appserver\DependencyInjectionContainer\Interfaces\ObjectManagerInterface The object manager instance
+     */
+    protected function getObjectManager()
+    {
+        return $this->getServletContext()->getApplication()->search('ObjectManagerInterface');
+    }
+
+    /**
      * Loads the values found in the configuration file and merges
      * them with the servlet context initialization parameters.
      *
@@ -102,7 +137,7 @@ class ControllerServlet extends HttpServlet implements ControllerInterface
     {
 
         // load the relative path to the Routlt configuration file
-        $configurationFileName = $this->getServletConfig()->getInitParameter(ControllerServlet::INIT_PARAMETER_ROUTLT_CONFIGURATION_FILE);
+        $configurationFileName = $this->getInitParameter(ControllerServlet::INIT_PARAMETER_ROUTLT_CONFIGURATION_FILE);
 
         // load the path to the configuration file
         $configurationFile = $this->getServletConfig()->getWebappPath() . DIRECTORY_SEPARATOR . ltrim($configurationFileName, '/');
@@ -128,19 +163,13 @@ class ControllerServlet extends HttpServlet implements ControllerInterface
     protected function initRoutes()
     {
 
-        // load the object manager instance
-        $objectManager = $this->getServletContext()->getApplication()->search('ObjectManagerInterface');
-
         // register the beans located by annotations and the XML configuration
-        foreach ($objectManager->getObjectDescriptors() as $descriptor) {
+        foreach ($this->getObjectManager()->getObjectDescriptors() as $descriptor) {
             // check if we've found a servlet descriptor
             if ($descriptor instanceof PathDescriptorInterface) {
 
-                // load the class name
-                $className = $descriptor->getClassName();
-
                 // initialize a new action instance
-                $action = new $className(new ArrayContext());
+                $action = $this->newActionInstance($descriptor->getClassName(), new ArrayContext());
 
                 // if the action is servlet context aware
                 if ($action instanceof ServletContextAware) {
@@ -164,11 +193,24 @@ class ControllerServlet extends HttpServlet implements ControllerInterface
     }
 
     /**
+     * Creates a new instance of the action with the passed class name and context.
+     *
+     * @param string                                    $className The class name of the action to be created
+     * @param \AppserverIo\Psr\Context\ContextInterface $context   The action context
+     *
+     * @return \AppserverIo\Routlt\ActionInterface The action instance
+     */
+    public function newActionInstance($className, ContextInterface $context)
+    {
+        return new $className($context);
+    }
+
+    /**
      * Returns the available routes.
      *
      * @return array The array with the available routes
      */
-    protected function getRoutes()
+    public function getRoutes()
     {
         return $this->routes;
     }
@@ -189,11 +231,9 @@ class ControllerServlet extends HttpServlet implements ControllerInterface
         // pre-initialize response
         $servletResponse->addHeader(HttpProtocol::HEADER_X_POWERED_BY, get_class($this));
 
-        // load the application instance
-        $application = $this->getServletContext()->getApplication();
-
-        // inject the dependencies
-        $dependencyInjectionContainer = $application->search('ProviderInterface');
+        // load the the DI provider and session manager instance
+        $provider = $this->getProvider($servletRequest);
+        $sessionManager = $this->getSessionManager($servletRequest);
 
         // load the path info from the servlet request
         $pathInfo = $servletRequest->getPathInfo();
@@ -214,15 +254,15 @@ class ControllerServlet extends HttpServlet implements ControllerInterface
                 $sessionId = null;
 
                 // if no session has already been load, initialize the session manager
-                if ($manager = $application->search('SessionManagerInterface')) {
-                    $requestedSessionName = $manager->getSessionSettings()->getSessionName();
+                if ($sessionManager != null) {
+                    $requestedSessionName = $sessionManager->getSessionSettings()->getSessionName();
                     if ($servletRequest->hasCookie($requestedSessionName)) {
                         $sessionId = $servletRequest->getCookie($requestedSessionName)->getValue();
                     }
                 }
 
                 // inject the dependencies
-                $dependencyInjectionContainer->injectDependencies($action, $sessionId);
+                $provider->injectDependencies($action, $sessionId);
 
                 // we pre-dispatch the action
                 $action->preDispatch($servletRequest, $servletResponse);
@@ -248,7 +288,7 @@ class ControllerServlet extends HttpServlet implements ControllerInterface
      *
      * @return string The default route
      */
-    protected function getDefaultRoute()
+    public function getDefaultRoute()
     {
         return ControllerServlet::DEFAULT_ROUTE;
     }
@@ -258,7 +298,7 @@ class ControllerServlet extends HttpServlet implements ControllerInterface
      *
      * @return array The array with the path descriptors
      */
-    protected function getPathDescriptors()
+    public function getPathDescriptors()
     {
         return $this->paths;
     }
