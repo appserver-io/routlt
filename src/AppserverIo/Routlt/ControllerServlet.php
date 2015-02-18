@@ -23,6 +23,7 @@ namespace AppserverIo\Routlt;
 use AppserverIo\Http\HttpProtocol;
 use AppserverIo\Properties\Properties;
 use AppserverIo\Psr\Context\ArrayContext;
+use AppserverIo\Psr\Context\ContextInterface;
 use AppserverIo\Psr\Servlet\ServletConfigInterface;
 use AppserverIo\Psr\Servlet\ServletRequestInterface;
 use AppserverIo\Psr\Servlet\ServletResponseInterface;
@@ -30,7 +31,6 @@ use AppserverIo\Psr\Servlet\Http\HttpServlet;
 use AppserverIo\Routlt\Util\ServletContextAware;
 use AppserverIo\Server\Exceptions\ModuleException;
 use AppserverIo\Routlt\Description\PathDescriptorInterface;
-use AppserverIo\Psr\Context\ContextInterface;
 
 /**
  * Abstract example implementation that provides some kind of basic MVC functionality

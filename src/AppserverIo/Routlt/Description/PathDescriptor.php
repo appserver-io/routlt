@@ -26,10 +26,10 @@ use AppserverIo\Routlt\Description\ActionDescriptorInterface;
 use AppserverIo\Routlt\Description\DescriptorException;
 use AppserverIo\Lang\Reflection\ClassInterface;
 use AppserverIo\Lang\Reflection\ReflectionAnnotation;
-use AppserverIo\Appserver\DependencyInjectionContainer\Description\EpbReferenceDescriptor;
-use AppserverIo\Appserver\DependencyInjectionContainer\Description\ResReferenceDescriptor;
-use AppserverIo\Appserver\DependencyInjectionContainer\Interfaces\EpbReferenceDescriptorInterface;
-use AppserverIo\Appserver\DependencyInjectionContainer\Interfaces\ResReferenceDescriptorInterface;
+use AppserverIo\Description\EpbReferenceDescriptor;
+use AppserverIo\Description\ResReferenceDescriptor;
+use AppserverIo\Psr\EnterpriseBeans\Description\EpbReferenceDescriptorInterface;
+use AppserverIo\Psr\EnterpriseBeans\Description\ResReferenceDescriptorInterface;
 
 /**
  * Annotation to map a request path info to an action method.
