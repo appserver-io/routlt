@@ -24,12 +24,12 @@ use AppserverIo\Http\HttpProtocol;
 use AppserverIo\Properties\Properties;
 use AppserverIo\Psr\Context\ArrayContext;
 use AppserverIo\Psr\Context\ContextInterface;
+use AppserverIo\Psr\Servlet\ServletException;
 use AppserverIo\Psr\Servlet\ServletConfigInterface;
 use AppserverIo\Psr\Servlet\ServletRequestInterface;
 use AppserverIo\Psr\Servlet\ServletResponseInterface;
 use AppserverIo\Psr\Servlet\Http\HttpServlet;
 use AppserverIo\Routlt\Util\ServletContextAware;
-use AppserverIo\Server\Exceptions\ModuleException;
 use AppserverIo\Routlt\Description\PathDescriptorInterface;
 
 /**
@@ -223,7 +223,7 @@ class ControllerServlet extends HttpServlet implements ControllerInterface
      *
      * @return void
      *
-     * @throws \AppserverIo\Server\Exceptions\ModuleException If no action has been found for the requested path
+     * @throws \AppserverIo\Psr\Servlet\ServletException If no action has been found for the requested path
      */
     public function service(ServletRequestInterface $servletRequest, ServletResponseInterface $servletResponse)
     {
@@ -280,7 +280,7 @@ class ControllerServlet extends HttpServlet implements ControllerInterface
         }
 
         // we can't find an action that handles this request
-        throw new ModuleException(sprintf("No action to handle path info '%s' available.", $pathInfo), 404);
+        throw new ServletException(sprintf("No action to handle path info '%s' available.", $pathInfo), 404);
     }
 
     /**

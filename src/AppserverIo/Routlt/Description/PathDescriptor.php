@@ -20,14 +20,14 @@
 
 namespace AppserverIo\Routlt\Description;
 
-use AppserverIo\Psr\Servlet\GenericServlet;
-use AppserverIo\Routlt\Annotations\Path;
-use AppserverIo\Routlt\Description\ActionDescriptorInterface;
-use AppserverIo\Routlt\Description\DescriptorException;
 use AppserverIo\Lang\Reflection\ClassInterface;
 use AppserverIo\Lang\Reflection\ReflectionAnnotation;
+use AppserverIo\Routlt\Annotations\Path;
+use AppserverIo\Routlt\Description\DescriptorException;
+use AppserverIo\Routlt\Description\ActionDescriptorInterface;
 use AppserverIo\Description\EpbReferenceDescriptor;
 use AppserverIo\Description\ResReferenceDescriptor;
+use AppserverIo\Psr\Servlet\GenericServlet;
 use AppserverIo\Psr\EnterpriseBeans\Description\EpbReferenceDescriptorInterface;
 use AppserverIo\Psr\EnterpriseBeans\Description\ResReferenceDescriptorInterface;
 
