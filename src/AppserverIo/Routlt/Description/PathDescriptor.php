@@ -299,7 +299,7 @@ class PathDescriptor implements PathDescriptorInterface
             $name = $nameAttribute;
         } else {
             // if @Annotation(name=****) is NOT set, we use the short class name by default
-            $name = lcfirst(str_replace('Action', '', $reflectionClass->getShortName()));
+            $name = lcfirst(str_replace('Controller', '', $reflectionClass->getShortName()));
         }
 
         // prepare and set the name
@@ -351,7 +351,6 @@ class PathDescriptor implements PathDescriptorInterface
      */
     public function fromDeploymentDescriptor(\SimpleXmlElement $node)
     {
-
     }
 
     /**
@@ -361,6 +360,7 @@ class PathDescriptor implements PathDescriptorInterface
      * @param \AppserverIo\Routlt\Description\PathDescriptorInterface $pathDescriptor The configuration to merge
      *
      * @return void
+     * @throws \AppserverIo\Routlt\Description\DescriptorException Is thrown if the passed descriptor has a different class name
      */
     public function merge(PathDescriptorInterface $pathDescriptor)
     {

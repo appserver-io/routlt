@@ -20,6 +20,11 @@
 
 namespace AppserverIo\Routlt;
 
+use AppserverIo\Psr\Context\ArrayContext;
+use AppserverIo\Appserver\ServletEngine\Http\Request;
+use Doctrine\ORM\Mapping\UniqueConstraint;
+use AppserverIo\Appserver\ServletEngine\ServletManager;
+
 /**
  * This is test implementation for the controller servlet implementation.
  *
@@ -139,6 +144,18 @@ class ControllerServletTest extends \PHPUnit_Framework_TestCase
     public function testInitRoutes()
     {
 
+        // mock the action
+        $servletContextAwareInterface = 'AppserverIo\Routlt\Util\ServletContextAware';
+        $action = $this->getMock($servletContextAwareInterface, get_class_methods($servletContextAwareInterface));
+
+        // create a mock instance of the servlet manager instance
+        $servletManagerInterface = '\AppserverIo\Appserver\ServletEngine\ServletManager';
+        $servletManager = $this->getMock($servletManagerInterface, get_class_methods($servletManagerInterface));
+        $servletManager->expects($this->once())
+            ->method('registerEpbReference');
+        $servletManager->expects($this->once())
+            ->method('registerResReference');
+
         // initialize a path descriptor mock instance
         $pathDescriptorInterface = 'AppserverIo\Routlt\Description\PathDescriptorInterface';
         $pathDescriptor = $this->getMock($pathDescriptorInterface, get_class_methods($pathDescriptorInterface));
@@ -147,13 +164,21 @@ class ControllerServletTest extends \PHPUnit_Framework_TestCase
             ->will($this->returnValue('DummyAction'));
         $pathDescriptor->expects($this->once())
             ->method('getClassName')
-            ->will($this->returnValue('\stdClass'));
+            ->will($this->returnValue('AppserverIo\Routlt\Util\ServletContextAware'));
         $pathDescriptor->expects($this->once())
             ->method('getEpbReferences')
-            ->will($this->returnValue(array()));
+            ->will(
+                $this->returnValue(
+                    array($this->getMock('AppserverIo\Psr\EnterpriseBeans\Description\EpbReferenceDescriptorInterface'))
+                )
+            );
         $pathDescriptor->expects($this->once())
             ->method('getResReferences')
-            ->will($this->returnValue(array()));
+            ->will(
+                $this->returnValue(
+                    array($this->getMock('AppserverIo\Psr\EnterpriseBeans\Description\ResReferenceDescriptorInterface'))
+                )
+            );
 
         // add it to the array with return values
         $objectDescriptors = array($pathDescriptor);
@@ -166,12 +191,18 @@ class ControllerServletTest extends \PHPUnit_Framework_TestCase
             ->will($this->returnValue($objectDescriptors));
 
         // initialize the controller with mocked methods
-        $controller = $this->getMock('AppserverIo\Routlt\ControllerServlet', array('getObjectManager'));
+        $controller = $this->getMock('AppserverIo\Routlt\ControllerServlet', array('getObjectManager', 'getServletContext', 'newActionInstance'));
 
-        // mock the configuration file name
+        // mock object + servlet manager
+        $controller->expects($this->once())
+            ->method('newActionInstance')
+            ->will($this->returnValue($action));
         $controller->expects($this->once())
             ->method('getObjectManager')
             ->will($this->returnValue($objectManager));
+        $controller->expects($this->exactly(3))
+            ->method('getServletContext')
+            ->will($this->returnValue($servletManager));
 
         // initialize the servlet configuration
         $servletConfig = $this->getMock('AppserverIo\Psr\Servlet\ServletConfigInterface');
@@ -183,13 +214,13 @@ class ControllerServletTest extends \PHPUnit_Framework_TestCase
         $controller->init($servletConfig);
 
         // check the array of routes
-        $this->assertEquals(array('DummyAction' => new \stdClass()), $controller->getRoutes());
+        $this->assertEquals(array('DummyAction' => $action), $controller->getRoutes());
     }
 
     /**
      * This tests the service() method with a request without any registered routes.
      *
-     * @expectedException \AppserverIo\Server\Exceptions\ModuleException
+     * @expectedException \AppserverIo\Psr\Servlet\ServletException
      * @return void
      */
     public function testServiceWithModuleExceptionExpected()
@@ -351,5 +382,257 @@ class ControllerServletTest extends \PHPUnit_Framework_TestCase
 
         // invoke the method we want to test
         $controller->service($servletRequest, $servletResponse);
+    }
+
+    /**
+     * Tests the newActionInstance() method.
+     *
+     * @return void
+     */
+    public function testNewActionInstance()
+    {
+
+        // initialize the controller with mocked methods
+        $controller = new ControllerServlet();
+
+        // test that the created instance is of the correct type
+        $this->assertInstanceOf('\stdClass', $controller->newActionInstance('\stdClass', new ArrayContext()));
+    }
+
+    /**
+     * Test the getSessionManager() method.
+     *
+     * This test needs a real Request instance, because the interface
+     * doesn't implement the getContext() method.
+     *
+     * @return void
+     */
+    public function testGetSessionManager()
+    {
+
+        // create a mock context instance
+        $context = $this->getMockBuilder('AppserverIo\Psr\Naming\NamingDirectoryInterface')
+            ->setMethods(get_class_methods('AppserverIo\Psr\Naming\NamingDirectoryInterface'))
+            ->getMock();
+
+        // mock the methods
+        $context->expects($this->any())
+            ->method('search')
+            ->with('SessionManagerInterface')
+            ->will($this->returnValue($result = new \stdClass()));
+
+        // create a servlet request instance
+        $servletRequest = new Request();
+        $servletRequest->injectContext($context);
+
+        // initialize the controller
+        $controller = new ControllerServlet();
+
+        // check the session manager instance
+        $this->assertEquals($result, $controller->getSessionManager($servletRequest));
+    }
+
+    /**
+     * Test the getSessionName() method.
+     *
+     * @return void
+     */
+    public function testGetSessionName()
+    {
+
+        // mock the session settings instance
+        $sessionSettings = $this->getMockBuilder('AppserverIo\Appserver\ServletEngine\SessionSettingsInterface')
+            ->setMethods(get_class_methods('AppserverIo\Appserver\ServletEngine\SessionSettingsInterface'))
+            ->getMock();
+
+        // mock the methods
+        $sessionSettings->expects($this->once())
+            ->method('getSessionName')
+            ->will($this->returnValue($sessionName = 'mySession'));
+
+        // mock the session manager instance
+        $sessionManager = $this->getMockBuilder('AppserverIo\Appserver\ServletEngine\SessionManagerInterface')
+            ->setMethods(get_class_methods('AppserverIo\Appserver\ServletEngine\SessionManagerInterface'))
+            ->getMock();
+
+        // mock the methods
+        $sessionManager->expects($this->once())
+            ->method('getSessionSettings')
+            ->will($this->returnValue($sessionSettings));
+
+        // initialize the controller with mocked methods
+        $controller = $this->getMock('AppserverIo\Routlt\ControllerServlet', array('getSessionManager'));
+
+        // mock the configuration file name
+        $controller->expects($this->once())
+            ->method('getSessionManager')
+            ->will($this->returnValue($sessionManager));
+
+        // create a mock servlet reques instance
+        $servletRequest = $this->getMock('AppserverIo\Psr\Servlet\Http\HttpServletRequestInterface');
+
+        // check the session name
+        $this->assertSame($sessionName, $controller->getSessionName($servletRequest));
+    }
+
+    /**
+     * Test the getSessionId() method.
+     *
+     * @return void
+     */
+    public function testGetSessionId()
+    {
+
+        // initialize the controller with mocked methods
+        $controller = $this->getMock('AppserverIo\Routlt\ControllerServlet', array('getSessionName'));
+
+        // mock the session name
+        $controller->expects($this->once())
+            ->method('getSessionName')
+            ->will($this->returnValue($sessionName = 'mySession'));
+
+        // create a mock cookie
+        $cookie = $this->getMockBuilder('AppserverIo\Http\HttpCookie')
+            ->disableOriginalConstructor()
+            ->setMethods(array('getValue'))
+            ->getMock();
+
+        // mock the methods
+        $cookie->expects($this->once())
+            ->method('getValue')
+            ->will($this->returnValue($sessionId = uniqid()));
+
+        // create a mock servlet reques instance
+        $servletRequest = $this->getMock('AppserverIo\Psr\Servlet\Http\HttpServletRequestInterface');
+
+        // mock the methods
+        $servletRequest->expects($this->once())
+            ->method('hasCookie')
+            ->with($sessionName)
+            ->will($this->returnValue(true));
+        $servletRequest->expects($this->once())
+            ->method('getCookie')
+            ->with($sessionName)
+            ->will($this->returnValue($cookie));
+
+        // check the session name
+        $this->assertSame($sessionId, $controller->getSessionId($servletRequest));
+    }
+
+    /**
+     * Test the getProvider() method.
+     *
+     * This test needs a real Request instance, because the interface
+     * doesn't implement the getContext() method.
+     *
+     * @return void
+     */
+    public function testGetProvider()
+    {
+
+        // create a mock context instance
+        $context = $this->getMockBuilder('AppserverIo\Psr\Naming\NamingDirectoryInterface')
+            ->setMethods(get_class_methods('AppserverIo\Psr\Naming\NamingDirectoryInterface'))
+            ->getMock();
+
+        // mock the methods
+        $context->expects($this->any())
+            ->method('search')
+            ->with('ProviderInterface')
+            ->will($this->returnValue($result = new \stdClass()));
+
+        // create a servlet request instance
+        $servletRequest = new Request();
+        $servletRequest->injectContext($context);
+
+        // initialize the controller
+        $controller = new ControllerServlet();
+
+        // check the session manager instance
+        $this->assertEquals($result, $controller->getProvider($servletRequest));
+    }
+
+    /**
+     * Test the getObjectManager() method.
+     *
+     * @return void
+     */
+    public function testGetObjectManager()
+    {
+
+        // create a mock context instance
+        $context = $this->getMockBuilder('AppserverIo\Psr\Naming\NamingDirectoryInterface')
+            ->setMethods(get_class_methods('AppserverIo\Psr\Naming\NamingDirectoryInterface'))
+            ->getMock();
+
+        // mock the methods
+        $context->expects($this->any())
+            ->method('search')
+            ->with('ObjectManagerInterface')
+            ->will($this->returnValue($result = new \stdClass()));
+
+        // initialize the controller with mocked methods
+        $controller = $this->getMock('AppserverIo\Routlt\ControllerServlet', array('getNamingDirectory'));
+
+        // mock the methods
+        $controller->expects($this->once())
+            ->method('getNamingDirectory')
+            ->will($this->returnValue($context));
+
+        // check the session manager instance
+        $this->assertEquals($result, $controller->getObjectManager());
+    }
+
+    /**
+     * Test the getNamingDirectory() method.
+     *
+     * @return void
+     */
+    public function testGetNamingDirectory()
+    {
+
+        // mock the application
+        $application = $this->getMockBuilder('AppserverIo\Psr\Application\ApplicationInterface')
+            ->setMethods(get_class_methods('AppserverIo\Psr\Application\ApplicationInterface'))
+            ->getMock();
+
+        // create a real manager instance -> this is a \Stackable
+        $servletManager = new ServletManager();
+        $servletManager->injectApplication($application);
+
+        // initialize the controller with mocked methods
+        $controller = $this->getMock('AppserverIo\Routlt\ControllerServlet', array('getServletContext'));
+
+        // mock the methods
+        $controller->expects($this->once())
+            ->method('getServletContext')
+            ->will($this->returnValue($servletManager));
+
+        // check the session manager instance
+        $this->assertEquals($application, $controller->getNamingDirectory());
+    }
+
+    /**
+     * Test the addPathDescriptor() + getPathDescriptors() methods.
+     *
+     * @return void
+     */
+    public function testAddGetPathDescriptors()
+    {
+
+        // mock a path descriptor
+        $pathDescriptor = $this->getMockBuilder('AppserverIo\Routlt\Description\PathDescriptorInterface')
+            ->setMethods(get_class_methods('AppserverIo\Routlt\Description\PathDescriptorInterface'))
+            ->getMock();
+
+        // initialize the controller
+        $controller = new ControllerServlet();
+
+        // add a path descriptor
+        $controller->addPathDescriptor($pathDescriptor);
+
+        // count the number of path descriptors and check the path descriptor itself
+        $this->assertCount(1, $pathDescriptors = $controller->getPathDescriptors());
+        $this->assertSame($pathDescriptor, array_pop($pathDescriptors));
     }
 }

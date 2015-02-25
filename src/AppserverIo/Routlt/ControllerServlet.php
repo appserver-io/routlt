@@ -100,9 +100,52 @@ class ControllerServlet extends HttpServlet implements ControllerInterface
      *
      * @return \AppserverIo\Appserver\ServletEngine\SessionManagerInterface The session manager instance
      */
-    protected function getSessionManager(ServletRequestInterface $servletRequest)
+    public function getSessionManager(ServletRequestInterface $servletRequest)
     {
         return $servletRequest->getContext()->search('SessionManagerInterface');
+    }
+
+    /**
+     * Returns the requested session name. This is the session name, that
+     * is SESSID by default or has been specified in the web.xml.
+     *
+     * @param \AppserverIo\Psr\Servlet\ServletRequestInterface $servletRequest The request instance
+     *
+     * @return string|null The requested session name, or NULL if no session manager has been registered
+     */
+    public function getSessionName(ServletRequestInterface $servletRequest)
+    {
+
+        // try load the session manager
+        $sessionManager = $this->getSessionManager($servletRequest);
+
+        // if a session manager is available, return the requested session name
+        if ($sessionManager != null) {
+            return $sessionManager->getSessionSettings()->getSessionName();
+        }
+    }
+
+    /**
+     * Returns the ID of the session with the requested session name.
+     *
+     * @param \AppserverIo\Psr\Servlet\ServletRequestInterface $servletRequest The request instance
+     *
+     * @return string|null The ID of the requested session or NULL if no session name is available
+     * @see AppserverIo\Routlt\ControllerServlet::getSessionName()
+     */
+    public function getSessionId(ServletRequestInterface $servletRequest)
+    {
+
+        // initialize the HTTP session-ID
+        $sessionId = null;
+
+        // query whether we can find a HTTP session-ID in the actual request or not
+        if ($servletRequest->hasCookie($requestedSessionName = $this->getSessionName($servletRequest))) {
+            $sessionId = $servletRequest->getCookie($requestedSessionName)->getValue();
+        }
+
+        // return the HTTP session-ID
+        return $sessionId;
     }
 
     /**
@@ -112,9 +155,19 @@ class ControllerServlet extends HttpServlet implements ControllerInterface
      *
      * @return \AppserverIo\Appserver\ServletEngine\SessionManagerInterface The provider instance
      */
-    protected function getProvider(ServletRequestInterface $servletRequest)
+    public function getProvider(ServletRequestInterface $servletRequest)
     {
         return $servletRequest->getContext()->search('ProviderInterface');
+    }
+
+    /**
+     * Returns the naming directoy instance (the application).
+     *
+     * @return \AppserverIo\Psr\Naming\NamingDirectoryInterface The naming directory instance
+     */
+    public function getNamingDirectory()
+    {
+        return $this->getServletContext()->getApplication();
     }
 
     /**
@@ -122,9 +175,9 @@ class ControllerServlet extends HttpServlet implements ControllerInterface
      *
      * @return \AppserverIo\Appserver\DependencyInjectionContainer\Interfaces\ObjectManagerInterface The object manager instance
      */
-    protected function getObjectManager()
+    public function getObjectManager()
     {
-        return $this->getServletContext()->getApplication()->search('ObjectManagerInterface');
+        return $this->getNamingDirectory()->search('ObjectManagerInterface');
     }
 
     /**
@@ -233,7 +286,7 @@ class ControllerServlet extends HttpServlet implements ControllerInterface
 
         // load the the DI provider and session manager instance
         $provider = $this->getProvider($servletRequest);
-        $sessionManager = $this->getSessionManager($servletRequest);
+        $sessionId = $this->getSessionId($servletRequest);
 
         // load the path info from the servlet request
         $pathInfo = $servletRequest->getPathInfo();
@@ -243,23 +296,10 @@ class ControllerServlet extends HttpServlet implements ControllerInterface
             $pathInfo = $this->getDefaultRoute();
         }
 
-        // load the routes
-        $routes = $this->getRoutes();
-
         // try to find an action that invokes the request
-        foreach ($routes as $route => $action) {
+        foreach ($this->getRoutes() as $route => $action) {
             // if the route match, we'll perform the dispatch process
             if (fnmatch($route, $pathInfo)) {
-                // check if we've a HTTP session-ID
-                $sessionId = null;
-
-                // if no session has already been load, initialize the session manager
-                if ($sessionManager != null) {
-                    $requestedSessionName = $sessionManager->getSessionSettings()->getSessionName();
-                    if ($servletRequest->hasCookie($requestedSessionName)) {
-                        $sessionId = $servletRequest->getCookie($requestedSessionName)->getValue();
-                    }
-                }
 
                 // inject the dependencies
                 $provider->injectDependencies($action, $sessionId);

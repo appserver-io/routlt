@@ -152,7 +152,7 @@ class ActionDescriptor implements ActionDescriptorInterface
             $this->setName($nameAttribute);
         } else {
             // if @Annotation(name=****) is NOT set, we use the method name by default
-            $this->setName(lcfirst(str_replace('Action', '', $reflectionMethod->getMethodName())));
+            $this->setName('/' . lcfirst(str_replace('Action', '', $reflectionMethod->getMethodName())));
         }
 
         // return the instance
@@ -168,7 +168,6 @@ class ActionDescriptor implements ActionDescriptorInterface
      */
     public function fromDeploymentDescriptor(\SimpleXmlElement $node)
     {
-
     }
 
     /**
@@ -178,6 +177,7 @@ class ActionDescriptor implements ActionDescriptorInterface
      * @param \AppserverIo\Routlt\Description\ActionDescriptorInterface $actionDescriptor The configuration to merge
      *
      * @return void
+     * @throws \AppserverIo\Routlt\Description\DescriptorException Is thrown if the passed descriptor has a different method name
      */
     public function merge(ActionDescriptorInterface $actionDescriptor)
     {

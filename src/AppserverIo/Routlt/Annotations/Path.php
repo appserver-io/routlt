@@ -55,10 +55,12 @@ class Path extends ReflectionAnnotation
     /**
      * Returns the value of the name attribute.
      *
-     * @return string The annotations name attribute
+     * @return string|null The annotations name attribute
      */
     public function getName()
     {
-        return $this->values['name'];
+        if (isset($this->values['name'])) {
+            return $this->values['name'];
+        }
     }
 }
