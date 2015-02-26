@@ -1,7 +1,6 @@
-# Rout.Lt
+# Rout.Lt 2
 
-[![Latest Stable Version](https://poser.pugx.org/appserver-io/routlt/v/stable.png)](https://packagist.org/packages/appserver-io/routlt) [![Total Downloads](https://poser.pugx.org/appserver-io/routlt/downloads.png)](https://packagist.org/packages/appserver-io/routlt) [![License](https://poser.pugx.org/appserver-io/routlt/license.png)](https://packagist.org/packages/appserver-io/routlt) [![Build Status](https://travis-ci.org/appserver-io/routlt.png)](https://travis-ci.org/appserver-io/routlt)
-[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/appserver-io/routlt/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/appserver-io/routlt/?branch=master)[![Code Coverage](https://scrutinizer-ci.com/g/appserver-io/routlt/badges/coverage.png?b=master)](https://scrutinizer-ci.com/g/appserver-io/routlt/?branch=master)
+[![Latest Stable Version](https://poser.pugx.org/appserver-io/routlt/v/stable.png)](https://packagist.org/packages/appserver-io/routlt) [![Total Downloads](https://poser.pugx.org/appserver-io/routlt/downloads.png)](https://packagist.org/packages/appserver-io/routlt) [![License](https://poser.pugx.org/appserver-io/routlt/license.png)](https://packagist.org/packages/appserver-io/routlt) [![Build Status](https://travis-ci.org/appserver-io/routlt.png)](https://travis-ci.org/appserver-io/routlt)[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/appserver-io/routlt/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/appserver-io/routlt/?branch=master)[![Code Coverage](https://scrutinizer-ci.com/g/appserver-io/routlt/badges/coverage.png?b=master)](https://scrutinizer-ci.com/g/appserver-io/routlt/?branch=master)
 
 ## Introduction
 
@@ -124,15 +123,15 @@ class IndexAction extends DispatchAction
 }
 ```
 
-After saving the above code to a file named `/opt/appserver/webapps/myapp/WEB-INF/classes/MyApp/Actions/IndexAction.php` and restarting, open the URL `http://127.0.0.1:9080/myapp/index.do/index` with your favorite browser. You should see `Hello World!` there.
+After saving the above code to a file named `/opt/appserver/webapps/myapp/WEB-INF/classes/MyApp/Actions/IndexAction.php` and [restarting](http://appserver.io/get-started/documentation/basic-usage.html#start-and-stop-scripts), open the URL `http://127.0.0.1:9080/myapp/index.do/index` with your favorite browser. You should see `Hello World!` there.
 
 > If you don't specify the `name` attributes, depending on the annotation, Rout.Lt uses the class or the method name. As the `Action` suffix has to be cut off, it is important, that the action and the action methods always ends with `Action` and nothing else.
 
 ## Limitations
 
-As we actually not differenciate between request methods, there is no possibility to allow action invocation for only selected request methods. For example, it is not possible to configure the indexAction() only has to be invoked on a `GET` request. Issue #20 has already been created to find a solution therefore.
+As we actually not differenciate between request methods, there is no possibility to allow action invocation for only selected request methods. For example, it is not possible to configure the indexAction() only has to be invoked on a `GET` request. Issue [#20](appserver-io/routlt#20) has already been created to find a solution therefore.
 
-Rout.Lt 2 starts with annotations as only configuration option. There is **NO** possiblity to configure the actions with a deployment descriptor. Issue #21 has already been created to find solution therefore.
+Rout.Lt 2 starts with annotations as only configuration option. There is **NO** possiblity to configure the actions with a deployment descriptor. Issue [#21](appserver-io/routlt#21) has already been created to find solution therefore.
 
 # External Links
 
