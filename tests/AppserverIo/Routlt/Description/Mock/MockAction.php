@@ -1,7 +1,7 @@
 <?php
 
 /**
- * AppserverIo\Routlt\BaseAction
+ * AppserverIo\Routlt\Description\Mock\MockAction
  *
  * NOTICE OF LICENSE
  *
@@ -18,42 +18,25 @@
  * @link      http://www.appserver.io
  */
 
-namespace AppserverIo\Routlt;
+namespace AppserverIo\Routlt\Description\Mock;
 
-use AppserverIo\Lang\Object;
-use AppserverIo\Psr\Context\ContextInterface;
+use AppserverIo\Routlt\ActionInterface;
 use AppserverIo\Psr\Servlet\Http\HttpServletRequestInterface;
 use AppserverIo\Psr\Servlet\Http\HttpServletResponseInterface;
 
 /**
- * This class is the abstract base class for all Actions.
+ * A mock action implementation.
  *
  * @author    Tim Wagner <tw@techdivision.com>
  * @copyright 2015 TechDivision GmbH <info@techdivision.com>
  * @license   http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  * @link      http://github.com/appserver-io/routlt
  * @link      http://www.appserver.io
+ *
+ * @Path
  */
-abstract class BaseAction extends Object implements ActionInterface
+class MockAction implements ActionInterface
 {
-
-    /**
-     * The context for the actual request.
-     *
-     * @var \AppserverIo\Psr\Context\ContextInterface
-     */
-    protected $context = null;
-
-    /**
-     * Initializes the action with the context for the
-     * actual request.
-     *
-     * @param \AppserverIo\Psr\Context\ContextInterface $context The context for the actual request
-     */
-    public function __construct(ContextInterface $context)
-    {
-        $this->context = $context;
-    }
 
     /**
      * Method that will be invoked before we dispatch the request.
@@ -62,11 +45,27 @@ abstract class BaseAction extends Object implements ActionInterface
      * @param \AppserverIo\Psr\Servlet\Http\HttpServletResponseInterface $servletResponse The response instance
      *
      * @return void
-     * @see \AppserverIo\Routlt\ActionInterface::preDispatch()
      */
     public function preDispatch(HttpServletRequestInterface $servletRequest, HttpServletResponseInterface $servletResponse)
     {
-        return;
+
+    }
+
+    /**
+     * All classes extending this class must implement the perform() method.
+     *
+     * This method implements the complete functionality of the action and have to return an initialized
+     * ActionForward object that is necessary for further application flow controlled by the
+     * ActionController.
+     *
+     * @param \AppserverIo\Psr\Servlet\Http\HttpServletRequestInterface  $servletRequest  The request instance
+     * @param \AppserverIo\Psr\Servlet\Http\HttpServletResponseInterface $servletResponse The response instance
+     *
+     * @return void
+    */
+    public function perform(HttpServletRequestInterface $servletRequest, HttpServletResponseInterface $servletResponse)
+    {
+
     }
 
     /**
@@ -76,20 +75,9 @@ abstract class BaseAction extends Object implements ActionInterface
      * @param \AppserverIo\Psr\Servlet\Http\HttpServletResponseInterface $servletResponse The response instance
      *
      * @return void
-     * @see \AppserverIo\Routlt\ActionInterface::postDispatch()
-     */
+    */
     public function postDispatch(HttpServletRequestInterface $servletRequest, HttpServletResponseInterface $servletResponse)
     {
-        return;
-    }
 
-    /**
-     * Returns the context for the actual request.
-     *
-     * @return \AppserverIo\Psr\Context\ContextInterface The context for the actual request
-     */
-    public function getContext()
-    {
-        return $this->context;
     }
 }
