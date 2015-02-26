@@ -1,34 +1,29 @@
-# Routlt
+# Rout.Lt
 
 [![Latest Stable Version](https://poser.pugx.org/appserver-io/routlt/v/stable.png)](https://packagist.org/packages/appserver-io/routlt) [![Total Downloads](https://poser.pugx.org/appserver-io/routlt/downloads.png)](https://packagist.org/packages/appserver-io/routlt) [![License](https://poser.pugx.org/appserver-io/routlt/license.png)](https://packagist.org/packages/appserver-io/routlt) [![Build Status](https://travis-ci.org/appserver-io/routlt.png)](https://travis-ci.org/appserver-io/routlt)
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/appserver-io/routlt/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/appserver-io/routlt/?branch=master)[![Code Coverage](https://scrutinizer-ci.com/g/appserver-io/routlt/badges/coverage.png?b=master)](https://scrutinizer-ci.com/g/appserver-io/routlt/?branch=master)
 
 ## Introduction
 
-routlt provides a small, but very fast implementation of a routing and controller implementation for usage with appserver.io
-based on a servlet.
+Rout.Lt 2 provides a small, but very fast, implementation of a routing and controller implementation for usage with appserver.io based on a [servlet](http://appserver.io/get-started/documentation/servlet-engine.html).
 
 ## Installation
 
-You don't have to install routlt, as it'll be delivered with the latest appserver.io release. If you want to install it with
-your application only, you do this by add
+If you want to write an application that uses Rout.Lt 2, you have to install it using Composer. To do this, simply add it to the dependencies in your `composer.json`
 
 ```sh
 {
     "require": {
-        "appserver-io/routlt": "dev-master"
-    },
+        "appserver-io/routlt": "~2.0"
+    }
 }
 ```
 
-to your ```composer.json``` and invoke ```composer update``` in your project.
+## Configuration
 
-## Usage
+As Rout.Lt 2 is based on a servlet, you first need an `web.xml` inside the `WEB-INF` folder of your application.
 
-As routlt is based on a servlet, you first need an ```web.xml``` inside the ```WEB-INF``` folder of your application.
-
-Let's assume, you've installed appserver.io on Linux/Mac OS X under ```/opt/appserver``` and your application is named
-```myapp``` you'll save the ```web.xml``` containing the following content in directory ```/opt/appserver/myapp/WEB-INF```:
+Let's assume, you've installed appserver.io on Linux/Mac OS X under ```/opt/appserver``` and your application is named `myapp` you'll save the `web.xml` containing the following content in directory `/opt/appserver/myapp/WEB-INF`:
 
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
@@ -37,18 +32,32 @@ Let's assume, you've installed appserver.io on Linux/Mac OS X under ```/opt/apps
     <display-name>appserver.io example application</display-name>
     <description>This is the example application for the appserver.io servlet engine.</description>
 
+    <session-config>
+        <session-name>my_login</session-name>
+        <session-file-prefix>my_session_</session-file-prefix>
+    </session-config>
+
     <servlet>
-    
-        <description>The routlt controller servlet implementation.</description>
-        <display-name>The routlt controller servlet</display-name>
+        <description>The Rout.Lt 2 controller servlet implementation.</description>
+        <display-name>The Rout.Lt 2 controller servlet</display-name>
         <servlet-name>routlt</servlet-name>
         <servlet-class>AppserverIo\Routlt\ControllerServlet</servlet-class>
-        
+        <!-- 
+         | this is mandatory and specifies the path where Rout.Lt
+         | is looking for your action class implementations
+         |-->
         <init-param>
-            <param-name>configurationFile</param-name>
-            <param-value>WEB-INF/routes.json</param-value>
+            <param-name>action.base.path</param-name>
+            <param-value>WEB-INF/classes</param-value>
         </init-param>
-        
+        <!-- 
+         | this is optional and can be used to store credentials
+         | you don't want to add to version control, for example
+         |-->
+        <init-param>
+            <param-name>routlt.configuration.file</param-name>
+            <param-value>WEB-INF/routlt.properties</param-value>
+        </init-param>
     </servlet>
 
     <servlet-mapping>
@@ -60,38 +69,17 @@ Let's assume, you've installed appserver.io on Linux/Mac OS X under ```/opt/apps
         <servlet-name>routlt</servlet-name>
         <url-pattern>/*</url-pattern>
     </servlet-mapping>
-</web-app>    
+
+</web-app>
 ```
 
-Additionally you need a routing configuration. In the actual version, the routing configuration will be parsed from a
-JSON file with the following structure:
+As Rout.Lt 2 provides annotations to configure routes and actions, the `routlt.json` configuration file, needed for version ~1.0, is not longer necessry nor supported.
 
-```json
-{
-    "routes": [
-        {
-            "urlMapping": "/index*",
-            "actionClass": "\\MyApp\\Actions\\IndexAction"
-        }
-    ]
-}
-```
+You have two annotations, namely `@Path` and `@Action` to configure your actions. These annotations gives you the possiblity to map the `Path Info` of a request to a method in a action class. This mechanism is adopted by many frameworks out there. The `Path Info` segments will be separated by a slash. The first segment has to map to the value of the `@Path` annotations `name` attribute, the second to one of the `@Action` annotations of one of methods.
 
-Where you'll save your routing file depends on what you've configured in your ```web.xml```. In our example we've
-configured, that our routing file will also be available under ```/opt/appserver/myapp/WEB-INF```, so we'll save
-it there.
+For example, assuming want to dispatch the URL `http://127.0.0.1:9080/myapp/index.do/index/login`, you need the implementation of an action class that looks like this. 
 
 ```php
-
-/**
- * MyApp\Actions\IndexAction
- *
- * NOTICE OF LICENSE
- *
- * This source file is subject to the Open Software License (OSL 3.0)
- * that is available through the world-wide-web at this URL:
- * http://opensource.org/licenses/osl-3.0.php
- */
 
 namespace MyApp\Actions;
 
@@ -100,11 +88,9 @@ use TechDivision\Servlet\Http\HttpServletRequestInterface;
 use TechDivision\Servlet\Http\HttpServletResponseInterface;
 
 /**
- * Example action.
+ * Example action that shows the usage of the @Path annotation.
  *
- * @category   Application
- * @package    MyApp
- * @subpackage Actions
+ * @Path
  */
 class IndexAction extends DispatchAction
 {
@@ -121,12 +107,33 @@ class IndexAction extends DispatchAction
     {
         $servletResponse->appendBodyStream('Hello World!');
     }
+
+    /**
+     * Dummy action that shows the usage of the @Action annotation.
+     *
+     * @param \TechDivision\Servlet\Http\HttpServletRequestInterface  $servletRequest  The request instance
+     * @param \TechDivision\Servlet\Http\HttpServletResponseInterface $servletResponse The response instance
+     *
+     * @return void
+     * @Action(name="/login")
+     */
+    public function loginToBackendAction(HttpServletRequestInterface $servletRequest, HttpServletResponseInterface $servletResponse)
+    {
+        // do some login stuff here
+    }
 }
 ```
 
-That's pretty simple. After restarting the appserver.io open the URL ```http://127.0.0.1:9080/myapp/index.do/index```
-with your browser. You should see ```Hello World!``` there.
+After saving the above code to a file named `/opt/appserver/webapps/myapp/WEB-INF/classes/MyApp/Actions/IndexAction.php` and restarting, open the URL `http://127.0.0.1:9080/myapp/index.do/index` with your favorite browser. You should see `Hello World!` there.
+
+> If you don't specify the `name` attributes, depending on the annotation, Rout.Lt uses the class or the method name. As the `Action` suffix has to be cut off, it is important, that the action and the action methods always ends with `Action` and nothing else.
+
+## Limitations
+
+As we actually not differenciate between request methods, there is no possibility to allow action invocation for only selected request methods. For example, it is not possible to configure the indexAction() only has to be invoked on a `GET` request. Issue #20 has already been created to find a solution therefore.
+
+Rout.Lt 2 starts with annotations as only configuration option. There is **NO** possiblity to configure the actions with a deployment descriptor. Issue #21 has already been created to find solution therefore.
 
 # External Links
 
-* Documentation at [appserver.io](http://docs.appserver.io)
+* All about appserver.io at [appserver.io](http://www.appserver.io)

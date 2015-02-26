@@ -20,13 +20,17 @@
 
 namespace AppserverIo\Routlt;
 
-use AppserverIo\Psr\HttpMessage\Protocol;
+use AppserverIo\Http\HttpProtocol;
+use AppserverIo\Properties\Properties;
 use AppserverIo\Psr\Context\ArrayContext;
+use AppserverIo\Psr\Context\ContextInterface;
+use AppserverIo\Psr\Servlet\ServletException;
 use AppserverIo\Psr\Servlet\ServletConfigInterface;
 use AppserverIo\Psr\Servlet\ServletRequestInterface;
 use AppserverIo\Psr\Servlet\ServletResponseInterface;
 use AppserverIo\Psr\Servlet\Http\HttpServlet;
-use AppserverIo\Server\Exceptions\ModuleException;
+use AppserverIo\Routlt\Util\ServletContextAware;
+use AppserverIo\Routlt\Description\PathDescriptorInterface;
 
 /**
  * Abstract example implementation that provides some kind of basic MVC functionality
@@ -38,7 +42,7 @@ use AppserverIo\Server\Exceptions\ModuleException;
  * @link      http://github.com/appserver-io/routlt
  * @link      http://www.appserver.io
  */
-class ControllerServlet extends HttpServlet
+class ControllerServlet extends HttpServlet implements ControllerInterface
 {
 
     /**
@@ -46,7 +50,14 @@ class ControllerServlet extends HttpServlet
      *
      * @var string
      */
-    const INIT_PARAMETER_CONFIGURATION_FILE = 'configurationFile';
+    const INIT_PARAMETER_ACTION_BASE_PATH = 'action.base.path';
+
+    /**
+     * The key for the init parameter with the path to the configuration file.
+     *
+     * @var string
+     */
+    const INIT_PARAMETER_ROUTLT_CONFIGURATION_FILE = 'routlt.configuration.file';
 
     /**
      * The default action if no valid action name was found in the path info.
@@ -54,13 +65,6 @@ class ControllerServlet extends HttpServlet
      * @var string
      */
     const DEFAULT_ROUTE = '/index';
-
-    /**
-     * The array with the available route mappings.
-     *
-     * @var array
-     */
-    protected $mappings = array();
 
     /**
      * The array with the initialized routes.
@@ -82,38 +86,125 @@ class ControllerServlet extends HttpServlet
         // call parent method
         parent::init($config);
 
-        // loads the mappings from the configuration file and initialize the routes
-        $this->initMappings();
+        // load the values from the configuration file
+        $this->initConfiguration();
+
+        // initialize the routing
         $this->initRoutes();
     }
 
     /**
-     * Initializes the mappings to create the routes from.
+     * Returns the session manager instance.
+     *
+     * @param \AppserverIo\Psr\Servlet\ServletRequestInterface $servletRequest The request instance
+     *
+     * @return \AppserverIo\Appserver\ServletEngine\SessionManagerInterface The session manager instance
+     */
+    public function getSessionManager(ServletRequestInterface $servletRequest)
+    {
+        return $servletRequest->getContext()->search('SessionManagerInterface');
+    }
+
+    /**
+     * Returns the requested session name. This is the session name, that
+     * is SESSID by default or has been specified in the web.xml.
+     *
+     * @param \AppserverIo\Psr\Servlet\ServletRequestInterface $servletRequest The request instance
+     *
+     * @return string|null The requested session name, or NULL if no session manager has been registered
+     */
+    public function getSessionName(ServletRequestInterface $servletRequest)
+    {
+
+        // try load the session manager
+        $sessionManager = $this->getSessionManager($servletRequest);
+
+        // if a session manager is available, return the requested session name
+        if ($sessionManager != null) {
+            return $sessionManager->getSessionSettings()->getSessionName();
+        }
+    }
+
+    /**
+     * Returns the ID of the session with the requested session name.
+     *
+     * @param \AppserverIo\Psr\Servlet\ServletRequestInterface $servletRequest The request instance
+     *
+     * @return string|null The ID of the requested session or NULL if no session name is available
+     * @see AppserverIo\Routlt\ControllerServlet::getSessionName()
+     */
+    public function getSessionId(ServletRequestInterface $servletRequest)
+    {
+
+        // initialize the HTTP session-ID
+        $sessionId = null;
+
+        // query whether we can find a HTTP session-ID in the actual request or not
+        if ($servletRequest->hasCookie($requestedSessionName = $this->getSessionName($servletRequest))) {
+            $sessionId = $servletRequest->getCookie($requestedSessionName)->getValue();
+        }
+
+        // return the HTTP session-ID
+        return $sessionId;
+    }
+
+    /**
+     * Returns the provide instance.
+     *
+     * @param \AppserverIo\Psr\Servlet\ServletRequestInterface $servletRequest The request instance
+     *
+     * @return \AppserverIo\Appserver\ServletEngine\SessionManagerInterface The provider instance
+     */
+    public function getProvider(ServletRequestInterface $servletRequest)
+    {
+        return $servletRequest->getContext()->search('ProviderInterface');
+    }
+
+    /**
+     * Returns the naming directoy instance (the application).
+     *
+     * @return \AppserverIo\Psr\Naming\NamingDirectoryInterface The naming directory instance
+     */
+    public function getNamingDirectory()
+    {
+        return $this->getServletContext()->getApplication();
+    }
+
+    /**
+     * Returns the object manager instance
+     *
+     * @return \AppserverIo\Appserver\DependencyInjectionContainer\Interfaces\ObjectManagerInterface The object manager instance
+     */
+    public function getObjectManager()
+    {
+        return $this->getNamingDirectory()->search('ObjectManagerInterface');
+    }
+
+    /**
+     * Loads the values found in the configuration file and merges
+     * them with the servlet context initialization parameters.
      *
      * @return void
      */
-    protected function initMappings()
+    protected function initConfiguration()
     {
 
-        // load the configuration filename
-        $configurationFileName = $this->getInitParameter(ControllerServlet::INIT_PARAMETER_CONFIGURATION_FILE);
+        // load the relative path to the Routlt configuration file
+        $configurationFileName = $this->getInitParameter(ControllerServlet::INIT_PARAMETER_ROUTLT_CONFIGURATION_FILE);
 
         // load the path to the configuration file
-        $configurationFile = new \SplFileObject(
-            $this->getServletConfig()->getWebappPath() . DIRECTORY_SEPARATOR . $configurationFileName
-        );
+        $configurationFile = $this->getServletConfig()->getWebappPath() . DIRECTORY_SEPARATOR . ltrim($configurationFileName, '/');
 
-        // read the content of the configuration file
-        $content = '';
-        while (!$configurationFile->eof()) {
-            $content .= $configurationFile->fgets();
-        }
+        // if the file is readable
+        if (is_file($configurationFile) && is_readable($configurationFile)) {
+            // load the  properties from the file
+            $properties = new Properties();
+            $properties->load($configurationFile);
 
-        // explode the mappings from the content we found
-        $stdClass = json_decode($content);
-
-        foreach ($stdClass->routes as $route) {
-            $this->mappings[$route->urlMapping] = $route->actionClass;
+            // append the properties to the servlet context
+            foreach ($properties as $paramName => $paramValue) {
+                $this->getServletContext()->addInitParameter($paramName, $paramValue);
+            }
         }
     }
 
@@ -124,19 +215,46 @@ class ControllerServlet extends HttpServlet
      */
     protected function initRoutes()
     {
-        foreach ($this->getMappings() as $urlMapping => $actionClass) {
-            $this->routes[$urlMapping] = new $actionClass(new ArrayContext());
+
+        // register the beans located by annotations and the XML configuration
+        foreach ($this->getObjectManager()->getObjectDescriptors() as $descriptor) {
+            // check if we've found a servlet descriptor
+            if ($descriptor instanceof PathDescriptorInterface) {
+                // initialize a new action instance
+                $action = $this->newActionInstance($descriptor->getClassName(), new ArrayContext());
+
+                // if the action is servlet context aware
+                if ($action instanceof ServletContextAware) {
+                    $action->setServletContext($this->getServletContext());
+                }
+
+                // register the EPB references
+                foreach ($descriptor->getEpbReferences() as $epbReference) {
+                    $this->getServletContext()->registerEpbReference($epbReference);
+                }
+
+                // register the resource references
+                foreach ($descriptor->getResReferences() as $resReference) {
+                    $this->getServletContext()->registerResReference($resReference);
+                }
+
+                // add the initialized action
+                $this->routes[$descriptor->getName()] = $action;
+            }
         }
     }
 
     /**
-     * Returns the mappings to create the routes from.
+     * Creates a new instance of the action with the passed class name and context.
      *
-     * @return array The array with the mappings
+     * @param string                                    $className The class name of the action to be created
+     * @param \AppserverIo\Psr\Context\ContextInterface $context   The action context
+     *
+     * @return \AppserverIo\Routlt\ActionInterface The action instance
      */
-    protected function getMappings()
+    public function newActionInstance($className, ContextInterface $context)
     {
-        return $this->mappings;
+        return new $className($context);
     }
 
     /**
@@ -144,7 +262,7 @@ class ControllerServlet extends HttpServlet
      *
      * @return array The array with the available routes
      */
-    protected function getRoutes()
+    public function getRoutes()
     {
         return $this->routes;
     }
@@ -157,13 +275,17 @@ class ControllerServlet extends HttpServlet
      *
      * @return void
      *
-     * @throws \AppserverIo\Server\Exceptions\ModuleException If no action has been found for the requested path
+     * @throws \AppserverIo\Psr\Servlet\ServletException If no action has been found for the requested path
      */
     public function service(ServletRequestInterface $servletRequest, ServletResponseInterface $servletResponse)
     {
 
         // pre-initialize response
-        $servletResponse->addHeader(Protocol::HEADER_X_POWERED_BY, get_class($this));
+        $servletResponse->addHeader(HttpProtocol::HEADER_X_POWERED_BY, get_class($this));
+
+        // load the the DI provider and session manager instance
+        $provider = $this->getProvider($servletRequest);
+        $sessionId = $this->getSessionId($servletRequest);
 
         // load the path info from the servlet request
         $pathInfo = $servletRequest->getPathInfo();
@@ -173,13 +295,13 @@ class ControllerServlet extends HttpServlet
             $pathInfo = $this->getDefaultRoute();
         }
 
-        // load the routes
-        $routes = $this->getRoutes();
-
         // try to find an action that invokes the request
-        foreach ($routes as $route => $action) {
+        foreach ($this->getRoutes() as $route => $action) {
             // if the route match, we'll perform the dispatch process
             if (fnmatch($route, $pathInfo)) {
+                // inject the dependencies
+                $provider->injectDependencies($action, $sessionId);
+
                 // we pre-dispatch the action
                 $action->preDispatch($servletRequest, $servletResponse);
 
@@ -196,7 +318,7 @@ class ControllerServlet extends HttpServlet
         }
 
         // we can't find an action that handles this request
-        throw new ModuleException(sprintf("No action to handle path info '%s' available.", $pathInfo), 404);
+        throw new ServletException(sprintf("No action to handle path info '%s' available.", $pathInfo), 404);
     }
 
     /**
@@ -204,8 +326,30 @@ class ControllerServlet extends HttpServlet
      *
      * @return string The default route
      */
-    protected function getDefaultRoute()
+    public function getDefaultRoute()
     {
         return ControllerServlet::DEFAULT_ROUTE;
+    }
+
+    /**
+     * Returns the array with the path descriptors.
+     *
+     * @return array The array with the path descriptors
+     */
+    public function getPathDescriptors()
+    {
+        return $this->paths;
+    }
+
+    /**
+     * Adds a path descriptor to the controller.
+     *
+     * @param \AppserverIo\Routlt\Description\PathDescriptorInterface $pathDescriptor The path descriptor to add
+     *
+     * @return void
+     */
+    public function addPathDescriptor(PathDescriptorInterface $pathDescriptor)
+    {
+        $this->paths[] = $pathDescriptor;
     }
 }
