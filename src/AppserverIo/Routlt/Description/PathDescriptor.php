@@ -299,7 +299,7 @@ class PathDescriptor implements PathDescriptorInterface
             $name = $nameAttribute;
         } else {
             // if @Annotation(name=****) is NOT set, we use the short class name by default
-            $name = lcfirst(str_replace('Controller', '', $reflectionClass->getShortName()));
+            $name = lcfirst(str_replace('Action', '', $reflectionClass->getShortName()));
         }
 
         // prepare and set the name

@@ -163,7 +163,7 @@ class PathDescriptorTest extends \PHPUnit_Framework_TestCase implements ActionIn
         );
 
         // create a reflection class from a mock controller with a @Path annotation without name attribute
-        $reflectionClass = new ReflectionClass('AppserverIo\Routlt\Description\Mock\MockController', array(), $aliases);
+        $reflectionClass = new ReflectionClass('AppserverIo\Routlt\Description\Mock\MockAction', array(), $aliases);
 
         // initialize the descriptor instance from the reflection class
         $this->descriptor->fromReflectionClass($reflectionClass);

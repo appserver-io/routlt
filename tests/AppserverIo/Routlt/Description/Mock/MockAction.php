@@ -1,7 +1,7 @@
 <?php
 
 /**
- * AppserverIo\Routlt\Description\Mock\MockController
+ * AppserverIo\Routlt\Description\Mock\MockAction
  *
  * NOTICE OF LICENSE
  *
@@ -25,7 +25,7 @@ use AppserverIo\Psr\Servlet\Http\HttpServletRequestInterface;
 use AppserverIo\Psr\Servlet\Http\HttpServletResponseInterface;
 
 /**
- * A mock controller implementation.
+ * A mock action implementation.
  *
  * @author    Tim Wagner <tw@techdivision.com>
  * @copyright 2015 TechDivision GmbH <info@techdivision.com>
@@ -35,7 +35,7 @@ use AppserverIo\Psr\Servlet\Http\HttpServletResponseInterface;
  *
  * @Path
  */
-class MockController implements ActionInterface
+class MockAction implements ActionInterface
 {
 
     /**
