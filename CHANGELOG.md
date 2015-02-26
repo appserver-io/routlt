@@ -1,3 +1,13 @@
+# Version 2.0.0
+
+## Bugfixes
+
+* None
+
+## Features
+
+* Initial Release for ~2.0
+
 # Version 1.0.0
 
 ## Bugfixes

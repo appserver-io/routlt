@@ -220,7 +220,6 @@ class ControllerServlet extends HttpServlet implements ControllerInterface
         foreach ($this->getObjectManager()->getObjectDescriptors() as $descriptor) {
             // check if we've found a servlet descriptor
             if ($descriptor instanceof PathDescriptorInterface) {
-
                 // initialize a new action instance
                 $action = $this->newActionInstance($descriptor->getClassName(), new ArrayContext());
 
@@ -300,7 +299,6 @@ class ControllerServlet extends HttpServlet implements ControllerInterface
         foreach ($this->getRoutes() as $route => $action) {
             // if the route match, we'll perform the dispatch process
             if (fnmatch($route, $pathInfo)) {
-
                 // inject the dependencies
                 $provider->injectDependencies($action, $sessionId);
 
