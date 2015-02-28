@@ -61,7 +61,7 @@ class BaseActionTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * This tests the preDispatch() method.
+     * This test checks the preDispatch() method.
      *
      * @return void
      */
@@ -73,7 +73,7 @@ class BaseActionTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * This tests the postDispatch() method.
+     * This test checks the postDispatch() method.
      *
      * @return void
      */
@@ -82,5 +82,34 @@ class BaseActionTest extends \PHPUnit_Framework_TestCase
         $servletRequest = $this->getMock('AppserverIo\Psr\Servlet\Http\HttpServletRequestInterface');
         $servletResponse = $this->getMock('AppserverIo\Psr\Servlet\Http\HttpServletResponseInterface');
         $this->assertNull($this->action->postDispatch($servletRequest, $servletResponse));
+    }
+
+    /**
+     * This test checks the setAttribute() and getAttribute() method.
+     *
+     * @return void
+     */
+    public function testSetGetAttribute()
+    {
+
+        // initialize a context
+        $context = $this->getMock('AppserverIo\Psr\Context\ArrayContext');
+        $context
+            ->expects($this->once())
+            ->method('setAttribute')
+            ->with($key = 'testKey', $value = 'testValue');
+        $context
+            ->expects($this->once())
+            ->method('getAttribute')
+            ->will($this->returnValue($value));
+
+        // initialize the action
+        $action = $this->getMockForAbstractClass('AppserverIo\Routlt\BaseAction', array($context));
+
+        // add a value to the context
+        $action->setAttribute($key, $value);
+
+        // check that the values has been added
+        $this->assertSame($value, $action->getAttribute($key));
     }
 }
