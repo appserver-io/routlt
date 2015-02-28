@@ -92,4 +92,29 @@ abstract class BaseAction extends Object implements ActionInterface
     {
         return $this->context;
     }
+
+    /**
+     * Attaches the passed value with passed key in the context of the actual request.
+     *
+     * @param string $key   The key to attach the data under
+     * @param mixed  $value The data to be attached
+     *
+     * @return void
+     */
+    public function setAttribute($key, $value)
+    {
+        $this->getContext()->setAttribute($key, $value);
+    }
+
+    /**
+     * Returns the data with the passed key from the context of the actual request.
+     *
+     * @param string $key The key to return the data for
+     *
+     * @return mixed The requested data
+     */
+    public function getAttribute($key)
+    {
+        return $this->getContext()->getAttribute($key);
+    }
 }
