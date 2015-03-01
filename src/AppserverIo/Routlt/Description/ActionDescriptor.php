@@ -20,6 +20,7 @@
 
 namespace AppserverIo\Routlt\Description;
 
+use AppserverIo\Http\HttpProtocol;
 use AppserverIo\Routlt\Annotations\Action;
 use AppserverIo\Lang\Reflection\MethodInterface;
 use AppserverIo\Lang\Reflection\ReflectionAnnotation;
@@ -49,6 +50,33 @@ class ActionDescriptor implements ActionDescriptorInterface
      * @var string
      */
     protected $methodName;
+
+    /**
+     * The request methods the action is listening to.
+     *
+     * @var array
+     */
+    protected $requestMethods;
+
+    /**
+     * Initializes the descriptor with the default
+     * request methods the action is listening to.
+     */
+    public function __construct()
+    {
+
+        // initialize the request methods
+        $this->requestMethods = array(
+            HttpProtocol::METHOD_CONNECT,
+            HttpProtocol::METHOD_DELETE,
+            HttpProtocol::METHOD_GET,
+            HttpProtocol::METHOD_HEAD,
+            HttpProtocol::METHOD_OPTIONS,
+            HttpProtocol::METHOD_POST,
+            HttpProtocol::METHOD_PUT,
+            HttpProtocol::METHOD_TRACE
+        );
+    }
 
     /**
      * Sets the action path info.
@@ -95,6 +123,28 @@ class ActionDescriptor implements ActionDescriptorInterface
     }
 
     /**
+     * Sets the request methods the action is listening to.
+     *
+     * @param array $requestMethods The request methods
+     *
+     * @return void
+     */
+    public function setRequestMethods(array $requestMethods)
+    {
+        $this->requestMethods = $requestMethods;
+    }
+
+    /**
+     * Returns the request methods the action is listening to.
+     *
+     * @return array The request methods
+     */
+    public function getRequestMethods()
+    {
+        return $this->requestMethods;
+    }
+
+    /**
      * Returns a new descriptor instance.
      *
      * @return \AppserverIo\Routlt\Description\ActionDescriptorInterface The descriptor instance
@@ -130,13 +180,21 @@ class ActionDescriptor implements ActionDescriptorInterface
         $reflectionMethod->addAnnotationAlias(Action::ANNOTATION, Action::__getClass());
 
         // query if we've a method with a @Action annotation
-        if ($reflectionMethod->hasAnnotation(Action::ANNOTATION) === false) {
+        if ($reflectionMethod->hasAnnotation(Action::ANNOTATION) === false &&
+            $reflectionMethod->getMethodName() !== 'perform') {
             // if not, do nothing
             return;
-        }
 
-        // create a new annotation instance
-        $reflectionAnnotation = $this->newAnnotationInstance($reflectionMethod);
+        // query whether we've the default perform() method WITHOUT an @Action annotation
+        } elseif ($reflectionMethod->hasAnnotation(Action::ANNOTATION) === false &&
+            $reflectionMethod->getMethodName() === 'perform') {
+            // create an annotation instance manually
+            $reflectionAnnotation = new ReflectionAnnotation(Action::__getClass());
+
+        } else {
+            // create a new annotation instance by default
+            $reflectionAnnotation = $this->newAnnotationInstance($reflectionMethod);
+        }
 
         // load method name
         $this->setMethodName($reflectionMethod->getMethodName());
@@ -153,6 +211,26 @@ class ActionDescriptor implements ActionDescriptorInterface
         } else {
             // if @Annotation(name=****) is NOT set, we use the method name by default
             $this->setName('/' . lcfirst(str_replace('Action', '', $reflectionMethod->getMethodName())));
+        }
+
+        // initialize the array for the annotated request methods
+        $annotatedRequestMethods = array();
+
+        // parse the method for annotated request methods
+        foreach ($this->getRequestMethods() as $requestMethod) {
+            // prepare the annotation name, e. g. POST -> Post
+            $annotationName = ucfirst(strtolower($requestMethod));
+
+            // query whether the reflection method has been annotated
+            if ($reflectionMethod->hasAnnotation($annotationName)) {
+                array_push($annotatedRequestMethods, $requestMethod);
+            }
+        }
+
+        // query whether at least one annotated request method has been found
+        if (sizeof($annotatedRequestMethods) > 0) {
+            // if yes, override the default request methods
+            $this->setRequestMethods($annotatedRequestMethods);
         }
 
         // return the instance

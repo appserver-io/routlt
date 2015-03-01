@@ -310,7 +310,7 @@ class ControllerServletTest extends \PHPUnit_Framework_TestCase
             ->method('getInitParameter')
             ->withConsecutive(
                 array(ControllerServlet::INIT_PARAMETER_ROUTLT_CONFIGURATION_FILE),
-                array(ControllerServlet::INIT_PARAMETER_ACTION_BASE_PATH)
+                array(ControllerServlet::INIT_PARAMETER_ACTION_NAMESPACE)
             )
             ->willReturnOnConsecutiveCalls(
                 $this->returnValue('/WEB-INF/routlt.properties'),

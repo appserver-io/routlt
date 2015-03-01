@@ -1,3 +1,13 @@
+# Version 2.0.0-alpha3
+
+## Bugfixes
+
+* None
+
+## Features
+
+* Closed [#20](https://github.com/appserver-io/routlt/issues/20) - Allow Action invocation for specified request methods only
+
 # Version 2.0.0-alpha2
 
 ## Bugfixes

@@ -47,11 +47,11 @@ class ControllerServlet extends HttpServlet implements ControllerInterface
 {
 
     /**
-     * The key for the init parameter with the path to the configuration file.
+     * The key for the init parameter with the action namespace.
      *
      * @var string
      */
-    const INIT_PARAMETER_ACTION_BASE_PATH = 'action.base.path';
+    const INIT_PARAMETER_ACTION_NAMESPACE = 'action.namespace';
 
     /**
      * The key for the init parameter with the path to the configuration file.
@@ -73,6 +73,13 @@ class ControllerServlet extends HttpServlet implements ControllerInterface
      * @var array
      */
     protected $routes = array();
+
+    /**
+     * The array with request method action -> route mappings.
+     *
+     * @var array
+     */
+    protected $actionMappings = array();
 
     /**
      * Initializes the servlet with the passed configuration.
@@ -217,8 +224,8 @@ class ControllerServlet extends HttpServlet implements ControllerInterface
     protected function initRoutes()
     {
 
-        // load the action base path
-        $actionBasePath = strtolower($this->getInitParameter(ControllerServlet::INIT_PARAMETER_ACTION_BASE_PATH));
+        // load the action namespace
+        $actionNamespace = strtolower($this->getInitParameter(ControllerServlet::INIT_PARAMETER_ACTION_NAMESPACE));
 
         // register the beans located by annotations and the XML configuration
         foreach ($this->getObjectManager()->getObjectDescriptors() as $descriptor) {
@@ -242,8 +249,29 @@ class ControllerServlet extends HttpServlet implements ControllerInterface
                     $this->getServletContext()->registerResReference($resReference);
                 }
 
+                // prepare the route, e. g. /index/index
+                $route = str_replace($actionNamespace, '', $descriptor->getName());
+
+                // initialize the action mappings
+                foreach ($descriptor->getActions() as $actionDescriptor) {
+                    // iterate over all request methods
+                    foreach ($actionDescriptor->getRequestMethods() as $requestMethod) {
+                        // prepare the action path with the route
+                        $actionPath = $route;
+
+                        // if we do NOT have the default method
+                        if ($actionDescriptor->getName() !== '/perform') {
+                            // prepare the action path -> concatenate route + action name
+                            $actionPath .= $actionDescriptor->getName();
+                        }
+
+                        // add the action path -> route mapping for the request method
+                        $this->actionMappings[$requestMethod][$actionPath] = $route;
+                    }
+                }
+
                 // add the initialized action
-                $this->routes[str_replace($actionBasePath, '', $descriptor->getName())] = $action;
+                $this->routes[$route] = $action;
             }
         }
     }
@@ -272,6 +300,36 @@ class ControllerServlet extends HttpServlet implements ControllerInterface
     }
 
     /**
+     * Returns the array with request method action -> route mappings.
+     *
+     * @return array The request method action -> route mappings
+     */
+    public function getActionMappings()
+    {
+        return $this->actionMappings;
+    }
+
+    /**
+     * Returns the array with request method action -> route mappings
+     * for the passed servlet request.
+     *
+     * @param \AppserverIo\Psr\Servlet\ServletRequestInterface  $servletRequest  The request instance
+     *
+     * @return array The request method action -> route mappings for the passed request method
+     */
+    public function getActionMappingsForServletRequest(ServletRequestInterface $servletRequest)
+    {
+
+        // load the servlet request method
+        $requestMethod = $servletRequest->getMethod();
+
+        // query whether we've action mappings for the request method or not
+        if (isset($this->actionMappings[$requestMethod])) {
+            return $this->actionMappings[$requestMethod];
+        }
+    }
+
+    /**
      * Delegates to HTTP method specific functions like doPost() for POST e.g.
      *
      * @param \AppserverIo\Psr\Servlet\ServletRequestInterface  $servletRequest  The request instance
@@ -284,67 +342,75 @@ class ControllerServlet extends HttpServlet implements ControllerInterface
     public function service(ServletRequestInterface $servletRequest, ServletResponseInterface $servletResponse)
     {
 
-        // pre-initialize response
-        $servletResponse->addHeader(HttpProtocol::HEADER_X_POWERED_BY, get_class($this));
+        try {
+            // pre-initialize response
+            $servletResponse->addHeader(HttpProtocol::HEADER_X_POWERED_BY, get_class($this));
 
-        // load the the DI provider and session manager instance
-        $provider = $this->getProvider($servletRequest);
-        $sessionId = $this->getSessionId($servletRequest);
+            // load the the DI provider and session manager instance
+            $provider = $this->getProvider($servletRequest);
+            $sessionId = $this->getSessionId($servletRequest);
 
-        // load the path info from the servlet request
-        $pathInfo = $servletRequest->getPathInfo();
+            // load the path info from the servlet request
+            $pathInfo = $servletRequest->getPathInfo();
 
-        // if the requested action has been found in the path info
-        if ($pathInfo == null) {
-            $pathInfo = $this->getDefaultRoute();
-        }
+            // if the requested action has been found in the path info
+            if ($pathInfo == null) {
+                $pathInfo = $this->getDefaultRoute();
+            }
 
-        // load the routes
-        $routes = $this->getRoutes();
+            // load the routes
+            $routes = $this->getRoutes();
 
-        // prepare the path of the requested action
-        $requestedAction = $pathInfo;
+            // load the action mappings for the actual servlet request
+            $actionMappings = $this->getActionMappingsForServletRequest($servletRequest);
 
-        // we start dispatching the request
-        $run = true;
+            // prepare the path of the requested action
+            $requestedAction = $pathInfo;
 
-        do {
+            // we start dispatching the request
+            $run = true;
 
-            // query whether one of the routes match the path information
-            if (isset($routes[$requestedAction])) {
+            do {
 
-                // load the action
-                $action = $routes[$requestedAction];
+                // query whether one of the routes match the path information
+                if (isset($actionMappings[$requestedAction])) {
 
-                // inject the dependencies
-                $provider->injectDependencies($action, $sessionId);
+                    // load the action
+                    $action = $routes[$actionMappings[$requestedAction]];
 
-                // add the method name that has to be invoked to the action request context
-                $action->setAttribute(ContextKeys::METHOD_NAME, ltrim(str_replace($requestedAction, '', $pathInfo), '/'));
+                    // inject the dependencies
+                    $provider->injectDependencies($action, $sessionId);
 
-                // we pre-dispatch the action
-                $action->preDispatch($servletRequest, $servletResponse);
+                    // add the method name that has to be invoked to the action request context
+                    $action->setAttribute(ContextKeys::METHOD_NAME, ltrim(str_replace($requestedAction, '', $pathInfo), '/'));
 
-                // if the action has been dispatched, we're done
-                if ($servletRequest->isDispatched()) {
+                    // we pre-dispatch the action
+                    $action->preDispatch($servletRequest, $servletResponse);
+
+                    // if the action has been dispatched, we're done
+                    if ($servletRequest->isDispatched()) {
+                        return;
+                    }
+
+                    // if not dispatch the action
+                    $action->perform($servletRequest, $servletResponse);
+                    $action->postDispatch($servletRequest, $servletResponse);
                     return;
                 }
 
-                // if not dispatch the action
-                $action->perform($servletRequest, $servletResponse);
-                $action->postDispatch($servletRequest, $servletResponse);
-                return;
-            }
+                // strip the last directory
+                $requestedAction = dirname($requestedAction);
 
-            // strip the last directory
-            $requestedAction = dirname($requestedAction);
+                // query whether we've to stop dispatching
+                if ($requestedAction === '/') {
+                    $run = false;
+                }
 
-            // query whether we've to stop dispatching
-            if ($requestedAction === '/') {
-                $run = false;
-            }
+            } while ($run);
 
-        } while ($run);
+        } catch (MethodNotFoundException $mnfe) {
+
+        }
 
         // we can't find an action that handles this request
         throw new ServletException(sprintf("No action to handle path info '%s' available.", $pathInfo), 404);
