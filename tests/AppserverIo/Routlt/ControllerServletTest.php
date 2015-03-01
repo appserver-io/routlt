@@ -61,7 +61,9 @@ class ControllerServletTest extends \PHPUnit_Framework_TestCase
         $servletResponse = $this->getMock('AppserverIo\Psr\Servlet\Http\HttpServletResponseInterface');
 
         // create a mock action instance
-        $action = $this->getMockForAbstractClass('AppserverIo\Routlt\BaseAction');
+        $action = $this->getMockBuilder('AppserverIo\Routlt\BaseAction')
+            ->disableOriginalConstructor()
+            ->getMock();
 
         // create an array with available routes
         $routes = array('/test' => $action);
@@ -105,7 +107,9 @@ class ControllerServletTest extends \PHPUnit_Framework_TestCase
         $servletResponse = $this->getMock('AppserverIo\Psr\Servlet\Http\HttpServletResponseInterface');
 
         // create a mock action instance
-        $action = $this->getMockForAbstractClass('AppserverIo\Routlt\BaseAction');
+        $action = $this->getMockBuilder('AppserverIo\Routlt\BaseAction')
+            ->disableOriginalConstructor()
+            ->getMock();
 
         // create an array with available routes
         $routes = array('/index' => $action);
@@ -302,10 +306,16 @@ class ControllerServletTest extends \PHPUnit_Framework_TestCase
         $controller = $this->getMock('AppserverIo\Routlt\ControllerServlet', array('getInitParameter', 'getWebappPath', 'getObjectManager', 'getServletContext'));
 
         // mock the configuration file name
-        $controller->expects($this->once())
+        $controller->expects($this->exactly(2))
             ->method('getInitParameter')
-            ->with(ControllerServlet::INIT_PARAMETER_ROUTLT_CONFIGURATION_FILE)
-            ->will($this->returnValue('/WEB-INF/routlt.properties'));
+            ->withConsecutive(
+                array(ControllerServlet::INIT_PARAMETER_ROUTLT_CONFIGURATION_FILE),
+                array(ControllerServlet::INIT_PARAMETER_ACTION_BASE_PATH)
+            )
+            ->willReturnOnConsecutiveCalls(
+                $this->returnValue('/WEB-INF/routlt.properties'),
+                $this->returnValue('/AppserverIo/Routlt/Actions')
+            );
         $controller->expects($this->once())
             ->method('getObjectManager')
             ->will($this->returnValue($objectManager));
@@ -350,8 +360,9 @@ class ControllerServletTest extends \PHPUnit_Framework_TestCase
         $servletResponse = $this->getMock('AppserverIo\Psr\Servlet\Http\HttpServletResponseInterface');
 
         // create a mock action instance
-        $action = $this->getMockForAbstractClass('AppserverIo\Routlt\BaseAction');
-
+        $action = $this->getMockBuilder('AppserverIo\Routlt\BaseAction')
+            ->disableOriginalConstructor()
+            ->getMock();
         // create an array with available routes
         $routes = array('/test' => $action);
 

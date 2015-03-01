@@ -35,6 +35,8 @@ class ContextKeys
     /**
      * This is a utility class, so protect it against direct
      * instantiation.
+     *
+     * @codeCoverageIgnore
      */
     private function __construct()
     {
@@ -44,6 +46,7 @@ class ContextKeys
      * This is a utility class, so protect it against cloning.
      *
      * @return void
+     * @codeCoverageIgnore
      */
     private function __clone()
     {
