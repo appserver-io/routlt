@@ -144,7 +144,7 @@ class PathDescriptorTest extends \PHPUnit_Framework_TestCase implements ActionIn
         $this->descriptor->fromReflectionClass($reflectionClass);
 
         // check the name parsed from the reflection class
-        $this->assertSame('/index*', $this->descriptor->getName());
+        $this->assertSame('/index', $this->descriptor->getName());
     }
 
     /**
@@ -169,7 +169,7 @@ class PathDescriptorTest extends \PHPUnit_Framework_TestCase implements ActionIn
         $this->descriptor->fromReflectionClass($reflectionClass);
 
         // check the name parsed from the reflection class
-        $this->assertSame('/mock*', $this->descriptor->getName());
+        $this->assertSame('/appserverio/routlt/description/mock/mockaction', $this->descriptor->getName());
     }
 
     /**

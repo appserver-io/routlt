@@ -31,6 +31,7 @@ use AppserverIo\Psr\Servlet\ServletResponseInterface;
 use AppserverIo\Psr\Servlet\Http\HttpServlet;
 use AppserverIo\Routlt\Util\ServletContextAware;
 use AppserverIo\Routlt\Description\PathDescriptorInterface;
+use AppserverIo\Routlt\Util\ContextKeys;
 
 /**
  * Abstract example implementation that provides some kind of basic MVC functionality
@@ -216,6 +217,9 @@ class ControllerServlet extends HttpServlet implements ControllerInterface
     protected function initRoutes()
     {
 
+        // load the action base path
+        $actionBasePath = strtolower($this->getInitParameter(ControllerServlet::INIT_PARAMETER_ACTION_BASE_PATH));
+
         // register the beans located by annotations and the XML configuration
         foreach ($this->getObjectManager()->getObjectDescriptors() as $descriptor) {
             // check if we've found a servlet descriptor
@@ -239,7 +243,7 @@ class ControllerServlet extends HttpServlet implements ControllerInterface
                 }
 
                 // add the initialized action
-                $this->routes[$descriptor->getName()] = $action;
+                $this->routes[str_replace($actionBasePath, '', $descriptor->getName())] = $action;
             }
         }
     }
@@ -295,12 +299,28 @@ class ControllerServlet extends HttpServlet implements ControllerInterface
             $pathInfo = $this->getDefaultRoute();
         }
 
-        // try to find an action that invokes the request
-        foreach ($this->getRoutes() as $route => $action) {
-            // if the route match, we'll perform the dispatch process
-            if (fnmatch($route, $pathInfo)) {
+        // load the routes
+        $routes = $this->getRoutes();
+
+        // prepare the path of the requested action
+        $requestedAction = $pathInfo;
+
+        // we start dispatching the request
+        $run = true;
+
+        do {
+
+            // query whether one of the routes match the path information
+            if (isset($routes[$requestedAction])) {
+
+                // load the action
+                $action = $routes[$requestedAction];
+
                 // inject the dependencies
                 $provider->injectDependencies($action, $sessionId);
+
+                // add the method name that has to be invoked to the action request context
+                $action->setAttribute(ContextKeys::METHOD_NAME, ltrim(str_replace($requestedAction, '', $pathInfo), '/'));
 
                 // we pre-dispatch the action
                 $action->preDispatch($servletRequest, $servletResponse);
@@ -315,7 +335,16 @@ class ControllerServlet extends HttpServlet implements ControllerInterface
                 $action->postDispatch($servletRequest, $servletResponse);
                 return;
             }
-        }
+
+            // strip the last directory
+            $requestedAction = dirname($requestedAction);
+
+            // query whether we've to stop dispatching
+            if ($requestedAction === '/') {
+                $run = false;
+            }
+
+        } while ($run);
 
         // we can't find an action that handles this request
         throw new ServletException(sprintf("No action to handle path info '%s' available.", $pathInfo), 404);

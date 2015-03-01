@@ -61,13 +61,10 @@ class ControllerServletTest extends \PHPUnit_Framework_TestCase
         $servletResponse = $this->getMock('AppserverIo\Psr\Servlet\Http\HttpServletResponseInterface');
 
         // create a mock action instance
-        $action = $this->getMock('AppserverIo\Routlt\ActionInterface');
-        $action->expects($this->once())->method('preDispatch');
-        $action->expects($this->once())->method('perform');
-        $action->expects($this->once())->method('postDispatch');
+        $action = $this->getMockForAbstractClass('AppserverIo\Routlt\BaseAction');
 
         // create an array with available routes
-        $routes = array('/test*' => $action);
+        $routes = array('/test' => $action);
 
         // create a mock instance of the DI provider
         $providerInterface = 'AppserverIo\Appserver\DependencyInjectionContainer\Interfaces\ProviderInterface';
@@ -108,13 +105,10 @@ class ControllerServletTest extends \PHPUnit_Framework_TestCase
         $servletResponse = $this->getMock('AppserverIo\Psr\Servlet\Http\HttpServletResponseInterface');
 
         // create a mock action instance
-        $action = $this->getMock('AppserverIo\Routlt\ActionInterface');
-        $action->expects($this->once())->method('preDispatch');
-        $action->expects($this->once())->method('perform');
-        $action->expects($this->once())->method('postDispatch');
+        $action = $this->getMockForAbstractClass('AppserverIo\Routlt\BaseAction');
 
         // create an array with available routes
-        $routes = array('/index*' => $action);
+        $routes = array('/index' => $action);
 
         // create a mock instance of the DI provider
         $providerInterface = 'AppserverIo\Appserver\DependencyInjectionContainer\Interfaces\ProviderInterface';
@@ -356,13 +350,10 @@ class ControllerServletTest extends \PHPUnit_Framework_TestCase
         $servletResponse = $this->getMock('AppserverIo\Psr\Servlet\Http\HttpServletResponseInterface');
 
         // create a mock action instance
-        $action = $this->getMock('AppserverIo\Routlt\ActionInterface');
-        $action->expects($this->once())->method('preDispatch');
-        $action->expects($this->never())->method('perform');
-        $action->expects($this->never())->method('postDispatch');
+        $action = $this->getMockForAbstractClass('AppserverIo\Routlt\BaseAction');
 
         // create an array with available routes
-        $routes = array('/test*' => $action);
+        $routes = array('/test' => $action);
 
         // create a mock instance of the DI provider
         $providerInterface = 'AppserverIo\Appserver\DependencyInjectionContainer\Interfaces\ProviderInterface';

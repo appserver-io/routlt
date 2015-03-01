@@ -22,6 +22,7 @@ namespace AppserverIo\Routlt;
 
 use AppserverIo\Psr\Servlet\Http\HttpServletRequestInterface;
 use AppserverIo\Psr\Servlet\Http\HttpServletResponseInterface;
+use AppserverIo\Routlt\Util\ContextKeys;
 
 /**
  * This class implements the functionality to invoke a method on its subclass specified
@@ -37,25 +38,11 @@ abstract class DispatchAction extends BaseAction
 {
 
     /**
-     * The key where to find the requested method name in the path information.
-     *
-     * @var integer
-     */
-    const REQUESTED_METHOD_NAME_KEY = 1;
-
-    /**
      * The default action method suffix.
      *
      * @var string
      */
     const ACTION_SUFFIX = 'Action';
-
-    /**
-     * The default action delimiter.
-     *
-     * @var string
-     */
-    const ACTION_DELIMITER = '/';
 
     /**
      * Holds the name of the default method to invoke if the parameter with the method name to invoke is not specified.
@@ -78,17 +65,12 @@ abstract class DispatchAction extends BaseAction
     public function perform(HttpServletRequestInterface $servletRequest, HttpServletResponseInterface $servletResponse)
     {
 
-        // the action delimiter we use to extract the action method name
-        $actionDelimiter = $this->getActionDelimiter();
+        // initialize the requested method name with the default value -> index
+        $requestedMethodName = $this->getDefaultMethod();
 
-        // load the first part of the path info => that is the requested method name by default
-        $explodedPathInfo = explode($actionDelimiter, trim($servletRequest->getPathInfo(), $actionDelimiter));
-
-        // try to set the default method, if we can't find one in the path info
-        if (isset($explodedPathInfo[$this->getRequestedMethodNameKey()])) {
-            $requestedMethodName = $explodedPathInfo[$this->getRequestedMethodNameKey()];
-        } else {
-            $requestedMethodName = $this->getDefaultMethod();
+        // query whether we can find a requested method name in the context
+        if ($methodName = $this->getAttribute(ContextKeys::METHOD_NAME)) {
+            $requestedMethodName = $methodName;
         }
 
         // concatenate it with the configured suffix and create a valid action name
@@ -106,17 +88,6 @@ abstract class DispatchAction extends BaseAction
     }
 
     /**
-     * This method returns the key where we can find the name of the requested method name, when
-     * we explode the path info with a slash.
-     *
-     * @return string The default action method name that has to be invoked
-     */
-    protected function getRequestedMethodNameKey()
-    {
-        return DispatchAction::REQUESTED_METHOD_NAME_KEY;
-    }
-
-    /**
      * This method returns the default method name we'll invoke if the path info doesn't contain
      * the method name, that'll be the second element, when we explode the path info with a slash.
      *
@@ -125,17 +96,6 @@ abstract class DispatchAction extends BaseAction
     protected function getDefaultMethod()
     {
         return DispatchAction::DEFAULT_METHOD_NAME;
-    }
-
-    /**
-     * This method returns the default action delimtier we use to extract the action method name
-     * we've to invoke from the path information.
-     *
-     * @return string The default action delimiter to extract the method name to be invoked
-     */
-    protected function getActionDelimiter()
-    {
-        return DispatchAction::ACTION_DELIMITER;
     }
 
     /**
