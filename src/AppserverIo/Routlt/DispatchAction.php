@@ -79,7 +79,7 @@ abstract class DispatchAction extends BaseAction
         // check if the requested action method is a class method
         if (!in_array($requestedActionMethod, get_class_methods($this))) {
             throw new MethodNotFoundException(
-                sprintf('Specified method %s not implemented by class %s', $requestedActionMethod, get_class($this))
+                sprintf('Method %s not implemented by Action %s', $requestedActionMethod, get_class($this))
             );
         }
 

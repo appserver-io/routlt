@@ -22,7 +22,7 @@ If you want to write an application that uses Rout.Lt 2, you have to install it 
 
 As Rout.Lt 2 is based on a servlet, you first need an `web.xml` inside the `WEB-INF` folder of your application.
 
-Let's assume, you've installed appserver.io on Linux/Mac OS X under ```/opt/appserver``` and your application is named `myapp` you'll save the `web.xml` containing the following content in directory `/opt/appserver/myapp/WEB-INF`:
+Let's assume, you've installed appserver.io on Linux/Mac OS X under ```/opt/appserver``` and your application is named `myapp` you'll save the `web.xml` containing the following content in directory `/opt/appserver/myapp/WEB-INF`
 
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
@@ -46,8 +46,8 @@ Let's assume, you've installed appserver.io on Linux/Mac OS X under ```/opt/apps
          | is looking for your action class implementations
          |-->
         <init-param>
-            <param-name>action.base.path</param-name>
-            <param-value>WEB-INF/classes</param-value>
+            <param-name>action.namespace</param-name>
+            <param-value>/MyApp/Actions</param-value>
         </init-param>
         <!-- 
          | this is optional and can be used to store credentials
@@ -74,7 +74,7 @@ Let's assume, you've installed appserver.io on Linux/Mac OS X under ```/opt/apps
 
 As Rout.Lt 2 provides annotations to configure routes and actions, the `routlt.json` configuration file, needed for version ~1.0, is not longer necessry nor supported.
 
-You have two annotations, namely `@Path` and `@Action` to configure your actions. These annotations gives you the possiblity to map the `Path Info` of a request to a method in a action class. This mechanism is adopted by many frameworks out there. The `Path Info` segments will be separated by a slash. The first segment has to map to the value of the `@Path` annotations `name` attribute, the second to one of the `@Action` annotations of one of methods.
+You have two annotations, namely `@Path` and `@Action` to configure the routing of your application. These annotations gives you the possiblity to map the `Path Info` of a request to a method in a action class. This mechanism is adopted by many of the available frameworks. The `Path Info` segments will be separated by a slash. The first segment has to map to the value of the `@Path` annotations `name` attribute, the second to one of the `@Action` annotations of one of methods.
 
 For example, assuming want to dispatch the URL `http://127.0.0.1:9080/myapp/index.do/index/login`, you need the implementation of an action class that looks like this. 
 
@@ -127,9 +127,32 @@ After saving the above code to a file named `/opt/appserver/webapps/myapp/WEB-IN
 
 > If you don't specify the `name` attributes, depending on the annotation, Rout.Lt uses the class or the method name. As the `Action` suffix has to be cut off, it is important, that the action and the action methods always ends with `Action` and nothing else.
 
-## Limitations
+## Action -> Request Method Mapping
 
-As we actually not differenciate between request methods, there is no possibility to allow action invocation for only selected request methods. For example, it is not possible to configure the indexAction() only has to be invoked on a `GET` request. Issue [#20](appserver-io/routlt#20) has already been created to find a solution therefore.
+Sometimes it is necessary to allow action invocation only for selected request methods. For example, it has to be possible to configure the `indexAction()` only to be invoked on a `POST` request. To do this, you can add a @Post annotation to the methods doc block, like
+
+```php
+
+/**
+ * Dummy action implementation that writes 'Hello World' to the response.
+ *
+ * @param \TechDivision\Servlet\Http\HttpServletRequestInterface  $servletRequest  The request instance
+ * @param \TechDivision\Servlet\Http\HttpServletResponseInterface $servletResponse The response instance
+ *
+ * @return void
+ * @Post
+ */
+public function indexAction(HttpServletRequestInterface $servletRequest, HttpServletResponseInterface $servletResponse)
+{
+    $servletResponse->appendBodyStream('Hello World!');
+}
+```
+
+Annotations are available for all request methods `CONNECT`, `DELETE`, `GET`, `HEAD`, `OPTIONS`, `POST`, `PUT` and `TRACE`. If you don't add one of the above annotations, an action will be invoked on **ALL** of the request methods.
+
+> If you add one of them, the action will be invoked on that annotation only. On all other request methods, a `AppserverIo\Psr\Servlet\ServletException` with a `404` status code will be thrown, which results in a `404` error page.
+
+## Limitations
 
 Rout.Lt 2 starts with annotations as only configuration option. There is **NO** possiblity to configure the actions with a deployment descriptor. Issue [#21](appserver-io/routlt#21) has already been created to find solution therefore.
 

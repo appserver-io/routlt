@@ -49,6 +49,13 @@ interface ActionDescriptorInterface extends DescriptorInterface
     public function getMethodName();
 
     /**
+     * Returns the request methods the action is listening to.
+     *
+     * @return array The request methods
+     */
+    public function getRequestMethods();
+
+    /**
      * Merges the passed configuration into this one. Configuration values
      * of the passed configuration will overwrite the this one.
      *

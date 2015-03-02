@@ -285,7 +285,7 @@ class PathDescriptorTest extends \PHPUnit_Framework_TestCase implements ActionIn
         // check the merge values
         $this->assertSame('/anotherIndex', $this->descriptor->getName());
         $this->assertSame(__CLASS__, $this->descriptor->getClassName());
-        $this->assertCount(2, $this->descriptor->getActions());
+        $this->assertCount(3, $this->descriptor->getActions());
         $this->assertCount(4, $this->descriptor->getReferences());
         $this->assertCount(2, $this->descriptor->getResReferences());
         $this->assertCount(2, $this->descriptor->getEpbReferences());

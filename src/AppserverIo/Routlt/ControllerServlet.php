@@ -114,6 +114,70 @@ class ControllerServlet extends HttpServlet implements ControllerInterface
     }
 
     /**
+     * Returns the provide instance.
+     *
+     * @param \AppserverIo\Psr\Servlet\ServletRequestInterface $servletRequest The request instance
+     *
+     * @return \AppserverIo\Appserver\ServletEngine\SessionManagerInterface The provider instance
+     */
+    public function getProvider(ServletRequestInterface $servletRequest)
+    {
+        return $servletRequest->getContext()->search('ProviderInterface');
+    }
+
+    /**
+     * Returns the naming directoy instance (the application).
+     *
+     * @return \AppserverIo\Psr\Naming\NamingDirectoryInterface The naming directory instance
+     */
+    public function getNamingDirectory()
+    {
+        return $this->getServletContext()->getApplication();
+    }
+
+    /**
+     * Returns the object manager instance
+     *
+     * @return \AppserverIo\Appserver\DependencyInjectionContainer\Interfaces\ObjectManagerInterface The object manager instance
+     */
+    public function getObjectManager()
+    {
+        return $this->getNamingDirectory()->search('ObjectManagerInterface');
+    }
+
+    /**
+     * This method returns the default route we'll invoke if the path info doesn't contain one.
+     *
+     * @return string The default route
+     */
+    public function getDefaultRoute()
+    {
+        return ControllerServlet::DEFAULT_ROUTE;
+    }
+
+    /**
+     * Returns the array with the path descriptors.
+     *
+     * @return array The array with the path descriptors
+     */
+    public function getPathDescriptors()
+    {
+        return $this->paths;
+    }
+
+    /**
+     * Adds a path descriptor to the controller.
+     *
+     * @param \AppserverIo\Routlt\Description\PathDescriptorInterface $pathDescriptor The path descriptor to add
+     *
+     * @return void
+     */
+    public function addPathDescriptor(PathDescriptorInterface $pathDescriptor)
+    {
+        $this->paths[] = $pathDescriptor;
+    }
+
+    /**
      * Returns the requested session name. This is the session name, that
      * is SESSID by default or has been specified in the web.xml.
      *
@@ -154,38 +218,6 @@ class ControllerServlet extends HttpServlet implements ControllerInterface
 
         // return the HTTP session-ID
         return $sessionId;
-    }
-
-    /**
-     * Returns the provide instance.
-     *
-     * @param \AppserverIo\Psr\Servlet\ServletRequestInterface $servletRequest The request instance
-     *
-     * @return \AppserverIo\Appserver\ServletEngine\SessionManagerInterface The provider instance
-     */
-    public function getProvider(ServletRequestInterface $servletRequest)
-    {
-        return $servletRequest->getContext()->search('ProviderInterface');
-    }
-
-    /**
-     * Returns the naming directoy instance (the application).
-     *
-     * @return \AppserverIo\Psr\Naming\NamingDirectoryInterface The naming directory instance
-     */
-    public function getNamingDirectory()
-    {
-        return $this->getServletContext()->getApplication();
-    }
-
-    /**
-     * Returns the object manager instance
-     *
-     * @return \AppserverIo\Appserver\DependencyInjectionContainer\Interfaces\ObjectManagerInterface The object manager instance
-     */
-    public function getObjectManager()
-    {
-        return $this->getNamingDirectory()->search('ObjectManagerInterface');
     }
 
     /**
@@ -313,7 +345,7 @@ class ControllerServlet extends HttpServlet implements ControllerInterface
      * Returns the array with request method action -> route mappings
      * for the passed servlet request.
      *
-     * @param \AppserverIo\Psr\Servlet\ServletRequestInterface  $servletRequest  The request instance
+     * @param \AppserverIo\Psr\Servlet\ServletRequestInterface $servletRequest The request instance
      *
      * @return array The request method action -> route mappings for the passed request method
      */
@@ -323,9 +355,12 @@ class ControllerServlet extends HttpServlet implements ControllerInterface
         // load the servlet request method
         $requestMethod = $servletRequest->getMethod();
 
+        // load the action mappings
+        $actionMappings = $this->getActionMappings();
+
         // query whether we've action mappings for the request method or not
-        if (isset($this->actionMappings[$requestMethod])) {
-            return $this->actionMappings[$requestMethod];
+        if (isset($actionMappings[$requestMethod])) {
+            return $actionMappings[$requestMethod];
         }
     }
 
@@ -371,11 +406,9 @@ class ControllerServlet extends HttpServlet implements ControllerInterface
             $run = true;
 
             do {
-
                 // query whether one of the routes match the path information
                 if (isset($actionMappings[$requestedAction])) {
-
-                    // load the action
+                    // resolve the action with the found mapping
                     $action = $routes[$actionMappings[$requestedAction]];
 
                     // inject the dependencies
@@ -384,7 +417,7 @@ class ControllerServlet extends HttpServlet implements ControllerInterface
                     // add the method name that has to be invoked to the action request context
                     $action->setAttribute(ContextKeys::METHOD_NAME, ltrim(str_replace($requestedAction, '', $pathInfo), '/'));
 
-                    // we pre-dispatch the action
+                    // pre-dispatch the action
                     $action->preDispatch($servletRequest, $servletResponse);
 
                     // if the action has been dispatched, we're done
@@ -408,43 +441,17 @@ class ControllerServlet extends HttpServlet implements ControllerInterface
 
             } while ($run);
 
+            // throw an action, because we can't find an action mapping
+            throw new ActionNotFoundException(
+                sprintf('Can\'t find action that maps path info %s', $pathInfo)
+            );
+
+        } catch (ActionNotFoundException $anfe) {
+            // results in a 404 error page
+            throw new ServletException(sprintf("%s not found", $pathInfo), 404, $anfe);
         } catch (MethodNotFoundException $mnfe) {
-
+            // results in a 404 error page
+            throw new ServletException(sprintf("%s not found", $pathInfo), 404, $mnfe);
         }
-
-        // we can't find an action that handles this request
-        throw new ServletException(sprintf("No action to handle path info '%s' available.", $pathInfo), 404);
-    }
-
-    /**
-     * This method returns the default route we'll invoke if the path info doesn't contain one.
-     *
-     * @return string The default route
-     */
-    public function getDefaultRoute()
-    {
-        return ControllerServlet::DEFAULT_ROUTE;
-    }
-
-    /**
-     * Returns the array with the path descriptors.
-     *
-     * @return array The array with the path descriptors
-     */
-    public function getPathDescriptors()
-    {
-        return $this->paths;
-    }
-
-    /**
-     * Adds a path descriptor to the controller.
-     *
-     * @param \AppserverIo\Routlt\Description\PathDescriptorInterface $pathDescriptor The path descriptor to add
-     *
-     * @return void
-     */
-    public function addPathDescriptor(PathDescriptorInterface $pathDescriptor)
-    {
-        $this->paths[] = $pathDescriptor;
     }
 }
