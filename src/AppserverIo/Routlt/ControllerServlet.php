@@ -413,7 +413,6 @@ class ControllerServlet extends HttpServlet implements ControllerInterface
             do {
                 // query whether one of the routes match the path information
                 if (isset($actionMappings[$requestedAction])) {
-
                     // extract route + method from the action mapping
                     list ($route, $method) = $actionMappings[$requestedAction];
 
