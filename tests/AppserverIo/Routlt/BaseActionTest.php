@@ -112,4 +112,15 @@ class BaseActionTest extends \PHPUnit_Framework_TestCase
         // check that the values has been added
         $this->assertSame($value, $action->getAttribute($key));
     }
+
+    /**
+     * This test checks whether the getDefaultMethod() returns
+     * the expected value.
+     *
+     * @return void
+     */
+    public function testGetDefaultAction()
+    {
+        $this->assertSame(BaseAction::DEFAULT_METHOD_NAME, $this->action->getDefaultMethod());
+    }
 }

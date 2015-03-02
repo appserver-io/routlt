@@ -1,7 +1,7 @@
 <?php
 
 /**
- * AppserverIo\Routlt\ActionNotFoundException
+ * AppserverIo\Routlt\DispatchActionInterface
  *
  * NOTICE OF LICENSE
  *
@@ -21,8 +21,7 @@
 namespace AppserverIo\Routlt;
 
 /**
- * This is the exception that is thrown if no action can be found that
- * maps the requested path information.
+ * Interface for a dispatch action.
  *
  * @author    Tim Wagner <tw@techdivision.com>
  * @copyright 2015 TechDivision GmbH <info@techdivision.com>
@@ -30,6 +29,6 @@ namespace AppserverIo\Routlt;
  * @link      http://github.com/appserver-io/routlt
  * @link      http://www.appserver.io
  */
-class ActionNotFoundException extends \Exception
+interface DispatchActionInterface
 {
 }

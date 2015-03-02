@@ -29,9 +29,9 @@ use AppserverIo\Psr\Servlet\ServletConfigInterface;
 use AppserverIo\Psr\Servlet\ServletRequestInterface;
 use AppserverIo\Psr\Servlet\ServletResponseInterface;
 use AppserverIo\Psr\Servlet\Http\HttpServlet;
+use AppserverIo\Routlt\Util\ContextKeys;
 use AppserverIo\Routlt\Util\ServletContextAware;
 use AppserverIo\Routlt\Description\PathDescriptorInterface;
-use AppserverIo\Routlt\Util\ContextKeys;
 
 /**
  * Abstract example implementation that provides some kind of basic MVC functionality
@@ -291,14 +291,19 @@ class ControllerServlet extends HttpServlet implements ControllerInterface
                         // prepare the action path with the route
                         $actionPath = $route;
 
-                        // if we do NOT have the default method
-                        if ($actionDescriptor->getName() !== '/perform') {
-                            // prepare the action path -> concatenate route + action name
-                            $actionPath .= $actionDescriptor->getName();
-                        }
+                        // prepare the action mapping with the route + the action name
+                        $actionMapping = array($route, $actionDescriptor->getMethodName());
+
+                        // prepare the action path -> concatenate route + action name
+                        $actionPath .= $actionDescriptor->getName();
 
                         // add the action path -> route mapping for the request method
-                        $this->actionMappings[$requestMethod][$actionPath] = $route;
+                        $this->actionMappings[$requestMethod][$actionPath] = $actionMapping;
+
+                        // add an alias for the route for the action's default method
+                        if ($actionDescriptor->getMethodName() === $action->getDefaultMethod()) {
+                            $this->actionMappings[$requestMethod][$route] = $actionMapping;
+                        }
                     }
                 }
 
@@ -393,14 +398,14 @@ class ControllerServlet extends HttpServlet implements ControllerInterface
                 $pathInfo = $this->getDefaultRoute();
             }
 
+            // prepare the path of the requested action
+            $requestedAction = $pathInfo;
+
             // load the routes
             $routes = $this->getRoutes();
 
             // load the action mappings for the actual servlet request
             $actionMappings = $this->getActionMappingsForServletRequest($servletRequest);
-
-            // prepare the path of the requested action
-            $requestedAction = $pathInfo;
 
             // we start dispatching the request
             $run = true;
@@ -408,14 +413,18 @@ class ControllerServlet extends HttpServlet implements ControllerInterface
             do {
                 // query whether one of the routes match the path information
                 if (isset($actionMappings[$requestedAction])) {
+
+                    // extract route + method from the action mapping
+                    list ($route, $method) = $actionMappings[$requestedAction];
+
                     // resolve the action with the found mapping
-                    $action = $routes[$actionMappings[$requestedAction]];
+                    $action = $routes[$route];
+
+                    // set the method that has to be invoked in the action context
+                    $action->setAttribute(ContextKeys::METHOD_NAME, $method);
 
                     // inject the dependencies
                     $provider->injectDependencies($action, $sessionId);
-
-                    // add the method name that has to be invoked to the action request context
-                    $action->setAttribute(ContextKeys::METHOD_NAME, ltrim(str_replace($requestedAction, '', $pathInfo), '/'));
 
                     // pre-dispatch the action
                     $action->preDispatch($servletRequest, $servletResponse);
@@ -442,16 +451,16 @@ class ControllerServlet extends HttpServlet implements ControllerInterface
             } while ($run);
 
             // throw an action, because we can't find an action mapping
-            throw new ActionNotFoundException(
-                sprintf('Can\'t find action that maps path info %s', $pathInfo)
+            throw new DispatchException(
+                sprintf('Can\'t find action to dispatch path info %s', $pathInfo)
             );
 
-        } catch (ActionNotFoundException $anfe) {
+        } catch (DispatchException $de) {
             // results in a 404 error page
-            throw new ServletException(sprintf("%s not found", $pathInfo), 404, $anfe);
-        } catch (MethodNotFoundException $mnfe) {
-            // results in a 404 error page
-            throw new ServletException(sprintf("%s not found", $pathInfo), 404, $mnfe);
+            throw new ServletException($de->__toString(), 404);
+        } catch (\Exception $e) {
+            // results in a 500 error page
+            throw new ServletException($e->__toString(), 500);
         }
     }
 }

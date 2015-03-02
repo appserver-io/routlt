@@ -1,7 +1,7 @@
 <?php
 
 /**
- * AppserverIo\Routlt\MethodNotFoundException
+ * AppserverIo\Routlt\DispatchException
  *
  * NOTICE OF LICENSE
  *
@@ -21,8 +21,7 @@
 namespace AppserverIo\Routlt;
 
 /**
- * This is the exception that is thrown if the spedified method
- * is not implemented in the class.
+ * This is the exception that is thrown if a request can not be dispatched.
  *
  * @author    Tim Wagner <tw@techdivision.com>
  * @copyright 2015 TechDivision GmbH <info@techdivision.com>
@@ -30,6 +29,6 @@ namespace AppserverIo\Routlt;
  * @link      http://github.com/appserver-io/routlt
  * @link      http://www.appserver.io
  */
-class MethodNotFoundException extends \Exception
+class DispatchException extends \Exception
 {
 }

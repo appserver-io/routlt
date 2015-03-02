@@ -38,6 +38,13 @@ interface ActionInterface
 {
 
     /**
+     * This method returns the default action method name that has to be invoked .
+     *
+     * @return string The default action method name that has to be invoked
+     */
+    public function getDefaultMethod();
+
+    /**
      * Method that will be invoked before we dispatch the request.
      *
      * @param \AppserverIo\Psr\Servlet\Http\HttpServletRequestInterface  $servletRequest  The request instance

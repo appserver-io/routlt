@@ -20,9 +20,9 @@
 
 namespace AppserverIo\Routlt;
 
+use AppserverIo\Routlt\Util\ContextKeys;
 use AppserverIo\Psr\Servlet\Http\HttpServletRequestInterface;
 use AppserverIo\Psr\Servlet\Http\HttpServletResponseInterface;
-use AppserverIo\Routlt\Util\ContextKeys;
 
 /**
  * This class implements the functionality to invoke a method on its subclass specified
@@ -34,7 +34,7 @@ use AppserverIo\Routlt\Util\ContextKeys;
  * @link      http://github.com/appserver-io/routlt
  * @link      http://www.appserver.io
  */
-abstract class DispatchAction extends BaseAction
+abstract class DispatchAction extends BaseAction implements DispatchActionInterface
 {
 
     /**
@@ -52,10 +52,7 @@ abstract class DispatchAction extends BaseAction
     const DEFAULT_METHOD_NAME = 'index';
 
     /**
-     * This method implements the functionality to invoke a method implemented in its subclass.
-     *
-     * The method that should be invoked has to be specified by a HTTPServletRequest parameter
-     * which name is specified in the configuration file as parameter for the ActionMapping.
+     * Implemented to comply witht the interface.
      *
      * @param \AppserverIo\Psr\Servlet\Http\HttpServletRequestInterface  $servletRequest  The request instance
      * @param \AppserverIo\Psr\Servlet\Http\HttpServletResponseInterface $servletResponse The response instance
@@ -65,26 +62,11 @@ abstract class DispatchAction extends BaseAction
     public function perform(HttpServletRequestInterface $servletRequest, HttpServletResponseInterface $servletResponse)
     {
 
-        // initialize the requested method name with the default value -> index
-        $requestedMethodName = $this->getDefaultMethod();
-
-        // query whether we can find a requested method name in the context
-        if ($methodName = $this->getAttribute(ContextKeys::METHOD_NAME)) {
-            $requestedMethodName = $methodName;
-        }
-
-        // concatenate it with the configured suffix and create a valid action name
-        $requestedActionMethod = $this->getActionSuffix($requestedMethodName);
-
-        // check if the requested action method is a class method
-        if (!in_array($requestedActionMethod, get_class_methods($this))) {
-            throw new MethodNotFoundException(
-                sprintf('Method %s not implemented by Action %s', $requestedActionMethod, get_class($this))
-            );
-        }
+        // load the requested method name from the context
+        $methodName = $this->getAttribute(ContextKeys::METHOD_NAME);
 
         // invoke the requested action method
-        $this->$requestedActionMethod($servletRequest, $servletResponse);
+        $this->$methodName($servletRequest, $servletResponse);
     }
 
     /**
@@ -93,9 +75,9 @@ abstract class DispatchAction extends BaseAction
      *
      * @return string The default action method name that has to be invoked
      */
-    protected function getDefaultMethod()
+    public function getDefaultMethod()
     {
-        return DispatchAction::DEFAULT_METHOD_NAME;
+        return $this->getActionSuffix(DispatchAction::DEFAULT_METHOD_NAME);
     }
 
     /**

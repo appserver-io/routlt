@@ -410,6 +410,17 @@ class PathDescriptorTest extends \PHPUnit_Framework_TestCase implements ActionIn
     }
 
     /**
+     * This method returns the default method name we'll invoke if the path info doesn't contain
+     * the method name, that'll be the second element, when we explode the path info with a slash.
+     *
+     * @return string The default action method name that has to be invoked
+     */
+    public function getDefaultMethod()
+    {
+        return 'indexAction';
+    }
+
+    /**
      * @Action(name="/test")
      */
     public function nonameAction()
