@@ -21,6 +21,7 @@
 namespace AppserverIo\Routlt\Description;
 
 use AppserverIo\Lang\Reflection\ReflectionClass;
+use AppserverIo\Http\HttpProtocol;
 /**
  * Test implementation for the ActionDescriptor implementation.
  *
@@ -123,6 +124,7 @@ class ActionDescriptorTest extends \PHPUnit_Framework_TestCase
         // check the method name and that the name has been overwritten
         $this->assertSame('nonameAction', $this->descriptor->getMethodName());
         $this->assertSame($newName, $this->descriptor->getName());
+        $this->assertEquals(array(HttpProtocol::METHOD_POST), $this->descriptor->getRequestMethods());
     }
 
     /**
@@ -151,6 +153,7 @@ class ActionDescriptorTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @Action(name="/test")
+     * @Post
      */
     public function nonameAction()
     {

@@ -144,7 +144,7 @@ class PathDescriptorTest extends \PHPUnit_Framework_TestCase implements ActionIn
         $this->descriptor->fromReflectionClass($reflectionClass);
 
         // check the name parsed from the reflection class
-        $this->assertSame('/index*', $this->descriptor->getName());
+        $this->assertSame('/index', $this->descriptor->getName());
     }
 
     /**
@@ -169,7 +169,7 @@ class PathDescriptorTest extends \PHPUnit_Framework_TestCase implements ActionIn
         $this->descriptor->fromReflectionClass($reflectionClass);
 
         // check the name parsed from the reflection class
-        $this->assertSame('/mock*', $this->descriptor->getName());
+        $this->assertSame('/appserverio/routlt/description/mock/mockaction', $this->descriptor->getName());
     }
 
     /**
@@ -285,7 +285,7 @@ class PathDescriptorTest extends \PHPUnit_Framework_TestCase implements ActionIn
         // check the merge values
         $this->assertSame('/anotherIndex', $this->descriptor->getName());
         $this->assertSame(__CLASS__, $this->descriptor->getClassName());
-        $this->assertCount(2, $this->descriptor->getActions());
+        $this->assertCount(3, $this->descriptor->getActions());
         $this->assertCount(4, $this->descriptor->getReferences());
         $this->assertCount(2, $this->descriptor->getResReferences());
         $this->assertCount(2, $this->descriptor->getEpbReferences());
@@ -407,6 +407,17 @@ class PathDescriptorTest extends \PHPUnit_Framework_TestCase implements ActionIn
     public function postDispatch(HttpServletRequestInterface $servletRequest, HttpServletResponseInterface $servletResponse)
     {
 
+    }
+
+    /**
+     * This method returns the default method name we'll invoke if the path info doesn't contain
+     * the method name, that'll be the second element, when we explode the path info with a slash.
+     *
+     * @return string The default action method name that has to be invoked
+     */
+    public function getDefaultMethod()
+    {
+        return 'indexAction';
     }
 
     /**

@@ -298,12 +298,12 @@ class PathDescriptor implements PathDescriptorInterface
         if ($nameAttribute = $annotationInstance->getName()) {
             $name = $nameAttribute;
         } else {
-            // if @Annotation(name=****) is NOT set, we use the short class name by default
-            $name = lcfirst(str_replace('Action', '', $reflectionClass->getShortName()));
+            // if @Annotation(name=****) is NOT set, we use the class name by default
+            $name = strtolower(str_replace('\\', '/', $reflectionClass->getName()));
         }
 
         // prepare and set the name
-        $this->setName(sprintf('/%s*', ltrim($name, '/')));
+        $this->setName(sprintf('/%s', ltrim($name, '/')));
 
         // we've to check for method annotations that declare the action methods
         foreach ($reflectionClass->getMethods(\ReflectionMethod::IS_PUBLIC) as $reflectionMethod) {

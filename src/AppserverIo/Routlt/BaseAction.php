@@ -38,6 +38,13 @@ abstract class BaseAction extends Object implements ActionInterface
 {
 
     /**
+     * Holds the name of the default method to invoke if the parameter with the method name to invoke is not specified.
+     *
+     * @var string
+     */
+    const DEFAULT_METHOD_NAME = 'perform';
+
+    /**
      * The context for the actual request.
      *
      * @var \AppserverIo\Psr\Context\ContextInterface
@@ -81,6 +88,16 @@ abstract class BaseAction extends Object implements ActionInterface
     public function postDispatch(HttpServletRequestInterface $servletRequest, HttpServletResponseInterface $servletResponse)
     {
         return;
+    }
+
+    /**
+     * This method returns the default action method name that has to be invoked .
+     *
+     * @return string The default action method name that has to be invoked
+     */
+    public function getDefaultMethod()
+    {
+        return BaseAction::DEFAULT_METHOD_NAME;
     }
 
     /**

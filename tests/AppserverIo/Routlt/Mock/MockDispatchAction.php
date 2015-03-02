@@ -36,6 +36,17 @@ use AppserverIo\Psr\Servlet\Http\HttpServletResponseInterface;
 class MockDispatchAction extends DispatchAction
 {
 
+    /**
+     * This method returns the default method name we'll invoke if the path info doesn't contain
+     * the method name, that'll be the second element, when we explode the path info with a slash.
+     *
+     * @return string The default action method name that has to be invoked
+     */
+    public function getDefaultMethod()
+    {
+        return 'indexAction';
+    }
+
 
     /**
      * Dummy action implementation.
@@ -47,6 +58,7 @@ class MockDispatchAction extends DispatchAction
      */
     public function indexAction(HttpServletRequestInterface $servletRequest, HttpServletResponseInterface $servletResponse)
     {
+        $servletResponse->appendBodyStream($servletRequest->getPathInfo());
     }
 
 
@@ -60,5 +72,6 @@ class MockDispatchAction extends DispatchAction
      */
     public function testAction(HttpServletRequestInterface $servletRequest, HttpServletResponseInterface $servletResponse)
     {
+        $servletResponse->appendBodyStream($servletRequest->getPathInfo());
     }
 }
