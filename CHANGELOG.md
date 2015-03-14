@@ -1,3 +1,13 @@
+# Version 2.0.0-alpha4
+
+## Bugfixes
+
+* None
+
+## Features
+
+* Add interceptor functionality
+
 # Version 2.0.0-alpha3
 
 ## Bugfixes
