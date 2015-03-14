@@ -24,7 +24,8 @@ use AppserverIo\Routlt\Util\ValidationAware;
 use AppserverIo\Psr\MetaobjectProtocol\Aop\MethodInvocationInterface;
 
 /**
- * Interceptor to catch action invocations.
+ * Interceptor that invokes the validate() method of an action if it
+ * implements the ValidationAware interface.
  *
  * @author     Tim Wagner <tw@techdivision.com>
  * @copyright  2015 TechDivision GmbH <info@techdivision.com>
@@ -36,7 +37,7 @@ class ValidationInterceptor implements InterceptorInterface
 {
 
     /**
-     * Advice that handles a XHR Request.
+     * Method that implements the interceptors functionality.
      *
      * @param AppserverIo\Psr\MetaobjectProtocol\Aop\MethodInvocationInterface $methodInvocation Initially invoked method
      *

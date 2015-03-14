@@ -23,7 +23,8 @@ namespace AppserverIo\Routlt\Interceptors;
 use AppserverIo\Psr\MetaobjectProtocol\Aop\MethodInvocationInterface;
 
 /**
- * Interceptor to catch action invocations.
+ * Interceptor that set's all values found in a JSON encoded request body to the
+ * action by using setter methods.
  *
  * @author     Tim Wagner <tw@techdivision.com>
  * @copyright  2015 TechDivision GmbH <info@techdivision.com>
@@ -35,7 +36,7 @@ class XhrParamsInterceptor implements InterceptorInterface
 {
 
     /**
-     * Advice that handles a XHR Request.
+     * Method that implements the interceptors functionality.
      *
      * @param AppserverIo\Psr\MetaobjectProtocol\Aop\MethodInvocationInterface $methodInvocation Initially invoked method
      *
