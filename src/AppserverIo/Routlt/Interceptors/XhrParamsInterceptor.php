@@ -46,6 +46,9 @@ class XhrParamsInterceptor implements InterceptorInterface
     {
 
         try {
+
+            error_log(__METHOD__ . '::' . __LINE__);
+
             // load the action instance
             $action = $methodInvocation->getContext();
 
