@@ -39,7 +39,7 @@ class ParamsInterceptor implements InterceptorInterface
      *
      * @param AppserverIo\Psr\MetaobjectProtocol\Aop\MethodInvocationInterface $methodInvocation Initially invoked method
      *
-     * @return void
+     * @return string|null The action result
      */
     public function intercept(MethodInvocationInterface $methodInvocation)
     {
@@ -68,12 +68,20 @@ class ParamsInterceptor implements InterceptorInterface
                     continue;
                 }
 
-                // set the value by using the setter
-                $action->$methodName($value);
+                try {
+                    // set the value by using the setter
+                    $action->$methodName($value);
+
+                } catch (\Exception $e) {
+                    $action->addFieldError($key, $e);
+                }
             }
 
-        } catch (\Exception $e) {
+            // proceed invocation chain
+            return $methodInvocation->proceed();
 
+        } catch (\Exception $e) {
+            error_log($e);
         }
     }
 }

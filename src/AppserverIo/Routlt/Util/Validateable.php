@@ -1,7 +1,7 @@
 <?php
 
 /**
- * AppserverIo\Routlt\Util\ValidationAware
+ * AppserverIo\Routlt\Util\Validateable
  *
  * NOTICE OF LICENSE
  *
@@ -29,13 +29,13 @@ namespace AppserverIo\Routlt\Util;
  * @link      http://github.com/appserver-io/routlt
  * @link      http://www.appserver.io
  */
-interface ValidationAware
+interface Validateable extends ValidationAware
 {
 
     /**
-     * Returns TRUE if validation found errors, else FALSE.
+     * The validation method that implements the action's validation method.
      *
-     * @return boolean TRUE if validation found errors, else FALSE
+     * @return void
      */
-    public function hasErrors();
+    public function validate();
 }

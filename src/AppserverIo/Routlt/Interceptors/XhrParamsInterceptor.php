@@ -40,7 +40,7 @@ class XhrParamsInterceptor implements InterceptorInterface
      *
      * @param AppserverIo\Psr\MetaobjectProtocol\Aop\MethodInvocationInterface $methodInvocation Initially invoked method
      *
-     * @return void
+     * @return string|null The action result
      */
     public function intercept(MethodInvocationInterface $methodInvocation)
     {
@@ -59,27 +59,36 @@ class XhrParamsInterceptor implements InterceptorInterface
             $parameters = $methodInvocation->getParameters();
             $servletRequest = $parameters['servletRequest'];
 
-            // only if request has valid json
-            if (is_object(json_decode($servletRequest->getBodyContent())) === false) {
-                throw new \Exception('Invalid request format', 400);
-            }
+            // query whether we've a body content
+            if ($bodyContent = $servletRequest->getBodyContent()) {
+                // only process if request has valid JSON
+                if (is_object(json_decode($bodyContent))) {
+                    // try to inject the request parameters by using the class setters
+                    foreach (json_decode($bodyContent) as $key => $value) {
+                        // prepare the setter method name
+                        $methodName = sprintf('set%s', ucfirst($key));
 
-            // try to inject the request parameters by using the class setters
-            foreach (json_decode($servletRequest->getBodyContent()) as $key => $value) {
-                // prepare the setter method name
-                $methodName = sprintf('set%s', ucfirst($key));
+                        // query whether the class has the setter implemented
+                        if (in_array($methodName, $methods) === false) {
+                            continue;
+                        }
 
-                // query whether the class has the setter implemented
-                if (in_array($methodName, $methods) === false) {
-                    continue;
+                        try {
+                            // set the value by using the setter
+                            $action->$methodName($value);
+
+                        } catch (\Exception $e) {
+                            $action->addFieldError($key, $e);
+                        }
+                    }
                 }
-
-                // set the value by using the setter
-                $action->$methodName($value);
             }
+
+            // proceed invocation chain
+            return $methodInvocation->proceed();
 
         } catch (\Exception $e) {
-
+            error_log($e);
         }
     }
 }
