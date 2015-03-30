@@ -437,12 +437,14 @@ class ControllerServlet extends HttpServlet implements ControllerInterface
                     $result = $action->perform($servletRequest, $servletResponse);
                     $action->postDispatch($servletRequest, $servletResponse);
 
+                    // query whether the action return a result
                     if ($result != null) {
-
+                        // initialize the request URI
                         $servletRequest->setUri($result);
                         $servletRequest->prepare();
 
-                        $servlet = $this->getServletContext()->lookup($next, $sessionId);
+                        // load and process the servlet
+                        $servlet = $this->getServletContext()->lookup($result, $sessionId);
                         $servlet->service($servletRequest, $servletResponse);
                     }
 
