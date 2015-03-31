@@ -20,6 +20,7 @@
 
 namespace AppserverIo\Routlt\Interceptors;
 
+use AppserverIo\Routlt\Results\ResultInterface;
 use AppserverIo\Psr\MetaobjectProtocol\Aop\MethodInvocationInterface;
 
 /**
@@ -58,7 +59,12 @@ class ResultInterceptor implements InterceptorInterface
             $result = $methodInvocation->proceed();
 
             // process the result if available
-            if ($instance = $action->findResult($result)) {
+            if ($instance = $action->findResult($result) && $instance instanceof ResultInterface) {
+
+                if ($result instanceof ActionAware) {
+                    $result->setAction($action);
+                }
+
                 $instance->process($servletRequest, $servletResponse);
             }
 

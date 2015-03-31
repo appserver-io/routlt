@@ -24,15 +24,17 @@ use AppserverIo\Http\HttpProtocol;
 use AppserverIo\Properties\Properties;
 use AppserverIo\Psr\Context\ArrayContext;
 use AppserverIo\Psr\Context\ContextInterface;
+use AppserverIo\Psr\Servlet\Http\HttpServlet;
 use AppserverIo\Psr\Servlet\ServletException;
 use AppserverIo\Psr\Servlet\ServletConfigInterface;
+use AppserverIo\Psr\Servlet\ServletContextInterface;
 use AppserverIo\Psr\Servlet\ServletRequestInterface;
 use AppserverIo\Psr\Servlet\ServletResponseInterface;
-use AppserverIo\Psr\Servlet\Http\HttpServlet;
 use AppserverIo\Routlt\Util\ContextKeys;
+use AppserverIo\Routlt\Util\ActionAware;
 use AppserverIo\Routlt\Util\ServletContextAware;
+use AppserverIo\Routlt\Results\ResultInterface;
 use AppserverIo\Routlt\Description\PathDescriptorInterface;
-use AppserverIo\Psr\Servlet\ServletContextInterface;
 use AppserverIo\Routlt\Description\ResultDescriptorInterface;
 
 /**
@@ -424,13 +426,23 @@ class ControllerServlet extends HttpServlet implements ControllerInterface
 
                     // if not dispatch the action
                     $result = $action->perform($servletRequest, $servletResponse);
-                    $action->postDispatch($servletRequest, $servletResponse);
 
                     // process the result if available
-                    /* if (isset($results[$result])) {
-                        $results[$result]->process($servletRequest, $servletResponse);
-                    } */
+                    if (($instance = $action->findResult($result)) instanceof ResultInterface) {
 
+                        // query whether or not the result is action aware
+                        if ($instance instanceof ActionAware) {
+                            $instance->setAction($action);
+                        }
+
+                        // process the result
+                        $instance->process($servletRequest, $servletResponse);
+                    }
+
+                    // post-dispatch the action instance
+                    $action->postDispatch($servletRequest, $servletResponse);
+
+                    // stop processing
                     return;
                 }
 

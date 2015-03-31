@@ -20,9 +20,10 @@
 
 namespace AppserverIo\Routlt\Interceptors;
 
+use AppserverIo\Routlt\ActionInterface;
+use AppserverIo\Routlt\Util\Validateable;
 use AppserverIo\Routlt\Util\ValidationAware;
 use AppserverIo\Psr\MetaobjectProtocol\Aop\MethodInvocationInterface;
-use AppserverIo\Routlt\Util\Validateable;
 
 /**
  * @author     Tim Wagner <tw@techdivision.com>
@@ -61,16 +62,12 @@ class WorkflowInterceptor implements InterceptorInterface
                 $action->validate();
             }
 
-            error_log(__METHOD__ . '::' . __LINE__);
-
+            // query whether the action is validation aware
             if ($action instanceof ValidationAware) {
                 if ($action->hasErrors()) {
-                    // stop processing and render errors
-                    throw new \Exception('Found Errors');
+                    return ActionInterface::FAILURE;
                 }
             }
-
-            error_log("Request: " . get_class($servletRequest));
 
             // proceed invocation chain
             return $methodInvocation->proceed();

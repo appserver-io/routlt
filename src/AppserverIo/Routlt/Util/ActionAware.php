@@ -1,7 +1,7 @@
 <?php
 
 /**
- * AppserverIo\Routlt\Util\ValidationAware
+ * AppserverIo\Routlt\Util\ActionAware
  *
  * NOTICE OF LICENSE
  *
@@ -20,8 +20,10 @@
 
 namespace AppserverIo\Routlt\Util;
 
+use AppserverIo\Routlt\ActionInterface;
+
 /**
- * Interface for a validation aware action implementation.
+ * Interface for a action aware implementation.
  *
  * @author    Tim Wagner <tw@techdivision.com>
  * @copyright 2014 TechDivision GmbH <info@techdivision.com>
@@ -29,30 +31,22 @@ namespace AppserverIo\Routlt\Util;
  * @link      http://github.com/appserver-io/routlt
  * @link      http://www.appserver.io
  */
-interface ValidationAware
+interface ActionAware
 {
 
     /**
-     * Returns TRUE if validation found errors, else FALSE.
+     * Sets the actual action instance.
      *
-     * @return boolean TRUE if validation found errors, else FALSE
-     */
-    public function hasErrors();
-
-    /**
-     * Returns the array with action errors.
-     *
-     * @return The array with action errors
-     */
-    public function getErrors();
-
-    /**
-     * Adds a field error with the passed name and message.
-     *
-     * @param string $name    The name to add the message with
-     * @param string $message The message to add
+     * @param \AppserverIo\Routlt\ActionInterface $action The action instance
      *
      * @return void
      */
-    public function addFieldError($name, $message);
+    public function setAction(ActionInterface $action);
+
+    /**
+     * Returns the action instance.
+     *
+     * @return \AppserverIo\Routlt\ActionInterface The action instance
+     */
+    public function getAction();
 }

@@ -1,7 +1,7 @@
 <?php
 
 /**
- * AppserverIo\Routlt\Results\ServletDispatcherResult
+ * AppserverIo\Routlt\Results\JsonResult
  *
  * NOTICE OF LICENSE
  *
@@ -20,14 +20,18 @@
 
 namespace AppserverIo\Routlt\Results;
 
+use AppserverIo\Http\HttpProtocol;
+use AppserverIo\Routlt\ActionInterface;
+use AppserverIo\Routlt\Util\ActionAware;
+use AppserverIo\Routlt\Util\ValidationAware;
 use AppserverIo\Routlt\Util\ServletContextAware;
+use AppserverIo\Routlt\Description\ResultDescriptorInterface;
 use AppserverIo\Psr\Servlet\ServletContextInterface;
 use AppserverIo\Psr\Servlet\ServletRequestInterface;
 use AppserverIo\Psr\Servlet\ServletResponseInterface;
-use AppserverIo\Routlt\Description\ResultDescriptorInterface;
 
 /**
- * Result implementation that dispatches another servlet.
+ * Result implementation that JSON encodes the response body.
  *
  * @author     Tim Wagner <tw@techdivision.com>
  * @copyright  2015 TechDivision GmbH <info@techdivision.com>
@@ -35,8 +39,15 @@ use AppserverIo\Routlt\Description\ResultDescriptorInterface;
  * @link       http://github.com/appserver-io/routlt
  * @link       http://www.appserver.io
  */
-class ServletDispatcherResult implements ResultInterface, ServletContextAware
+class JsonResult implements ResultInterface, ActionAware
 {
+
+    /**
+     * The key for the data that has to be JSON encoded.
+     *
+     * @var string
+     */
+    const DATA = 'json-result.data';
 
     /**
      * The action result name.
@@ -58,13 +69,6 @@ class ServletDispatcherResult implements ResultInterface, ServletContextAware
      * @var array
      */
     protected $result;
-
-    /**
-     * The servlet context instance.
-     *
-     * @param \AppserverIo\Psr\Servlet\ServletContextInterface
-     */
-    protected $servletContext;
 
     /**
      * Initializes the instance with the configured result value.
@@ -109,25 +113,25 @@ class ServletDispatcherResult implements ResultInterface, ServletContextAware
     }
 
     /**
-     * Sets the actual servlet context instance.
+     * Sets the actual action instance.
      *
-     * @param \AppserverIo\Psr\Servlet\ServletContextInterface $servletContext The servlet context instance
+     * @param \AppserverIo\Routlt\ActionInterface $action The action instance
      *
      * @return void
      */
-    public function setServletContext(ServletContextInterface $servletContext)
+    public function setAction(ActionInterface $action)
     {
-        $this->servletContext = $servletContext;
+        $this->action = $action;
     }
 
     /**
-     * Returns the servlet context instance.
+     * Returns the action instance.
      *
-     * @return \AppserverIo\Psr\Servlet\ServletContextInterface The servlet context instance
-    */
-    public function getServletContext()
+     * @return \AppserverIo\Routlt\ActionInterface The action instance
+     */
+    public function getAction()
     {
-        return $this->servletContext;
+        return $this->action;
     }
 
     /**
@@ -141,16 +145,20 @@ class ServletDispatcherResult implements ResultInterface, ServletContextAware
     public function process(ServletRequestInterface $servletRequest, ServletResponseInterface $servletResponse)
     {
 
-        // load result and session-ID
-        $result = $this->getResult();
-        $sessionId = $servletRequest->getProposedSessionId();
+        // load the action instance
+        $action = $this->getAction();
 
-        // initialize the request URI
-        $servletRequest->setUri($result);
-        $servletRequest->prepare();
+        // query whether the action contains errors or not
+        if ($action instanceof ValidationAware && $action->hasErrors()) {
+            $content = $action->getErrors();
+        } else {
+            $content = $servletRequest->getAttribute(JsonResult::DATA);
+        }
 
-        // load and process the servlet
-        $servlet = $this->getServletContext()->lookup($result, $sessionId);
-        $servlet->service($servletRequest, $servletResponse);
+        // add the header for the JSON content type
+        $servletResponse->addHeader(HttpProtocol::HEADER_CONTENT_TYPE, 'application/json');
+
+        // append the JSON encoded content to the servlet response
+        $servletResponse->appendBodyStream(json_encode($content));
     }
 }

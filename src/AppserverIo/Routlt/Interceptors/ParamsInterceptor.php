@@ -73,7 +73,7 @@ class ParamsInterceptor implements InterceptorInterface
                     $action->$methodName($value);
 
                 } catch (\Exception $e) {
-                    $action->addFieldError($key, $e);
+                    $action->addFieldError($key, $e->getMessage());
                 }
             }
 

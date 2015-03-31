@@ -63,7 +63,7 @@ class ValidationInterceptor implements InterceptorInterface
             return $methodInvocation->proceed();
 
         } catch (\Exception $e) {
-
+            error_log($e);
         }
     }
 }
