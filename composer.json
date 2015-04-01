@@ -15,7 +15,8 @@
 	},
 	"require-dev" : {
 		"appserver-io/build" : "~1.0",
-		"appserver-io/appserver" : "~1.0"
+		"appserver-io/appserver" : "dev-master",
+        "appserver-io/lang" : "dev-master as 1.0.x-dev"
 	},
 	"autoload" : {
 		"psr-0" : {
@@ -29,5 +30,16 @@
 		"github-oauth" : {
 			"github.com" : "604a3b5943228e434a5b52c2ba3cf72286d30db9"
 		}
-	}
+	},
+	"repositories" : [{
+			"type" : "git",
+			"url" : "file:///Users/wagnert/Workspace/appserver.io/appserver",
+			"name" : "appserver-io/appserver"
+		},
+		{
+            "type" : "git",
+            "url" : "file:///Users/wagnert/Workspace/appserver.io/lang",
+            "name" : "appserver-io/lang"
+        }
+	]
 }

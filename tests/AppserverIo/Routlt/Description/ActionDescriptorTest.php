@@ -20,8 +20,9 @@
 
 namespace AppserverIo\Routlt\Description;
 
-use AppserverIo\Lang\Reflection\ReflectionClass;
 use AppserverIo\Http\HttpProtocol;
+use AppserverIo\Lang\Reflection\ReflectionClass;
+
 /**
  * Test implementation for the ActionDescriptor implementation.
  *

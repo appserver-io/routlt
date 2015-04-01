@@ -36,6 +36,13 @@ interface ResultInterface
 {
 
     /**
+     * Returns the result name.
+     *
+     * @return string The result name
+     */
+    public function getName();
+
+    /**
      * Processes an action result by dispatching the configured servlet.
      *
      * @param \AppserverIo\Psr\Servlet\ServletRequestInterface  $servletRequest  The request instance

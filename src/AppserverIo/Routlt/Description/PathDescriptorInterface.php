@@ -56,6 +56,13 @@ interface PathDescriptorInterface extends DescriptorInterface
     public function getActions();
 
     /**
+     * The array with the action results.
+     *
+     * @return array The action results
+     */
+    public function getResults();
+
+    /**
      * The array with the EPB references.
      *
      * @return array The EPB references

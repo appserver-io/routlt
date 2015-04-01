@@ -21,13 +21,16 @@
 namespace AppserverIo\Routlt\Description;
 
 use AppserverIo\Routlt\ActionInterface;
+use AppserverIo\Routlt\Results\ResultInterface;
 use AppserverIo\Lang\Reflection\ReflectionClass;
+use AppserverIo\Description\EpbReferenceDescriptor;
+use AppserverIo\Description\ResReferenceDescriptor;
 use AppserverIo\Psr\Servlet\Http\HttpServletRequestInterface;
 use AppserverIo\Psr\Servlet\Http\HttpServletResponseInterface;
 use AppserverIo\Psr\EnterpriseBeans\Annotations\Resource;
 use AppserverIo\Psr\EnterpriseBeans\Annotations\EnterpriseBean;
-use AppserverIo\Description\EpbReferenceDescriptor;
-use AppserverIo\Description\ResReferenceDescriptor;
+use AppserverIo\Routlt\Annotations\Result;
+use AppserverIo\Routlt\Annotations\Results;
 
 /**
  * Test implementation for the PathDescriptor implementation.
@@ -39,6 +42,9 @@ use AppserverIo\Description\ResReferenceDescriptor;
  * @link      http://www.appserver.io
  *
  * @Path(name="/index")
+ * @Results({
+ *     @Result(name="success", result="/phtml/my_template.phtml", type="AppserverIo\Routlt\Results\JsonResult")
+ * })
  */
 class PathDescriptorTest extends \PHPUnit_Framework_TestCase implements ActionInterface
 {
@@ -226,6 +232,8 @@ class PathDescriptorTest extends \PHPUnit_Framework_TestCase implements ActionIn
 
         // initialize the annotation aliases
         $aliases = array(
+            Result::ANNOTATION => Result::__getClass(),
+            Results::ANNOTATION => Results::__getClass(),
             Resource::ANNOTATION => Resource::__getClass(),
             EnterpriseBean::ANNOTATION => EnterpriseBean::__getClass()
         );
@@ -242,6 +250,7 @@ class PathDescriptorTest extends \PHPUnit_Framework_TestCase implements ActionIn
                 array(
                     'getName',
                     'getActions',
+                    'getResults',
                     'getClassName',
                     'getResReferences',
                     'getEpbReferences'
@@ -253,6 +262,12 @@ class PathDescriptorTest extends \PHPUnit_Framework_TestCase implements ActionIn
         $action = new ActionDescriptor();
         $action->setName('/test');
         $action->setMethodName('someMethod');
+
+        // create a result descriptor
+        $result = new ResultDescriptor();
+        $result->setName('failure');
+        $result->setType('DummyType');
+        $result->setResult('/path/to/dummy.phtml');
 
         // create a resource descriptor
         $resReference = new ResReferenceDescriptor();
@@ -270,6 +285,9 @@ class PathDescriptorTest extends \PHPUnit_Framework_TestCase implements ActionIn
             ->method('getActions')
             ->will($this->returnValue(array($action)));
         $descriptorToMerge->expects($this->once())
+            ->method('getResults')
+            ->will($this->returnValue(array($result)));
+        $descriptorToMerge->expects($this->once())
             ->method('getClassName')
             ->will($this->returnValue(__CLASS__));
         $descriptorToMerge->expects($this->once())
@@ -286,6 +304,7 @@ class PathDescriptorTest extends \PHPUnit_Framework_TestCase implements ActionIn
         $this->assertSame('/anotherIndex', $this->descriptor->getName());
         $this->assertSame(__CLASS__, $this->descriptor->getClassName());
         $this->assertCount(3, $this->descriptor->getActions());
+        $this->assertCount(2, $this->descriptor->getResults());
         $this->assertCount(4, $this->descriptor->getReferences());
         $this->assertCount(2, $this->descriptor->getResReferences());
         $this->assertCount(2, $this->descriptor->getEpbReferences());
@@ -367,6 +386,17 @@ class PathDescriptorTest extends \PHPUnit_Framework_TestCase implements ActionIn
     }
 
     /**
+     * Tests the setter/getter for the results.
+     *
+     * @return void
+     */
+    public function testSetGetResults()
+    {
+        $this->descriptor->setResults($results = array(new \stdClass()));
+        $this->assertSame($results, $this->descriptor->getResults());
+    }
+
+    /**
      * Method that will be invoked before we dispatch the request.
      *
      * @param \AppserverIo\Psr\Servlet\Http\HttpServletRequestInterface  $servletRequest  The request instance
@@ -418,6 +448,29 @@ class PathDescriptorTest extends \PHPUnit_Framework_TestCase implements ActionIn
     public function getDefaultMethod()
     {
         return 'indexAction';
+    }
+
+    /**
+     * Adds the result to the action.
+     *
+     * @param \AppserverIo\Routlt\Results\ResultInterface $result
+     *
+     * @return void
+     */
+    public function addResult(ResultInterface $result)
+    {
+    }
+
+    /**
+     * Tries to find and return the result with the passed name.
+     *
+     * @param string $name The name of the result to return
+     *
+     * @return \AppserverIo\Routlt\Results\ResultInterface|null The requested result
+     */
+    public function findResult($name)
+    {
+        return;
     }
 
     /**

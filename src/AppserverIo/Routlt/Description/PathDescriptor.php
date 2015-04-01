@@ -444,6 +444,11 @@ class PathDescriptor implements PathDescriptorInterface
             $this->addAction($action);
         }
 
+        // merge the result descriptors
+        foreach ($pathDescriptor->getResults() as $result) {
+            $this->addResult($result);
+        }
+
         // merge the EPB references
         foreach ($pathDescriptor->getEpbReferences() as $epbReference) {
             $this->addEpbReference($epbReference);

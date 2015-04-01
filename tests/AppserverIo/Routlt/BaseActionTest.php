@@ -123,4 +123,57 @@ class BaseActionTest extends \PHPUnit_Framework_TestCase
     {
         $this->assertSame(BaseAction::DEFAULT_METHOD_NAME, $this->action->getDefaultMethod());
     }
+
+    /**
+     * Check that the method findResult() didn't return a value if the requested one
+     * is not available.
+     *
+     * @return sting
+     */
+    public function testFindResultWithoutResult()
+    {
+        $this->assertNull($this->action->findResult('test'));
+    }
+
+    /**
+     * Tests the addResult() and findResult() method.
+     *
+     * @return void
+     */
+    public function testAddAndFindResult()
+    {
+
+        // create a mock result
+        $mockResult = $this->getMockBuilder($interface = 'AppserverIo\Routlt\Results\ResultInterface')
+            ->setMethods(get_class_methods($interface))
+            ->getMock();
+
+        // mock the method
+        $mockResult
+            ->expects($this->once())
+            ->method('getName')
+            ->will($this->returnValue('test'));
+
+        // add the result
+        $this->action->addResult($mockResult);
+
+        // check the result
+        $this->assertSame($mockResult, $this->action->findResult('test'));
+    }
+
+    /**
+     * Tests that the addFieldError() works as expected.
+     *
+     * @return void
+     */
+    public function testAddFieldErrorHasAndGetErrors()
+    {
+
+        // add an error message
+        $this->action->addFieldError($key ='test', $value = 'A Message');
+
+        // check that the errors is available
+        $this->assertTrue($this->action->hasErrors());
+        $this->assertSame(array($key => $value), $this->action->getErrors());
+    }
 }

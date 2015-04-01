@@ -23,7 +23,7 @@ namespace AppserverIo\Routlt\Annotations;
 use AppserverIo\Lang\Reflection\ReflectionAnnotation;
 
 /**
- * Annotation to map a request path info to an action method.
+ * Annotation to define results available for an action.
  *
  * @author     Tim Wagner <tw@techdivision.com>
  * @copyright  2015 TechDivision GmbH <info@techdivision.com>

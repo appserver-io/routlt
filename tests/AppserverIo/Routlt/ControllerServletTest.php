@@ -20,11 +20,10 @@
 
 namespace AppserverIo\Routlt;
 
+use AppserverIo\Http\HttpProtocol;
 use AppserverIo\Psr\Context\ArrayContext;
 use AppserverIo\Appserver\ServletEngine\Http\Request;
-use Doctrine\ORM\Mapping\UniqueConstraint;
 use AppserverIo\Appserver\ServletEngine\ServletManager;
-use AppserverIo\Http\HttpProtocol;
 
 /**
  * This is test implementation for the controller servlet implementation.
@@ -53,18 +52,37 @@ class ControllerServletTest extends \PHPUnit_Framework_TestCase
         $controller = $this->getMock('AppserverIo\Routlt\ControllerServlet', $methods);
 
         // create a mock servlet request instance
-        $servletRequest = $this->getMock('AppserverIo\Psr\Servlet\Http\HttpServletRequestWrapper');
+        $servletRequest = $this->getMock('AppserverIo\Appserver\ServletEngine\Http\Request');
         $servletRequest->expects($this->once())
             ->method('getPathInfo')
             ->will($this->returnValue('/test'));
 
         // create a mock servlet response instance
-        $servletResponse = $this->getMock('AppserverIo\Psr\Servlet\Http\HttpServletResponseInterface');
+        $servletResponse = $this->getMock('AppserverIo\Appserver\ServletEngine\Http\Response');
+
+        // create a mock result
+        $result = $this->getMockBuilder('AppserverIo\Routlt\Results\JsonResult')
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        // mock some methods
+        $result->expects($this->once())
+            ->method('process')
+            ->with($servletRequest, $servletResponse);
 
         // create a mock action instance
         $action = $this->getMockBuilder('AppserverIo\Routlt\BaseAction')
             ->disableOriginalConstructor()
             ->getMock();
+
+        // mock some methods
+        $action->expects($this->once())
+            ->method('perform')
+            ->will($this->returnValue(ActionInterface::SUCCESS));
+        $action->expects($this->once())
+            ->method('findResult')
+            ->with(ActionInterface::SUCCESS)
+            ->will($this->returnValue($result));
 
         // create an array with available routes
         $routes = array('/test' => $action);
@@ -85,9 +103,6 @@ class ControllerServletTest extends \PHPUnit_Framework_TestCase
         $controller->expects($this->once())
             ->method('getProvider')
             ->will($this->returnValue($provider));
-        $controller->expects($this->once())
-            ->method('getSessionManager')
-            ->will($this->returnValue(null));
 
         // invoke the method we want to test
         $controller->service($servletRequest, $servletResponse);
@@ -108,8 +123,8 @@ class ControllerServletTest extends \PHPUnit_Framework_TestCase
         $controller = $this->getMock('AppserverIo\Routlt\ControllerServlet', $methods);
 
         // create a mock servlet request + response instance
-        $servletRequest = $this->getMock('AppserverIo\Psr\Servlet\Http\HttpServletRequestInterface');
-        $servletResponse = $this->getMock('AppserverIo\Psr\Servlet\Http\HttpServletResponseInterface');
+        $servletRequest = $this->getMock('AppserverIo\Appserver\ServletEngine\Http\Request');
+        $servletResponse = $this->getMock('AppserverIo\Appserver\ServletEngine\Http\Response');
 
         // create a mock action instance
         $action = $this->getMockBuilder('AppserverIo\Routlt\BaseAction')
@@ -135,9 +150,6 @@ class ControllerServletTest extends \PHPUnit_Framework_TestCase
         $controller->expects($this->once())
             ->method('getProvider')
             ->will($this->returnValue($provider));
-        $controller->expects($this->once())
-            ->method('getSessionManager')
-            ->will($this->returnValue(null));
 
         // invoke the method we want to test
         $controller->service($servletRequest, $servletResponse);
@@ -161,9 +173,18 @@ class ControllerServletTest extends \PHPUnit_Framework_TestCase
             ->method('getRequestMethods')
             ->will($this->returnValue(array(HttpProtocol::METHOD_GET)));
 
+        // create an result descriptor
+        $resultDescriptor = $this->getMockBuilder('AppserverIo\Routlt\Description\ResultDescriptorInterface')
+            ->setMethods(get_class_methods('AppserverIo\Routlt\Description\ResultDescriptorInterface'))
+            ->getMock();
+
         // mock the action
         $actionInterface = 'AppserverIo\Routlt\ActionInterface';
         $action = $this->getMock($actionInterface, get_class_methods($actionInterface));
+
+        // mock the result
+        $resultInterface = 'AppserverIo\Routlt\Results\ResultInterface';
+        $result = $this->getMock($resultInterface, get_class_methods($resultInterface));
 
         // create a mock instance of the servlet manager instance
         $servletManagerInterface = '\AppserverIo\Appserver\ServletEngine\ServletManager';
@@ -185,6 +206,9 @@ class ControllerServletTest extends \PHPUnit_Framework_TestCase
         $pathDescriptor->expects($this->once())
             ->method('getActions')
             ->will($this->returnValue(array($actionDescriptor)));
+        $pathDescriptor->expects($this->once())
+            ->method('getResults')
+            ->will($this->returnValue(array($resultDescriptor)));
         $pathDescriptor->expects($this->once())
             ->method('getEpbReferences')
             ->will(
@@ -211,12 +235,15 @@ class ControllerServletTest extends \PHPUnit_Framework_TestCase
             ->will($this->returnValue($objectDescriptors));
 
         // initialize the controller with mocked methods
-        $controller = $this->getMock('AppserverIo\Routlt\ControllerServlet', array('getObjectManager', 'getServletContext', 'newActionInstance'));
+        $controller = $this->getMock('AppserverIo\Routlt\ControllerServlet', array('getObjectManager', 'getServletContext', 'newActionInstance', 'newResultInstance'));
 
         // mock object + servlet manager
         $controller->expects($this->once())
             ->method('newActionInstance')
             ->will($this->returnValue($action));
+        $controller->expects($this->once())
+            ->method('newResultInstance')
+            ->will($this->returnValue($result));
         $controller->expects($this->once())
             ->method('getObjectManager')
             ->will($this->returnValue($objectManager));
@@ -270,6 +297,9 @@ class ControllerServletTest extends \PHPUnit_Framework_TestCase
             ->method('getActions')
             ->will($this->returnValue(array()));
         $pathDescriptor->expects($this->once())
+            ->method('getResults')
+            ->will($this->returnValue(array()));
+        $pathDescriptor->expects($this->once())
             ->method('getEpbReferences')
             ->will($this->returnValue(array()));
         $pathDescriptor->expects($this->once())
@@ -287,7 +317,7 @@ class ControllerServletTest extends \PHPUnit_Framework_TestCase
             ->will($this->returnValue($objectDescriptors));
 
         // initialize the controller with mocked methods
-        $controller = $this->getMock('AppserverIo\Routlt\ControllerServlet', array('getObjectManager', 'getServletContext', 'newActionInstance'));
+        $controller = $this->getMock('AppserverIo\Routlt\ControllerServlet', array('getObjectManager', 'getServletContext', 'newActionInstance', 'newResultInstance'));
 
         // mock object + servlet manager
         $controller->expects($this->once())
@@ -329,8 +359,8 @@ class ControllerServletTest extends \PHPUnit_Framework_TestCase
         $controller = $this->getMock('AppserverIo\Routlt\ControllerServlet', $methods);
 
         // create a mock servlet request + response instance
-        $servletRequest = $this->getMock('AppserverIo\Psr\Servlet\Http\HttpServletRequestInterface');
-        $servletResponse = $this->getMock('AppserverIo\Psr\Servlet\Http\HttpServletResponseInterface');
+        $servletRequest = $this->getMock('AppserverIo\Appserver\ServletEngine\Http\Request');
+        $servletResponse = $this->getMock('AppserverIo\Appserver\ServletEngine\Http\Response');
 
         // create an array with available routes
         $routes = array();
@@ -346,9 +376,6 @@ class ControllerServletTest extends \PHPUnit_Framework_TestCase
         $controller->expects($this->once())
             ->method('getProvider')
             ->will($this->returnValue($provider));
-        $controller->expects($this->once())
-            ->method('getSessionManager')
-            ->will($this->returnValue(null));
 
         // invoke the method we want to test
         $controller->service($servletRequest, $servletResponse);
@@ -446,7 +473,7 @@ class ControllerServletTest extends \PHPUnit_Framework_TestCase
         $controller = $this->getMock('AppserverIo\Routlt\ControllerServlet', $methods);
 
         // create a mock servlet request + response instance
-        $servletRequest = $this->getMock('AppserverIo\Psr\Servlet\Http\HttpServletRequestInterface');
+        $servletRequest = $this->getMock('AppserverIo\Appserver\ServletEngine\Http\Request');
         $servletRequest->expects($this->once())
             ->method('getPathInfo')
             ->will($this->returnValue('/test'));
@@ -455,7 +482,7 @@ class ControllerServletTest extends \PHPUnit_Framework_TestCase
             ->will($this->returnValue(true));
 
         // create a mock servlet response instance
-        $servletResponse = $this->getMock('AppserverIo\Psr\Servlet\Http\HttpServletResponseInterface');
+        $servletResponse = $this->getMock('AppserverIo\Appserver\ServletEngine\Http\Response');
 
         // create a mock action instance
         $action = $this->getMockBuilder('AppserverIo\Routlt\BaseAction')
@@ -481,9 +508,6 @@ class ControllerServletTest extends \PHPUnit_Framework_TestCase
         $controller->expects($this->once())
             ->method('getProvider')
             ->will($this->returnValue($provider));
-        $controller->expects($this->once())
-            ->method('getSessionManager')
-            ->will($this->returnValue(null));
 
         // invoke the method we want to test
         $controller->service($servletRequest, $servletResponse);
@@ -667,7 +691,7 @@ class ControllerServletTest extends \PHPUnit_Framework_TestCase
         $actionMappings = array('/test');
 
         // create a mock servlet request instance
-        $servletRequest = $this->getMock('AppserverIo\Psr\Servlet\Http\HttpServletRequestWrapper');
+        $servletRequest = $this->getMock('AppserverIo\Appserver\ServletEngine\Http\Request');
         $servletRequest->expects($this->once())
             ->method('getMethod')
             ->will($this->returnValue(HttpProtocol::METHOD_GET));
@@ -693,11 +717,11 @@ class ControllerServletTest extends \PHPUnit_Framework_TestCase
     {
 
         // create a mock servlet reques instance
-        $servletRequest = $this->getMock('AppserverIo\Psr\Servlet\Http\HttpServletRequestInterface');
+        $servletRequest = $this->getMock('AppserverIo\Appserver\ServletEngine\Http\Request');
 
         // create a mock servlet response instance
-        $servletResponse = $this->getMockBuilder('AppserverIo\Psr\Servlet\Http\HttpServletResponseInterface')
-            ->setMethods(get_class_methods('AppserverIo\Psr\Servlet\Http\HttpServletResponseInterface'))
+        $servletResponse = $this->getMockBuilder('AppserverIo\Appserver\ServletEngine\Http\Response')
+            ->setMethods(get_class_methods('AppserverIo\Appserver\ServletEngine\Http\Response'))
             ->getMock();
 
         // mock the methods
@@ -711,5 +735,38 @@ class ControllerServletTest extends \PHPUnit_Framework_TestCase
 
         // invoke the service() method
         $controller->service($servletRequest, $servletResponse);
+    }
+
+    /**
+     * Tests the newResultInstance() method.
+     *
+     * @return void
+     */
+    public function testNewResultInstance()
+    {
+
+        // create a mock instance of the servlet manager instance
+        $servletManager = $this->getMock('\AppserverIo\Appserver\ServletEngine\ServletManager');
+
+        // initialize the controller with mocked methods
+        $controller = $this->getMock('AppserverIo\Routlt\ControllerServlet', array('getServletContext'));
+
+        // mock object + servlet manager
+        $controller->expects($this->once())
+            ->method('getServletContext')
+            ->will($this->returnValue($servletManager));
+
+        // create a mock result descriptor
+        $resultDescriptorMock = $this->getMockBuilder($interface = 'AppserverIo\Routlt\Description\ResultDescriptorInterface')
+            ->setMethods(get_class_methods($interface))
+            ->getMock();
+
+        // mock the methods
+        $resultDescriptorMock->expects($this->exactly(2))
+            ->method('getType')
+            ->will($this->returnValue($type = 'AppserverIo\Routlt\Results\ServletDispatcherResult'));
+
+        // test that the created instance is of the correct type
+        $this->assertInstanceOf($type, $controller->newResultInstance($resultDescriptorMock));
     }
 }

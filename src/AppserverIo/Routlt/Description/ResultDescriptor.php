@@ -22,8 +22,8 @@ namespace AppserverIo\Routlt\Description;
 
 use AppserverIo\Routlt\Annotations\Result;
 use AppserverIo\Lang\Reflection\ClassInterface;
-use AppserverIo\Lang\Reflection\ReflectionAnnotation;
 use AppserverIo\Lang\Reflection\AnnotationInterface;
+use AppserverIo\Lang\Reflection\ReflectionAnnotation;
 
 /**
  * Descriptor implementation for a action result.

@@ -21,6 +21,7 @@
 namespace AppserverIo\Routlt\Mock;
 
 use AppserverIo\Routlt\DispatchAction;
+use AppserverIo\Routlt\Results\ResultInterface;
 use AppserverIo\Psr\Servlet\Http\HttpServletRequestInterface;
 use AppserverIo\Psr\Servlet\Http\HttpServletResponseInterface;
 
@@ -35,6 +36,29 @@ use AppserverIo\Psr\Servlet\Http\HttpServletResponseInterface;
  */
 class MockDispatchAction extends DispatchAction
 {
+
+    /**
+     * Adds the result to the action.
+     *
+     * @param \AppserverIo\Routlt\Results\ResultInterface $result
+     *
+     * @return void
+     */
+    public function addResult(ResultInterface $result)
+    {
+    }
+
+    /**
+     * Tries to find and return the result with the passed name.
+     *
+     * @param string $name The name of the result to return
+     *
+     * @return \AppserverIo\Routlt\Results\ResultInterface|null The requested result
+     */
+    public function findResult($name)
+    {
+        return;
+    }
 
     /**
      * This method returns the default method name we'll invoke if the path info doesn't contain
