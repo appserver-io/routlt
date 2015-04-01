@@ -32,7 +32,7 @@ use AppserverIo\Psr\MetaobjectProtocol\Aop\MethodInvocationInterface;
  * @link       http://github.com/appserver-io/routlt
  * @link       http://www.appserver.io
  */
-class WorkflowInterceptor implements InterceptorInterface
+class WorkflowInterceptor extends AbstractInterceptor
 {
 
     /**
@@ -42,38 +42,25 @@ class WorkflowInterceptor implements InterceptorInterface
      *
      * @return string|null The action result
      */
-    public function intercept(MethodInvocationInterface $methodInvocation)
+    protected function execute(MethodInvocationInterface $methodInvocation)
     {
 
-        try {
+        // get the action, methods and servlet request
+        $action = $this->getAction();
 
-            error_log(__METHOD__ . '::' . __LINE__);
-
-            // get the servlet response
-            $parameters = $methodInvocation->getParameters();
-            $servletRequest = $parameters['servletRequest'];
-            $servletResponse = $parameters['servletResponse'];
-
-            // load the action instance
-            $action = $methodInvocation->getContext();
-
-            // query whether we want to validate
-            if ($action instanceof Validateable) {
-                $action->validate();
-            }
-
-            // query whether the action is validation aware
-            if ($action instanceof ValidationAware) {
-                if ($action->hasErrors()) {
-                    return ActionInterface::FAILURE;
-                }
-            }
-
-            // proceed invocation chain
-            return $methodInvocation->proceed();
-
-        } catch (\Exception $e) {
-            error_log($e);
+        // query whether we want to validate
+        if ($action instanceof Validateable) {
+            $action->validate();
         }
+
+        // query whether the action is validation aware
+        if ($action instanceof ValidationAware) {
+            if ($action->hasErrors()) {
+                return ActionInterface::FAILURE;
+            }
+        }
+
+        // proceed invocation chain
+        return $methodInvocation->proceed();
     }
 }

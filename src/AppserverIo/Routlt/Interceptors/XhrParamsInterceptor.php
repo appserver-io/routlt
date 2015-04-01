@@ -32,63 +32,53 @@ use AppserverIo\Psr\MetaobjectProtocol\Aop\MethodInvocationInterface;
  * @link       http://github.com/appserver-io/routlt
  * @link       http://www.appserver.io
  */
-class XhrParamsInterceptor implements InterceptorInterface
+class XhrParamsInterceptor extends AbstractInterceptor
 {
 
     /**
-     * Method that implements the interceptors functionality.
+     * Tries to JSON decode the servlet request body content into parameters.
+     *
+     * Then it tries to find and invoke a setter with the param that matches
+     * the setters name.
      *
      * @param AppserverIo\Psr\MetaobjectProtocol\Aop\MethodInvocationInterface $methodInvocation Initially invoked method
      *
      * @return string|null The action result
      */
-    public function intercept(MethodInvocationInterface $methodInvocation)
+    protected function execute(MethodInvocationInterface $methodInvocation)
     {
 
-        try {
+        // get the action, methods and servlet request
+        $action = $this->getAction();
+        $methods = $this->getActionMethods();
+        $servletRequest = $this->getServletRequest();
 
-            error_log(__METHOD__ . '::' . __LINE__);
+        // query whether we've a body content
+        if ($bodyContent = $servletRequest->getBodyContent()) {
+            // only process if request has valid JSON
+            if (is_object(json_decode($bodyContent))) {
+                // try to inject the request parameters by using the class setters
+                foreach (json_decode($bodyContent) as $key => $value) {
+                    // prepare the setter method name
+                    $methodName = sprintf('set%s', ucfirst($key));
 
-            // load the action instance
-            $action = $methodInvocation->getContext();
+                    // query whether the class has the setter implemented
+                    if (in_array($methodName, $methods) === false) {
+                        continue;
+                    }
 
-            // load the actions methods
-            $methods = get_class_methods($action);
+                    try {
+                        // set the value by using the setter
+                        $action->$methodName($value);
 
-            // get the servlet request
-            $parameters = $methodInvocation->getParameters();
-            $servletRequest = $parameters['servletRequest'];
-
-            // query whether we've a body content
-            if ($bodyContent = $servletRequest->getBodyContent()) {
-                // only process if request has valid JSON
-                if (is_object(json_decode($bodyContent))) {
-                    // try to inject the request parameters by using the class setters
-                    foreach (json_decode($bodyContent) as $key => $value) {
-                        // prepare the setter method name
-                        $methodName = sprintf('set%s', ucfirst($key));
-
-                        // query whether the class has the setter implemented
-                        if (in_array($methodName, $methods) === false) {
-                            continue;
-                        }
-
-                        try {
-                            // set the value by using the setter
-                            $action->$methodName($value);
-
-                        } catch (\Exception $e) {
-                            $action->addFieldError($key, $e->getMessage());
-                        }
+                    } catch (\Exception $e) {
+                        $action->addFieldError($key, $e->getMessage());
                     }
                 }
             }
-
-            // proceed invocation chain
-            return $methodInvocation->proceed();
-
-        } catch (\Exception $e) {
-            error_log($e);
         }
+
+        // proceed invocation chain
+        return $methodInvocation->proceed();
     }
 }
