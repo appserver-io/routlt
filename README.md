@@ -37,6 +37,13 @@ Let's assume, you've installed appserver.io on Linux/Mac OS X under ```/opt/apps
     </session-config>
 
     <servlet>
+        <description>A servlet that handles PHTML files.</description>
+        <display-name>The PHTML servlet</display-name>
+        <servlet-name>phtml</servlet-name>
+        <servlet-class>AppserverIo\Routlt\PhtmlServlet</servlet-class>
+    </servlet>
+    
+    <servlet>
         <description>The Rout.Lt 2 controller servlet implementation.</description>
         <display-name>The Rout.Lt 2 controller servlet</display-name>
         <servlet-name>routlt</servlet-name>
@@ -58,6 +65,11 @@ Let's assume, you've installed appserver.io on Linux/Mac OS X under ```/opt/apps
             <param-value>WEB-INF/routlt.properties</param-value>
         </init-param>
     </servlet>
+
+    <servlet-mapping>
+        <servlet-name>phtml</servlet-name>
+        <url-pattern>*.phtml</url-pattern>
+    </servlet-mapping>
 
     <servlet-mapping>
         <servlet-name>routlt</servlet-name>
