@@ -83,7 +83,7 @@ class ResultDescriptor implements ResultDescriptorInterface
     /**
      * Sets the action result type.
      *
-     * @param string $name The action result type
+     * @param string $type The action result type
      *
      * @return void
      */
@@ -105,7 +105,7 @@ class ResultDescriptor implements ResultDescriptorInterface
     /**
      * Sets the action result value.
      *
-     * @param string $name The action result value
+     * @param string $result The action result value
      *
      * @return void
      */

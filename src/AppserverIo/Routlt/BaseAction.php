@@ -154,7 +154,7 @@ abstract class BaseAction extends Object implements ActionInterface, ValidationA
     /**
      * Adds the result to the action.
      *
-     * @param \AppserverIo\Routlt\Results\ResultInterface $result
+     * @param \AppserverIo\Routlt\Results\ResultInterface $result The result that has to be added
      *
      * @return void
      * @see \AppserverIo\Routlt\ActionInterface::addResult()

@@ -39,6 +39,13 @@ interface ActionInterface
 {
 
     /**
+     * Default constant for the default input template.
+     *
+     * @var string
+     */
+    const INPUT = 'input';
+
+    /**
      * Default constant for a successfull action invocation.
      *
      * @var string
@@ -55,7 +62,7 @@ interface ActionInterface
     /**
      * Adds the result to the action.
      *
-     * @param \AppserverIo\Routlt\Results\ResultInterface $result
+     * @param \AppserverIo\Routlt\Results\ResultInterface $result The result that has to be added
      *
      * @return void
      */

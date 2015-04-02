@@ -180,7 +180,7 @@ class PathDescriptor implements PathDescriptorInterface
     /**
      * Sets the array with the action results.
      *
-     * @param array $actions The action results
+     * @param array $results The action results
      *
      * @return void
      */

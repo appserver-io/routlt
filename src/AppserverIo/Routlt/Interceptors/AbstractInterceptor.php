@@ -146,6 +146,8 @@ abstract class AbstractInterceptor implements InterceptorInterface
     /**
      * Executes the custom interceptor functionality.
      *
+     * @param AppserverIo\Psr\MetaobjectProtocol\Aop\MethodInvocationInterface $methodInvocation Initially invoked method
+     *
      * @return mixed The interceptors return value
      */
     abstract protected function execute(MethodInvocationInterface $methodInvocation);

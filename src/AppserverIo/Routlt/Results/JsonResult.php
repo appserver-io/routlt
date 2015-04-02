@@ -73,7 +73,7 @@ class JsonResult implements ResultInterface, ActionAware
     /**
      * Initializes the instance with the configured result value.
      *
-     * @param string $result The result to be handled
+     * @param \AppserverIo\Routlt\Results\ResultDescriptorInterface $resultDescriptor The result descriptor instance
      */
     public function __construct(ResultDescriptorInterface $resultDescriptor)
     {

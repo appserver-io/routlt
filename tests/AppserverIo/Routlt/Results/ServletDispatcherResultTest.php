@@ -1,0 +1,144 @@
+<?php
+
+/**
+ * AppserverIo\Routlt\Results\ServletDispatcherResultTest
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Open Software License (OSL 3.0)
+ * that is available through the world-wide-web at this URL:
+ * http://opensource.org/licenses/osl-3.0.php
+ *
+ * PHP version 5
+ *
+ * @author    Tim Wagner <tw@techdivision.com>
+ * @copyright 2015 TechDivision GmbH <info@techdivision.com>
+ * @license   http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
+ * @link      http://github.com/appserver-io/routlt
+ * @link      http://www.appserver.io
+ */
+
+namespace AppserverIo\Routlt\Results;
+
+use AppserverIo\Routlt\ActionInterface;
+
+/**
+ * Test implementation for the ServletDispatcherResult implementation.
+ *
+ * @author    Tim Wagner <tw@techdivision.com>
+ * @copyright 2015 TechDivision GmbH <info@techdivision.com>
+ * @license   http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
+ * @link      http://github.com/appserver-io/routlt
+ * @link      http://www.appserver.io
+ */
+class ServletDispatcherResultTest extends \PHPUnit_Framework_TestCase
+{
+
+    /**
+     * The interceptor instance to test.
+     *
+     * @var \AppserverIo\Routlt\Results\JsonResult
+     */
+    protected $result;
+
+    /**
+     * The array with the action errors.
+     *
+     * @var array
+     */
+    protected $errors = array();
+
+    /**
+     * Initializes the interceptor to test.
+     *
+     * @return void
+     */
+    public function setUp()
+    {
+
+        // create a mock result descriptor
+        $mockResultDescriptor = $this->getMockBuilder($interface = 'AppserverIo\Routlt\Description\ResultDescriptorInterface')
+            ->setMethods(get_class_methods($interface))
+            ->getMock();
+
+        // mock the methods
+        $mockResultDescriptor->expects($this->once())
+            ->method('getName')
+            ->will($this->returnValue(ActionInterface::SUCCESS));
+        $mockResultDescriptor->expects($this->once())
+            ->method('getType')
+            ->will($this->returnValue('AppserverIo\Routlt\Results\ServletDispatcherResult'));
+        $mockResultDescriptor->expects($this->once())
+            ->method('getResult')
+            ->will($this->returnValue('/path/to/my_template.phtml'));
+
+        // initialize the result
+        $this->result = new ServletDispatcherResult($mockResultDescriptor);
+    }
+
+    /**
+     * Tests the constructor intialization.
+     *
+     * @return void
+     */
+    public function testConstructor()
+    {
+        $this->assertSame(ActionInterface::SUCCESS, $this->result->getName());
+        $this->assertSame('AppserverIo\Routlt\Results\ServletDispatcherResult', $this->result->getType());
+        $this->assertSame('/path/to/my_template.phtml', $this->result->getResult());
+    }
+
+    /**
+     * Tests the result process() method.
+     *
+     * @return void
+     */
+    public function testProcess()
+    {
+
+        // create a mock servlet request instance
+        $mockServletRequest = $this->getMockBuilder('AppserverIo\Appserver\ServletEngine\Http\Request')
+            ->setMethods(array('getProposedSessionId', 'setUri', 'prepare'))
+            ->getMock();
+
+        // mock the necessary request methods
+        $mockServletRequest->expects($this->once())
+            ->method('getProposedSessionId')
+            ->will($this->returnValue($sessionId = md5(time())));
+        $mockServletRequest->expects($this->once())
+            ->method('setUri')
+            ->with('/path/to/my_template.phtml');
+        $mockServletRequest->expects($this->once())
+            ->method('prepare');
+
+        // create a mock servlet response instance
+        $mockServletResponse = $this->getMock('AppserverIo\Appserver\ServletEngine\Http\Response');
+
+        // create a mock servlet instance
+        $mockServlet = $this->getMockBuilder($servletInterface = 'AppserverIo\Psr\Servlet\ServletInterface')
+            ->setMethods(get_class_methods($servletInterface))
+            ->getMock();
+
+        // mock the necessary servlet method
+        $mockServlet->expects($this->once())
+            ->method('service')
+            ->with($mockServletRequest, $mockServletResponse);
+
+        // create a mock instance of the servlet context instance
+        $mockServletContext = $this->getMockBuilder($servletContextInterface = 'AppserverIo\Routlt\Results\Mock\MockServletManagerInterface')
+            ->setMethods(get_class_methods($servletContextInterface))
+            ->getMock();
+
+        // mock the necessary servlet context method
+        $mockServletContext->expects($this->once())
+            ->method('lookup')
+            ->with('/path/to/my_template.phtml', $sessionId)
+            ->will($this->returnValue($mockServlet));
+
+        // set the servlet context instance
+        $this->result->setServletContext($mockServletContext);
+
+        // process the result
+        $this->result->process($mockServletRequest, $mockServletResponse);
+    }
+}

@@ -429,7 +429,6 @@ class ControllerServlet extends HttpServlet implements ControllerInterface
 
                     // process the result if available
                     if (($instance = $action->findResult($result)) instanceof ResultInterface) {
-
                         // query whether or not the result is action aware
                         if ($instance instanceof ActionAware) {
                             $instance->setAction($action);
