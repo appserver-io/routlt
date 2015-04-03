@@ -1,7 +1,7 @@
 <?php
 
 /**
- * AppserverIo\Routlt\Description\PathDescriptorInterface
+ * AppserverIo\Routlt\Description\ResultDescriptorInterface
  *
  * NOTICE OF LICENSE
  *
@@ -23,7 +23,7 @@ namespace AppserverIo\Routlt\Description;
 use AppserverIo\Psr\Deployment\DescriptorInterface;
 
 /**
- * Descriptor for a action class implementation.
+ * Interface for a result descriptor implementation.
  *
  * @author     Tim Wagner <tw@techdivision.com>
  * @copyright  2015 TechDivision GmbH <info@techdivision.com>
@@ -31,58 +31,38 @@ use AppserverIo\Psr\Deployment\DescriptorInterface;
  * @link       http://github.com/appserver-io/routlt
  * @link       http://www.appserver.io
  */
-interface PathDescriptorInterface extends DescriptorInterface
+interface ResultDescriptorInterface extends DescriptorInterface
 {
 
     /**
-     * Returns the action path.
+     * Returns the action result name.
      *
-     * @return string The action path
+     * @return string The action result name
      */
     public function getName();
 
     /**
-     * Returns the action class name.
+     * Returns the action result type.
      *
-     * @return string The action class name
+     * @return string The action result type
      */
-    public function getClassName();
+    public function getType();
 
     /**
-     * The array with the action method descriptors.
+     * Returns the action result value.
      *
-     * @return array The action method descriptors
+     * @return string The action result value
      */
-    public function getActions();
-
-    /**
-     * The array with the action results.
-     *
-     * @return array The action results
-     */
-    public function getResults();
-
-    /**
-     * The array with the EPB references.
-     *
-     * @return array The EPB references
-     */
-    public function getEpbReferences();
-
-    /**
-     * The array with the resource references.
-     *
-     * @return array The resource references
-     */
-    public function getResReferences();
+    public function getResult();
 
     /**
      * Merges the passed configuration into this one. Configuration values
      * of the passed configuration will overwrite the this one.
      *
-     * @param \AppserverIo\Routlt\Description\PathDescriptorInterface $pathDescriptor The configuration to merge
+     * @param \AppserverIo\Routlt\Description\ResultDescriptorInterface $resultDescriptor The configuration to merge
      *
      * @return void
+     * @throws \AppserverIo\Routlt\Description\DescriptorException Is thrown if the passed descriptor has a different method name
      */
-    public function merge(PathDescriptorInterface $pathDescriptor);
+    public function merge(ResultDescriptorInterface $resultDescriptor);
 }

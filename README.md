@@ -37,6 +37,13 @@ Let's assume, you've installed appserver.io on Linux/Mac OS X under ```/opt/apps
     </session-config>
 
     <servlet>
+        <description>A servlet that handles PHTML files.</description>
+        <display-name>The PHTML servlet</display-name>
+        <servlet-name>phtml</servlet-name>
+        <servlet-class>AppserverIo\Routlt\PhtmlServlet</servlet-class>
+    </servlet>
+    
+    <servlet>
         <description>The Rout.Lt 2 controller servlet implementation.</description>
         <display-name>The Rout.Lt 2 controller servlet</display-name>
         <servlet-name>routlt</servlet-name>
@@ -58,6 +65,11 @@ Let's assume, you've installed appserver.io on Linux/Mac OS X under ```/opt/apps
             <param-value>WEB-INF/routlt.properties</param-value>
         </init-param>
     </servlet>
+
+    <servlet-mapping>
+        <servlet-name>phtml</servlet-name>
+        <url-pattern>*.phtml</url-pattern>
+    </servlet-mapping>
 
     <servlet-mapping>
         <servlet-name>routlt</servlet-name>
@@ -151,6 +163,72 @@ public function indexAction(HttpServletRequestInterface $servletRequest, HttpSer
 Annotations are available for all request methods `CONNECT`, `DELETE`, `GET`, `HEAD`, `OPTIONS`, `POST`, `PUT` and `TRACE`. If you don't add one of the above annotations, an action will be invoked on **ALL** of the request methods.
 
 > If you add one of them, the action will be invoked on that annotation only. On all other request methods, a `AppserverIo\Psr\Servlet\ServletException` with a `404` status code will be thrown, which results in a `404` error page.
+
+## Results
+
+By specifying results with the @Results annotation, a developer is able to specify a post processor, to process action results, e. g. by a template engine. By default, Rout.Lt 2 provides a servlet that uses simple PHTML files as templates and processes them in the scope of the servlet's `process()` method. This allows access to servlet request/response instances as well as servlet configutation parameters.
+
+The following example uses a @Results annotation, which contains a nested @Result annotation, to process the `/path/to/my_template.phtml` after invoking the `indexAction()` method.
+
+```php
+
+namespace MyApp\Actions;
+
+use AppserverIo\Routlt\DispatchAction;
+use AppserverIo\Routlt\ActionInterface;
+use TechDivision\Servlet\Http\HttpServletRequestInterface;
+use TechDivision\Servlet\Http\HttpServletResponseInterface;
+
+/**
+ * Example action that shows the usage of the @Results annotation.
+ *
+ * @Path
+ * @Results({
+ *     @Result(name="input", type="AppserverIo\Routlt\Results\ServletDispatcherResult", result="/path/to/my_template.phtml")
+ * })
+ */
+class IndexAction extends DispatchAction
+{
+
+    /**
+     * Dummy action implementation that writes 'Hello World' to the response.
+     *
+     * @param \TechDivision\Servlet\Http\HttpServletRequestInterface  $servletRequest  The request instance
+     * @param \TechDivision\Servlet\Http\HttpServletResponseInterface $servletResponse The response instance
+     *
+     * @return string The result identifier
+     */
+    public function indexAction(HttpServletRequestInterface $servletRequest, HttpServletResponseInterface $servletResponse)
+    {
+        try {
+            // add the Hello World! text to the request attributes
+            $servletRequest->setAttribute('text', 'Hello World!');
+        } catch (\Exception $e) {
+            // add the exception to the error messages
+            $this->addFieldError('fatal', $e->getMessage());
+        }
+        // return the result identifier for our template
+        return ActionInterface::INPUT;
+    }
+}
+```
+
+It is possible to specify as many @Result annotations as necessary to support allow result processing in different use cases. Which result has to be used, depends on the string value, returned by your action.
+
+The PHTML file, that has to be stored under `<PATH-TO-WEBAPP>/path/to/my_template.phtml` specified above will load the string, added as request attribute in the `indexAction()` method and renders it as a HTML document.
+
+```php
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>Simple PHTML Servlet</title>
+    </head>
+    <body>
+        <p><?php echo $servletRequest->getAttribute('text') ?></p>
+    </body>
+</html>
+```
 
 ## Limitations
 

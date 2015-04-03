@@ -1,3 +1,14 @@
+# Version 2.0.0-alpha4
+
+## Bugfixes
+
+* None
+
+## Features
+
+* Add interceptor functionality
+* Add PhtmlServlet for processing simple PHTML templates
+
 # Version 2.0.0-alpha3
 
 ## Bugfixes

@@ -24,14 +24,18 @@ use AppserverIo\Http\HttpProtocol;
 use AppserverIo\Properties\Properties;
 use AppserverIo\Psr\Context\ArrayContext;
 use AppserverIo\Psr\Context\ContextInterface;
+use AppserverIo\Psr\Servlet\Http\HttpServlet;
 use AppserverIo\Psr\Servlet\ServletException;
 use AppserverIo\Psr\Servlet\ServletConfigInterface;
+use AppserverIo\Psr\Servlet\ServletContextInterface;
 use AppserverIo\Psr\Servlet\ServletRequestInterface;
 use AppserverIo\Psr\Servlet\ServletResponseInterface;
-use AppserverIo\Psr\Servlet\Http\HttpServlet;
 use AppserverIo\Routlt\Util\ContextKeys;
+use AppserverIo\Routlt\Util\ActionAware;
 use AppserverIo\Routlt\Util\ServletContextAware;
+use AppserverIo\Routlt\Results\ResultInterface;
 use AppserverIo\Routlt\Description\PathDescriptorInterface;
+use AppserverIo\Routlt\Description\ResultDescriptorInterface;
 
 /**
  * Abstract example implementation that provides some kind of basic MVC functionality
@@ -118,7 +122,7 @@ class ControllerServlet extends HttpServlet implements ControllerInterface
      *
      * @param \AppserverIo\Psr\Servlet\ServletRequestInterface $servletRequest The request instance
      *
-     * @return \AppserverIo\Appserver\ServletEngine\SessionManagerInterface The provider instance
+     * @return \AppserverIo\Appserver\DependencyInjectionContainer\Interfaces\ProviderInterface The provider instance
      */
     public function getProvider(ServletRequestInterface $servletRequest)
     {
@@ -175,49 +179,6 @@ class ControllerServlet extends HttpServlet implements ControllerInterface
     public function addPathDescriptor(PathDescriptorInterface $pathDescriptor)
     {
         $this->paths[] = $pathDescriptor;
-    }
-
-    /**
-     * Returns the requested session name. This is the session name, that
-     * is SESSID by default or has been specified in the web.xml.
-     *
-     * @param \AppserverIo\Psr\Servlet\ServletRequestInterface $servletRequest The request instance
-     *
-     * @return string|null The requested session name, or NULL if no session manager has been registered
-     */
-    public function getSessionName(ServletRequestInterface $servletRequest)
-    {
-
-        // try load the session manager
-        $sessionManager = $this->getSessionManager($servletRequest);
-
-        // if a session manager is available, return the requested session name
-        if ($sessionManager != null) {
-            return $sessionManager->getSessionSettings()->getSessionName();
-        }
-    }
-
-    /**
-     * Returns the ID of the session with the requested session name.
-     *
-     * @param \AppserverIo\Psr\Servlet\ServletRequestInterface $servletRequest The request instance
-     *
-     * @return string|null The ID of the requested session or NULL if no session name is available
-     * @see AppserverIo\Routlt\ControllerServlet::getSessionName()
-     */
-    public function getSessionId(ServletRequestInterface $servletRequest)
-    {
-
-        // initialize the HTTP session-ID
-        $sessionId = null;
-
-        // query whether we can find a HTTP session-ID in the actual request or not
-        if ($servletRequest->hasCookie($requestedSessionName = $this->getSessionName($servletRequest))) {
-            $sessionId = $servletRequest->getCookie($requestedSessionName)->getValue();
-        }
-
-        // return the HTTP session-ID
-        return $sessionId;
     }
 
     /**
@@ -281,6 +242,11 @@ class ControllerServlet extends HttpServlet implements ControllerInterface
                     $this->getServletContext()->registerResReference($resReference);
                 }
 
+                // prepare the action's the result descriptors
+                foreach ($descriptor->getResults() as $resultDescriptor) {
+                    $action->addResult($this->newResultInstance($resultDescriptor));
+                }
+
                 // prepare the route, e. g. /index/index
                 $route = str_replace($actionNamespace, '', $descriptor->getName());
 
@@ -324,6 +290,31 @@ class ControllerServlet extends HttpServlet implements ControllerInterface
     public function newActionInstance($className, ContextInterface $context)
     {
         return new $className($context);
+    }
+
+    /**
+     * Creates a new instance of the action result the passed descriptor.
+     *
+     * @param \AppserverIo\Routlt\Description\ResultDescriptorInterface $resultDescriptor The action result descriptor
+     *
+     * @return \AppserverIo\Routlt\ActionInterface The action instance
+     */
+    public function newResultInstance(ResultDescriptorInterface $resultDescriptor)
+    {
+
+        // load the class name
+        $className = $resultDescriptor->getType();
+
+        // create a new instance of the result
+        $result = new $className($resultDescriptor);
+
+        // if the result is servlet context aware
+        if ($result instanceof ServletContextAware) {
+            $result->setServletContext($this->getServletContext());
+        }
+
+        // return the instance
+        return $result;
     }
 
     /**
@@ -388,7 +379,7 @@ class ControllerServlet extends HttpServlet implements ControllerInterface
 
             // load the the DI provider and session manager instance
             $provider = $this->getProvider($servletRequest);
-            $sessionId = $this->getSessionId($servletRequest);
+            $sessionId = $servletRequest->getProposedSessionId();
 
             // load the path info from the servlet request
             $pathInfo = $servletRequest->getPathInfo();
@@ -434,8 +425,23 @@ class ControllerServlet extends HttpServlet implements ControllerInterface
                     }
 
                     // if not dispatch the action
-                    $action->perform($servletRequest, $servletResponse);
+                    $result = $action->perform($servletRequest, $servletResponse);
+
+                    // process the result if available
+                    if (($instance = $action->findResult($result)) instanceof ResultInterface) {
+                        // query whether or not the result is action aware
+                        if ($instance instanceof ActionAware) {
+                            $instance->setAction($action);
+                        }
+
+                        // process the result
+                        $instance->process($servletRequest, $servletResponse);
+                    }
+
+                    // post-dispatch the action instance
                     $action->postDispatch($servletRequest, $servletResponse);
+
+                    // stop processing
                     return;
                 }
 

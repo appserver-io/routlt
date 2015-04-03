@@ -20,6 +20,7 @@
 
 namespace AppserverIo\Routlt;
 
+use AppserverIo\Routlt\Results\ResultInterface;
 use AppserverIo\Psr\Servlet\Http\HttpServletRequestInterface;
 use AppserverIo\Psr\Servlet\Http\HttpServletResponseInterface;
 
@@ -36,6 +37,45 @@ use AppserverIo\Psr\Servlet\Http\HttpServletResponseInterface;
  */
 interface ActionInterface
 {
+
+    /**
+     * Default constant for the default input template.
+     *
+     * @var string
+     */
+    const INPUT = 'input';
+
+    /**
+     * Default constant for a successfull action invocation.
+     *
+     * @var string
+     */
+    const SUCCESS = 'success';
+
+    /**
+     * Default constant for a failed action invocation.
+     *
+     * @var string
+     */
+    const FAILURE = 'failure';
+
+    /**
+     * Adds the result to the action.
+     *
+     * @param \AppserverIo\Routlt\Results\ResultInterface $result The result that has to be added
+     *
+     * @return void
+     */
+    public function addResult(ResultInterface $result);
+
+    /**
+     * Tries to find and return the result with the passed name.
+     *
+     * @param string $name The name of the result to return
+     *
+     * @return \AppserverIo\Routlt\Results\ResultInterface|null The requested result
+     */
+    public function findResult($name);
 
     /**
      * This method returns the default action method name that has to be invoked .

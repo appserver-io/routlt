@@ -30,6 +30,8 @@ use AppserverIo\Description\ResReferenceDescriptor;
 use AppserverIo\Psr\Servlet\GenericServlet;
 use AppserverIo\Psr\EnterpriseBeans\Description\EpbReferenceDescriptorInterface;
 use AppserverIo\Psr\EnterpriseBeans\Description\ResReferenceDescriptorInterface;
+use AppserverIo\Routlt\Annotations\Results;
+use AppserverIo\Routlt\Annotations\Result;
 
 /**
  * Annotation to map a request path info to an action method.
@@ -79,6 +81,13 @@ class PathDescriptor implements PathDescriptorInterface
     protected $actions = array();
 
     /**
+     * The array with the action results.
+     *
+     * @var array
+     */
+    protected $results = array();
+
+    /**
      * Sets the bean name.
      *
      * @param string $name The bean name
@@ -125,7 +134,7 @@ class PathDescriptor implements PathDescriptorInterface
     /**
      * Adds a action method configuration.
      *
-     * @param \AppserverIo\Routlt\Description\ActionDescriptorInterface $action The action method onfiguration
+     * @param \AppserverIo\Routlt\Description\ActionDescriptorInterface $action The action method configuration
      *
      * @return void
      */
@@ -154,6 +163,40 @@ class PathDescriptor implements PathDescriptorInterface
     public function getActions()
     {
         return $this->actions;
+    }
+
+    /**
+     * Adds a result action configuration.
+     *
+     * @param \AppserverIo\Routlt\Description\ResultDescriptorInterface $result The action result configuration
+     *
+     * @return void
+     */
+    public function addResult(ResultDescriptorInterface $result)
+    {
+        $this->results[$result->getName()] = $result;
+    }
+
+    /**
+     * Sets the array with the action results.
+     *
+     * @param array $results The action results
+     *
+     * @return void
+     */
+    public function setResults(array $results)
+    {
+        $this->results = $results;
+    }
+
+    /**
+     * The array with the action results.
+     *
+     * @return array The action results
+     */
+    public function getResults()
+    {
+        return $this->results;
     }
 
     /**
@@ -268,6 +311,8 @@ class PathDescriptor implements PathDescriptorInterface
 
         // add the annotation alias to the reflection class
         $reflectionClass->addAnnotationAlias(Path::ANNOTATION, Path::__getClass());
+        $reflectionClass->addAnnotationAlias(Result::ANNOTATION, Result::__getClass());
+        $reflectionClass->addAnnotationAlias(Results::ANNOTATION, Results::__getClass());
 
         // query if we've an action
         if ($reflectionClass->implementsInterface('AppserverIo\Routlt\ActionInterface') === false &&
@@ -309,6 +354,23 @@ class PathDescriptor implements PathDescriptorInterface
         foreach ($reflectionClass->getMethods(\ReflectionMethod::IS_PUBLIC) as $reflectionMethod) {
             if ($action = ActionDescriptor::newDescriptorInstance()->fromReflectionMethod($reflectionMethod)) {
                 $this->addAction($action);
+            }
+        }
+
+        // we've to check for result annotations
+        if ($reflectionClass->hasAnnotation(Results::ANNOTATION)) {
+            // create the reflection annotation instance
+            $resultsAnnotation = $reflectionClass->getAnnotation(Results::ANNOTATION);
+
+            // initialize the @Results annotation instance
+            $resultsAnnotationInstance = $resultsAnnotation->newInstance(
+                $resultsAnnotation->getAnnotationName(),
+                $resultsAnnotation->getValues()
+            );
+
+            // load the results
+            foreach ($resultsAnnotationInstance->getResults() as $resultAnnotation) {
+                $this->addResult(ResultDescriptor::newDescriptorInstance()->fromReflectionAnnotation($resultAnnotation));
             }
         }
 
@@ -380,6 +442,11 @@ class PathDescriptor implements PathDescriptorInterface
         // merge the action method descriptors
         foreach ($pathDescriptor->getActions() as $action) {
             $this->addAction($action);
+        }
+
+        // merge the result descriptors
+        foreach ($pathDescriptor->getResults() as $result) {
+            $this->addResult($result);
         }
 
         // merge the EPB references

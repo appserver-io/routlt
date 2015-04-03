@@ -21,6 +21,8 @@
 namespace AppserverIo\Routlt;
 
 use AppserverIo\Lang\Object;
+use AppserverIo\Routlt\Util\ValidationAware;
+use AppserverIo\Routlt\Results\ResultInterface;
 use AppserverIo\Psr\Context\ContextInterface;
 use AppserverIo\Psr\Servlet\Http\HttpServletRequestInterface;
 use AppserverIo\Psr\Servlet\Http\HttpServletResponseInterface;
@@ -34,7 +36,7 @@ use AppserverIo\Psr\Servlet\Http\HttpServletResponseInterface;
  * @link      http://github.com/appserver-io/routlt
  * @link      http://www.appserver.io
  */
-abstract class BaseAction extends Object implements ActionInterface
+abstract class BaseAction extends Object implements ActionInterface, ValidationAware
 {
 
     /**
@@ -50,6 +52,20 @@ abstract class BaseAction extends Object implements ActionInterface
      * @var \AppserverIo\Psr\Context\ContextInterface
      */
     protected $context = null;
+
+    /**
+     * The array with the action errors.
+     *
+     * @var array
+     */
+    protected $errors = array();
+
+    /**
+     * The array with the action results.
+     *
+     * @var array
+     */
+    protected $results = array();
 
     /**
      * Initializes the action with the context for the
@@ -133,5 +149,69 @@ abstract class BaseAction extends Object implements ActionInterface
     public function getAttribute($key)
     {
         return $this->getContext()->getAttribute($key);
+    }
+
+    /**
+     * Adds the result to the action.
+     *
+     * @param \AppserverIo\Routlt\Results\ResultInterface $result The result that has to be added
+     *
+     * @return void
+     * @see \AppserverIo\Routlt\ActionInterface::addResult()
+     */
+    public function addResult(ResultInterface $result)
+    {
+        $this->results[$result->getName()] = $result;
+    }
+
+    /**
+     * Tries to find and return the result with the passed name.
+     *
+     * @param string $name The name of the result to return
+     *
+     * @return \AppserverIo\Routlt\Results\ResultInterface|null The requested result
+     * @see \AppserverIo\Routlt\ActionInterface::findResult()
+     */
+    public function findResult($name)
+    {
+        if (isset($this->results[$name])) {
+            return $this->results[$name];
+        }
+    }
+
+    /**
+     * Adds a field error with the passed name and message.
+     *
+     * @param string $name    The name to add the message with
+     * @param string $message The message to add
+     *
+     * @return void
+     * @see \AppserverIo\Routlt\Util\ValidationAware::addFieldError()
+     */
+    public function addFieldError($name, $message)
+    {
+        $this->errors[$name] = $message;
+    }
+
+    /**
+     * Returns TRUE if validation found errors, else FALSE.
+     *
+     * @return boolean TRUE if validation found errors, else FALSE
+     * @see \AppserverIo\Routlt\Util\ValidationAware::hasErrors()
+     */
+    public function hasErrors()
+    {
+        return sizeof($this->errors) > 0;
+    }
+
+    /**
+     * Returns the array with action errors.
+     *
+     * @return The array with action errors
+     * @see \AppserverIo\Routlt\Util\ValidationAware::getErrors()
+     */
+    public function getErrors()
+    {
+        return $this->errors;
     }
 }
