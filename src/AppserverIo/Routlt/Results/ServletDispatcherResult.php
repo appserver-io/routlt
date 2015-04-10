@@ -142,15 +142,27 @@ class ServletDispatcherResult implements ResultInterface, ServletContextAware
     {
 
         // load result and session-ID
-        $result = $this->getResult();
-        $sessionId = $servletRequest->getProposedSessionId();
+        extract(parse_url($this->getResult()));
 
         // initialize the request URI
-        $servletRequest->setUri($result);
+        if (isset($path)) {
+            $servletRequest->setRequestUri($path);
+        }
+
+        // initialize the query string
+        if (isset($query)) {
+            $servletRequest->setQueryString($query);
+        }
+
+        // prepare the request with the new data
         $servletRequest->prepare();
 
+        // load the servlet path and session-ID
+        $servletPath = $servletRequest->getServletPath();
+        $sessionId = $servletRequest->getProposedSessionId();
+
         // load and process the servlet
-        $servlet = $this->getServletContext()->lookup($result, $sessionId);
+        $servlet = $this->getServletContext()->lookup($servletPath, $sessionId);
         $servlet->service($servletRequest, $servletResponse);
     }
 }

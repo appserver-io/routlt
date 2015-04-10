@@ -70,7 +70,7 @@ class ServletDispatcherResultTest extends \PHPUnit_Framework_TestCase
             ->will($this->returnValue('AppserverIo\Routlt\Results\ServletDispatcherResult'));
         $mockResultDescriptor->expects($this->once())
             ->method('getResult')
-            ->will($this->returnValue('/path/to/my_template.phtml'));
+            ->will($this->returnValue('/path/to/my_template.dhtml/index/index?test=test'));
 
         // initialize the result
         $this->result = new ServletDispatcherResult($mockResultDescriptor);
@@ -85,7 +85,7 @@ class ServletDispatcherResultTest extends \PHPUnit_Framework_TestCase
     {
         $this->assertSame(ActionInterface::SUCCESS, $this->result->getName());
         $this->assertSame('AppserverIo\Routlt\Results\ServletDispatcherResult', $this->result->getType());
-        $this->assertSame('/path/to/my_template.phtml', $this->result->getResult());
+        $this->assertSame('/path/to/my_template.dhtml/index/index?test=test', $this->result->getResult());
     }
 
     /**
@@ -98,7 +98,7 @@ class ServletDispatcherResultTest extends \PHPUnit_Framework_TestCase
 
         // create a mock servlet request instance
         $mockServletRequest = $this->getMockBuilder('AppserverIo\Appserver\ServletEngine\Http\Request')
-            ->setMethods(array('getProposedSessionId', 'setUri', 'prepare'))
+            ->setMethods(array('getProposedSessionId', 'getServletPath', 'setRequestUri', 'setQueryString', 'prepare'))
             ->getMock();
 
         // mock the necessary request methods
@@ -106,8 +106,14 @@ class ServletDispatcherResultTest extends \PHPUnit_Framework_TestCase
             ->method('getProposedSessionId')
             ->will($this->returnValue($sessionId = md5(time())));
         $mockServletRequest->expects($this->once())
-            ->method('setUri')
-            ->with('/path/to/my_template.phtml');
+            ->method('getServletPath')
+            ->will($this->returnValue('/path/to/my_template.dhtml'));
+        $mockServletRequest->expects($this->once())
+            ->method('setRequestUri')
+            ->with('/path/to/my_template.dhtml/index/index');
+        $mockServletRequest->expects($this->once())
+            ->method('setQueryString')
+            ->with('test=test');
         $mockServletRequest->expects($this->once())
             ->method('prepare');
 
@@ -132,7 +138,7 @@ class ServletDispatcherResultTest extends \PHPUnit_Framework_TestCase
         // mock the necessary servlet context method
         $mockServletContext->expects($this->once())
             ->method('lookup')
-            ->with('/path/to/my_template.phtml', $sessionId)
+            ->with('/path/to/my_template.dhtml', $sessionId)
             ->will($this->returnValue($mockServlet));
 
         // set the servlet context instance
