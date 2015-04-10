@@ -37,10 +37,10 @@ Let's assume, you've installed appserver.io on Linux/Mac OS X under ```/opt/apps
     </session-config>
 
     <servlet>
-        <description>A servlet that handles PHTML files.</description>
-        <display-name>The PHTML servlet</display-name>
-        <servlet-name>phtml</servlet-name>
-        <servlet-class>AppserverIo\Routlt\PhtmlServlet</servlet-class>
+        <description>A servlet that handles DHTML files.</description>
+        <display-name>The DHTML servlet</display-name>
+        <servlet-name>dhtml</servlet-name>
+        <servlet-class>AppserverIo\Appserver\ServletEngine\Servlets\DhtmlServlet</servlet-class>
     </servlet>
     
     <servlet>
@@ -67,8 +67,8 @@ Let's assume, you've installed appserver.io on Linux/Mac OS X under ```/opt/apps
     </servlet>
 
     <servlet-mapping>
-        <servlet-name>phtml</servlet-name>
-        <url-pattern>*.phtml</url-pattern>
+        <servlet-name>dhtml</servlet-name>
+        <url-pattern>*.dhtml</url-pattern>
     </servlet-mapping>
 
     <servlet-mapping>
@@ -166,9 +166,9 @@ Annotations are available for all request methods `CONNECT`, `DELETE`, `GET`, `H
 
 ## Results
 
-By specifying results with the @Results annotation, a developer is able to specify a post processor, to process action results, e. g. by a template engine. By default, Rout.Lt 2 provides a servlet that uses simple PHTML files as templates and processes them in the scope of the servlet's `process()` method. This allows access to servlet request/response instances as well as servlet configutation parameters.
+By specifying results with the @Results annotation, a developer is able to specify a post processor, to process action results, e. g. by a template engine. By default, Rout.Lt 2 provides a servlet that uses simple DHTML files as templates and processes them in the scope of the servlet's `process()` method. This allows access to servlet request/response instances as well as servlet configutation parameters.
 
-The following example uses a @Results annotation, which contains a nested @Result annotation, to process the `/path/to/my_template.phtml` after invoking the `indexAction()` method.
+The following example uses a @Results annotation, which contains a nested @Result annotation, to process the `/path/to/my_template.dhtml` after invoking the `indexAction()` method.
 
 ```php
 
@@ -184,7 +184,7 @@ use TechDivision\Servlet\Http\HttpServletResponseInterface;
  *
  * @Path
  * @Results({
- *     @Result(name="input", type="AppserverIo\Routlt\Results\ServletDispatcherResult", result="/path/to/my_template.phtml")
+ *     @Result(name="input", type="AppserverIo\Routlt\Results\ServletDispatcherResult", result="/path/to/my_template.dhtml")
  * })
  */
 class IndexAction extends DispatchAction
@@ -215,14 +215,14 @@ class IndexAction extends DispatchAction
 
 It is possible to specify as many @Result annotations as necessary to support allow result processing in different use cases. Which result has to be used, depends on the string value, returned by your action.
 
-The PHTML file, that has to be stored under `<PATH-TO-WEBAPP>/path/to/my_template.phtml` specified above will load the string, added as request attribute in the `indexAction()` method and renders it as a HTML document.
+The DHTML file, that has to be stored under `<PATH-TO-WEBAPP>/path/to/my_template.dhtml` specified above will load the string, added as request attribute in the `indexAction()` method and renders it as a HTML document.
 
 ```php
 <!DOCTYPE html>
 <html>
     <head>
         <meta charset="utf-8">
-        <title>Simple PHTML Servlet</title>
+        <title>Simple DHTML Servlet</title>
     </head>
     <body>
         <p><?php echo $servletRequest->getAttribute('text') ?></p>

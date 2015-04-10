@@ -1,3 +1,13 @@
+# Version 2.0.0-alpha5
+
+## Bugfixes
+
+* Fixed #27 - ServletDispatcherResult didn't set correct request URI
+
+## Features
+
+* Moved PhtmlServlet as DhtmlServlet to ServletEngine (to avoid conflicts with simple PHTML templates)
+
 # Version 2.0.0-alpha4
 
 ## Bugfixes
