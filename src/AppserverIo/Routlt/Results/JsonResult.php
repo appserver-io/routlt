@@ -51,89 +51,11 @@ class JsonResult implements ResultInterface, ActionAware
     const DATA = 'json-result.data';
 
     /**
-     * The action result name.
+     * Trait proving basic result functionality.
      *
-     * @var string
+     * @var \AppserverIo\Routlt\Results\ResultTrait
      */
-    protected $name;
-
-    /**
-     * The action result type.
-     *
-     * @var string
-     */
-    protected $type;
-
-    /**
-     * The action result value.
-     *
-     * @var array
-     */
-    protected $result;
-
-    /**
-     * Initializes the instance with the configured result value.
-     *
-     * @param \AppserverIo\Routlt\Results\ResultDescriptorInterface $resultDescriptor The result descriptor instance
-     */
-    public function __construct(ResultDescriptorInterface $resultDescriptor)
-    {
-        $this->name = $resultDescriptor->getName();
-        $this->type = $resultDescriptor->getType();
-        $this->result = $resultDescriptor->getResult();
-    }
-
-    /**
-     * Returns the action result name.
-     *
-     * @return string The action result name
-     */
-    public function getName()
-    {
-        return $this->name;
-    }
-
-    /**
-     * Returns the action result type.
-     *
-     * @return string The action result type
-     */
-    public function getType()
-    {
-        return $this->type;
-    }
-
-    /**
-     * Returns the action result value.
-     *
-     * @return string The action result value
-     */
-    public function getResult()
-    {
-        return $this->result;
-    }
-
-    /**
-     * Sets the actual action instance.
-     *
-     * @param \AppserverIo\Routlt\ActionInterface $action The action instance
-     *
-     * @return void
-     */
-    public function setAction(ActionInterface $action)
-    {
-        $this->action = $action;
-    }
-
-    /**
-     * Returns the action instance.
-     *
-     * @return \AppserverIo\Routlt\ActionInterface The action instance
-     */
-    public function getAction()
-    {
-        return $this->action;
-    }
+    use ResultTrait;
 
     /**
      * Processes an action result by dispatching the configured servlet.
