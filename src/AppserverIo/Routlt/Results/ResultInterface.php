@@ -43,6 +43,20 @@ interface ResultInterface
     public function getName();
 
     /**
+     * Returns the action result type.
+     *
+     * @return string The action result type
+     */
+    public function getType();
+
+    /**
+     * Returns the action result value.
+     *
+     * @return string The action result value
+     */
+    public function getResult();
+
+    /**
      * Processes an action result by dispatching the configured servlet.
      *
      * @param \AppserverIo\Psr\Servlet\ServletRequestInterface  $servletRequest  The request instance

@@ -1,3 +1,13 @@
+# Version 2.0.0-beta1
+
+## Bugfixes
+
+* None
+
+## Features
+
+* Add RawResult implementation to optimize JSON request handling
+
 # Version 2.0.0-alpha5
 
 ## Bugfixes

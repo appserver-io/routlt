@@ -1,7 +1,7 @@
 <?php
 
 /**
- * AppserverIo\Routlt\Results\JsonResultTest
+ * AppserverIo\Routlt\Results\RawResultTest
  *
  * NOTICE OF LICENSE
  *
@@ -23,11 +23,13 @@ namespace AppserverIo\Routlt\Results;
 use AppserverIo\Http\HttpProtocol;
 use AppserverIo\Routlt\ActionInterface;
 use AppserverIo\Routlt\Util\ValidationAware;
+use AppserverIo\Routlt\Util\EncodingAware;
+use AppserverIo\Routlt\Util\DefaultHeadersAware;
 use AppserverIo\Psr\Servlet\Http\HttpServletRequestInterface;
 use AppserverIo\Psr\Servlet\Http\HttpServletResponseInterface;
 
 /**
- * Test implementation for the JsonResult implementation.
+ * Test implementation for the RawResult implementation.
  *
  * @author    Tim Wagner <tw@techdivision.com>
  * @copyright 2015 TechDivision GmbH <info@techdivision.com>
@@ -35,13 +37,13 @@ use AppserverIo\Psr\Servlet\Http\HttpServletResponseInterface;
  * @link      http://github.com/appserver-io/routlt
  * @link      http://www.appserver.io
  */
-class JsonResultTest extends \PHPUnit_Framework_TestCase implements ActionInterface, ValidationAware
+class RawResultTest extends \PHPUnit_Framework_TestCase implements ActionInterface, ValidationAware, EncodingAware, DefaultHeadersAware
 {
 
     /**
      * The result instance to test.
      *
-     * @var \AppserverIo\Routlt\Results\JsonResult
+     * @var \AppserverIo\Routlt\Results\RawResult
      */
     protected $result;
 
@@ -51,6 +53,20 @@ class JsonResultTest extends \PHPUnit_Framework_TestCase implements ActionInterf
      * @var array
      */
     protected $errors = array();
+
+    /**
+     * The array with the context attributes.
+     *
+     * @var array
+     */
+    protected $attributes = array();
+
+    /**
+     * The default result value.
+     *
+     * @var string
+     */
+    const RESULT = 'my_view_data';
 
     /**
      * Initializes the interceptor to test.
@@ -71,13 +87,13 @@ class JsonResultTest extends \PHPUnit_Framework_TestCase implements ActionInterf
             ->will($this->returnValue(ActionInterface::SUCCESS));
         $mockResultDescriptor->expects($this->once())
             ->method('getType')
-            ->will($this->returnValue('AppserverIo\Routlt\Results\JsonResult'));
+            ->will($this->returnValue('AppserverIo\Routlt\Results\RawResult'));
         $mockResultDescriptor->expects($this->once())
             ->method('getResult')
-            ->will($this->returnValue(null));
+            ->will($this->returnValue(RawResultTest::RESULT));
 
         // initialize the result
-        $this->result = new JsonResult($mockResultDescriptor);
+        $this->result = new RawResult($mockResultDescriptor);
     }
 
     /**
@@ -88,8 +104,8 @@ class JsonResultTest extends \PHPUnit_Framework_TestCase implements ActionInterf
     public function testConstructor()
     {
         $this->assertSame(ActionInterface::SUCCESS, $this->result->getName());
-        $this->assertSame('AppserverIo\Routlt\Results\JsonResult', $this->result->getType());
-        $this->assertNull($this->result->getResult());
+        $this->assertSame(RawResultTest::RESULT, $this->result->getResult());
+        $this->assertSame('AppserverIo\Routlt\Results\RawResult', $this->result->getType());
     }
 
     /**
@@ -100,24 +116,11 @@ class JsonResultTest extends \PHPUnit_Framework_TestCase implements ActionInterf
     public function testProcess()
     {
 
-        // create a mock servlet request instance
-        $mockServletRequest = $this->getMockBuilder('AppserverIo\Appserver\ServletEngine\Http\Request')
-            ->setMethods(array('getAttribute'))
-            ->getMock();
+        // we add a dummy result value
+        $this->setAttribute(RawResultTest::RESULT, $result = array('key' => 'value'));
 
-        // mock the necessary request methods
-        $mockServletRequest->expects($this->once())
-            ->method('getAttribute')
-            ->with(JsonResult::DATA)
-            ->will(
-                $this->returnValue(
-                    $result = array(
-                        'dummyValue' => 'test',
-                        'noSetterAvailable' => 100,
-                        'throwException' => 'Another Test Value'
-                    )
-                )
-            );
+        // create a mock servlet request instance
+        $mockServletRequest = $this->getMock('AppserverIo\Appserver\ServletEngine\Http\Request');
 
         // create a mock servlet response instance
         $mockServletResponse = $this->getMockBuilder('AppserverIo\Appserver\ServletEngine\Http\Response')
@@ -284,5 +287,62 @@ class JsonResultTest extends \PHPUnit_Framework_TestCase implements ActionInterf
     public function getErrors()
     {
         return $this->errors;
+    }
+
+    /**
+     * Attaches the passed value with passed key in the context of the actual request.
+     *
+     * @param string $key   The key to attach the data under
+     * @param mixed  $value The data to be attached
+     *
+     * @return void
+     */
+    public function setAttribute($key, $value)
+    {
+        $this->attributes[$key] = $value;
+    }
+
+    /**
+     * Returns the data with the passed key from the context of the actual request.
+     *
+     * @param string $key The key to return the data for
+     *
+     * @return mixed The requested data
+     */
+    public function getAttribute($key)
+    {
+        return $this->attributes[$key];
+    }
+
+    /**
+     * Encodes the passed data, to JSON format for example, and returns it.
+     *
+     * @param string $data The data to be encoded
+     *
+     * @return The encoded data.
+     */
+    public function encode($data)
+    {
+        return json_encode($data);
+    }
+
+    /**
+     * Returns TRUE if the action has default headers.
+     *
+     * @return boolean TRUE if the action has default headers, else FALSE
+     */
+    public function hasDefaultHeaders()
+    {
+        return sizeof($this->getDefaultHeaders()) > 0;
+    }
+
+    /**
+     * Returns the array with action's default headers.
+     *
+     * @return The array with action's default headers
+     */
+    public function getDefaultHeaders()
+    {
+        return array(HttpProtocol::HEADER_CONTENT_TYPE => 'application/json');
     }
 }

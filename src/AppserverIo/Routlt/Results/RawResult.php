@@ -1,7 +1,7 @@
 <?php
 
 /**
- * AppserverIo\Routlt\Results\JsonResult
+ * AppserverIo\Routlt\Results\RawResult
  *
  * NOTICE OF LICENSE
  *
@@ -23,7 +23,9 @@ namespace AppserverIo\Routlt\Results;
 use AppserverIo\Http\HttpProtocol;
 use AppserverIo\Routlt\ActionInterface;
 use AppserverIo\Routlt\Util\ActionAware;
+use AppserverIo\Routlt\Util\EncodingAware;
 use AppserverIo\Routlt\Util\ValidationAware;
+use AppserverIo\Routlt\Util\DefaultHeadersAware;
 use AppserverIo\Routlt\Util\ServletContextAware;
 use AppserverIo\Routlt\Description\ResultDescriptorInterface;
 use AppserverIo\Psr\Servlet\ServletContextInterface;
@@ -31,7 +33,7 @@ use AppserverIo\Psr\Servlet\ServletRequestInterface;
 use AppserverIo\Psr\Servlet\ServletResponseInterface;
 
 /**
- * Result implementation that JSON encodes the response body.
+ * Result implementation that supports action based default headers and encoding.
  *
  * @author     Tim Wagner <tw@techdivision.com>
  * @copyright  2015 TechDivision GmbH <info@techdivision.com>
@@ -40,15 +42,8 @@ use AppserverIo\Psr\Servlet\ServletResponseInterface;
  * @link       http://www.appserver.io
  * @deprecated Since 2.0.0-alpha5, use AppserverIo\Routlt\Results\RawResult instead
  */
-class JsonResult implements ResultInterface, ActionAware
+class RawResult implements ResultInterface, ActionAware
 {
-
-    /**
-     * The key for the data that has to be JSON encoded.
-     *
-     * @var string
-     */
-    const DATA = 'json-result.data';
 
     /**
      * Trait proving basic result functionality.
@@ -71,17 +66,26 @@ class JsonResult implements ResultInterface, ActionAware
         // load the action instance
         $action = $this->getAction();
 
-        // query whether the action contains errors or not
-        if ($action instanceof ValidationAware && $action->hasErrors()) {
-            $content = $action->getErrors();
-        } else {
-            $content = $servletRequest->getAttribute(JsonResult::DATA);
+        // add the actions default headers to the response
+        if ($action instanceof DefaultHeadersAware && $action->hasDefaultHeaders()) {
+            foreach ($action->getDefaultHeaders() as $name => $value) {
+                $servletResponse->addHeader($name, $value);
+            }
         }
 
-        // add the header for the JSON content type
-        $servletResponse->addHeader(HttpProtocol::HEADER_CONTENT_TYPE, 'application/json');
+        // query whether the action contains errors or not
+        if ($action instanceof ValidationAware && $action->hasErrors()) {
+            $bodyContent = $action->getErrors();
+        } else {
+            $bodyContent = $action->getAttribute($this->getResult());
+        }
 
-        // append the JSON encoded content to the servlet response
-        $servletResponse->appendBodyStream(json_encode($content));
+        // query whether the action requires content encoding or not
+        if ($action instanceof EncodingAware) {
+            $bodyContent = $action->encode($bodyContent);
+        }
+
+        // set the encoded body content
+        $servletResponse->appendBodyStream($bodyContent);
     }
 }

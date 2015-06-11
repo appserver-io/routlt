@@ -35,9 +35,9 @@ class ServletDispatcherResultTest extends \PHPUnit_Framework_TestCase
 {
 
     /**
-     * The interceptor instance to test.
+     * The result instance to test.
      *
-     * @var \AppserverIo\Routlt\Results\JsonResult
+     * @var \AppserverIo\Routlt\Results\ServletDispatcherResult
      */
     protected $result;
 
