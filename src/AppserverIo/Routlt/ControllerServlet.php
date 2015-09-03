@@ -350,7 +350,7 @@ class ControllerServlet extends HttpServlet implements ControllerInterface
     public function checkGeneralActionAvailability($pathInfo)
     {
         // iterate the request methods we have mappings for and check if we can find the requested action
-        foreach($this->getActionMappings() as $requestedM => $actionMapping) {
+        foreach ($this->getActionMappings() as $actionMapping) {
             $run = true;
             $requestedAction = $pathInfo;
             do {
