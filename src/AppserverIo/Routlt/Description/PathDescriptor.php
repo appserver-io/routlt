@@ -140,7 +140,10 @@ class PathDescriptor implements PathDescriptorInterface
      */
     public function addAction(ActionDescriptorInterface $action)
     {
-        $this->actions[$action->getName()] = $action;
+        $name = $action->getName();
+        foreach ($action->getRequestMethods() as $method) {
+            $this->actions[$name][$method] = $action;
+        }
     }
 
     /**

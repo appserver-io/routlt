@@ -251,9 +251,9 @@ class ControllerServlet extends HttpServlet implements ControllerInterface
                 $route = str_replace($actionNamespace, '', $descriptor->getName());
 
                 // initialize the action mappings
-                foreach ($descriptor->getActions() as $actionDescriptor) {
+                foreach ($descriptor->getActions() as $actionDescriptors) {
                     // iterate over all request methods
-                    foreach ($actionDescriptor->getRequestMethods() as $requestMethod) {
+                    foreach ($actionDescriptors as $requestMethod => $actionDescriptor) {
                         // prepare the action path with the route
                         $actionPath = $route;
 
