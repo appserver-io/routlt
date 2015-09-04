@@ -364,7 +364,7 @@ class ControllerServlet extends HttpServlet implements ControllerInterface
                 if ($requestedAction === '/' || $requestedAction === false) {
                     $run = false;
                 }
-            } while ($run);
+            } while ($run === true);
         }
 
         // nothing found? Return false then
