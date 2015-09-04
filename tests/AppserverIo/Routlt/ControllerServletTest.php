@@ -168,11 +168,6 @@ class ControllerServletTest extends \PHPUnit_Framework_TestCase
             ->setMethods(get_class_methods('AppserverIo\Routlt\Description\ActionDescriptorInterface'))
             ->getMock();
 
-        // mock the methods
-        $actionDescriptor->expects($this->once())
-            ->method('getRequestMethods')
-            ->will($this->returnValue(array(HttpProtocol::METHOD_GET)));
-
         // create an result descriptor
         $resultDescriptor = $this->getMockBuilder('AppserverIo\Routlt\Description\ResultDescriptorInterface')
             ->setMethods(get_class_methods('AppserverIo\Routlt\Description\ResultDescriptorInterface'))
@@ -205,7 +200,7 @@ class ControllerServletTest extends \PHPUnit_Framework_TestCase
             ->will($this->returnValue('AppserverIo\Routlt\Util\ServletContextAware'));
         $pathDescriptor->expects($this->once())
             ->method('getActions')
-            ->will($this->returnValue(array($actionDescriptor)));
+            ->will($this->returnValue(array(HttpProtocol::METHOD_GET => array($actionDescriptor))));
         $pathDescriptor->expects($this->once())
             ->method('getResults')
             ->will($this->returnValue(array($resultDescriptor)));
@@ -344,6 +339,45 @@ class ControllerServletTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * This tests the checkGeneralActionAvailability() method.
+     *
+     * @return void
+     */
+    public function testCheckGeneralActionAvailability()
+    {
+        // prepare some mock mappings
+        $mappings = array(
+            HttpProtocol::METHOD_GET => array(
+                '/tests' => array(
+                    '/tests',
+                    'testAction'
+                )
+            ),
+            HttpProtocol::METHOD_POST => array(
+            '/test2' => array(
+            '/test2',
+            'testAction'
+                )
+            )
+        );
+
+        // initialize the controller with mocked methods
+        $controller = $this->getMock('AppserverIo\Routlt\ControllerServlet', array('getActionMappings'));
+
+        // mock object + servlet manager
+        $controller->expects($this->exactly(4))
+        ->method('getActionMappings')
+        ->will($this->returnValue($mappings));
+
+        // some positives
+        $this->assertTrue($controller->checkGeneralActionAvailability('/tests'));
+        $this->assertTrue($controller->checkGeneralActionAvailability('/test2'));
+        $this->assertTrue($controller->checkGeneralActionAvailability('/tests/1/resource/2'));
+        // and some negative tests
+        $this->assertFalse($controller->checkGeneralActionAvailability('/notests/1'));
+    }
+
+    /**
      * This tests the service() method with a request without any registered routes.
      *
      * @expectedException \AppserverIo\Psr\Servlet\ServletException
@@ -351,7 +385,6 @@ class ControllerServletTest extends \PHPUnit_Framework_TestCase
      */
     public function testServiceWithModuleExceptionExpected()
     {
-
         // initialize the array with the methods to mock
         $methods = array('getProvider', 'getSessionManager', 'getRoutes');
 
@@ -508,6 +541,146 @@ class ControllerServletTest extends \PHPUnit_Framework_TestCase
         $controller->expects($this->once())
             ->method('getProvider')
             ->will($this->returnValue($provider));
+
+        // invoke the method we want to test
+        $controller->service($servletRequest, $servletResponse);
+    }
+
+    /**
+     * This tests that a not dispatched request stop request processing.
+     *
+     * @return void
+     * @expectedException AppserverIo\Psr\Servlet\ServletException
+     * @expectedExceptionCode 405
+     */
+    public function testIsNotDispatchedWith405()
+    {
+
+        // initialize the array with the methods to mock
+        $methods = array('getProvider', 'getSessionManager', 'getRoutes', 'getActionMappings');
+
+        // initialize the controller with mocked methods
+        $controller = $this->getMock('AppserverIo\Routlt\ControllerServlet', $methods);
+
+        // create a mock servlet request + response instance
+        $servletRequest = $this->getMock('AppserverIo\Appserver\ServletEngine\Http\Request');
+        $servletRequest->expects($this->once())
+        ->method('getPathInfo')
+        ->will($this->returnValue('/tests/2'));
+        $servletRequest->expects($this->exactly(2))
+        ->method('getMethod')
+        ->will($this->returnValue(HttpProtocol::METHOD_GET));
+
+        // create a mock servlet response instance
+        $servletResponse = $this->getMock('AppserverIo\Appserver\ServletEngine\Http\Response');
+
+        // create a mock action instance
+        $action = $this->getMockBuilder('AppserverIo\Routlt\BaseAction')
+        ->disableOriginalConstructor()
+        ->getMock();
+
+        // create an array with available routes
+        $routes = array('/tests' => $action);
+        // prepare some mock mappings
+        $actionMappings = array(
+            HttpProtocol::METHOD_POST => array(
+                '/tests' => array(
+                    '/tests',
+                    'testAction'
+                )
+            ),
+            HttpProtocol::METHOD_GET => array(
+            '/test2' => array(
+            '/test2',
+            'testAction'
+                )
+            )
+        );
+
+        // create a mock instance of the DI provider
+        $providerInterface = 'AppserverIo\Appserver\DependencyInjectionContainer\Interfaces\ProviderInterface';
+        $provider = $this->getMock($providerInterface, get_class_methods($providerInterface));
+
+        // assert that the array with the routes will be loaded
+        $controller->expects($this->exactly(2))
+        ->method('getActionMappings')
+        ->will($this->returnValue($actionMappings));
+        $controller->expects($this->once())
+        ->method('getRoutes')
+        ->will($this->returnValue($routes));
+        $controller->expects($this->once())
+        ->method('getProvider')
+        ->will($this->returnValue($provider));
+
+        // invoke the method we want to test
+        $controller->service($servletRequest, $servletResponse);
+    }
+
+    /**
+     * This tests that a not dispatched request stop request processing.
+     *
+     * @return void
+     * @expectedException AppserverIo\Psr\Servlet\ServletException
+     * @expectedExceptionCode 404
+     */
+    public function testIsNotDispatchedWith404()
+    {
+
+        // initialize the array with the methods to mock
+        $methods = array('getProvider', 'getSessionManager', 'getRoutes', 'getActionMappings');
+
+        // initialize the controller with mocked methods
+        $controller = $this->getMock('AppserverIo\Routlt\ControllerServlet', $methods);
+
+        // create a mock servlet request + response instance
+        $servletRequest = $this->getMock('AppserverIo\Appserver\ServletEngine\Http\Request');
+        $servletRequest->expects($this->once())
+        ->method('getPathInfo')
+        ->will($this->returnValue('/test'));
+        $servletRequest->expects($this->once())
+        ->method('getMethod')
+        ->will($this->returnValue(HttpProtocol::METHOD_GET));
+
+        // create a mock servlet response instance
+        $servletResponse = $this->getMock('AppserverIo\Appserver\ServletEngine\Http\Response');
+
+        // create a mock action instance
+        $action = $this->getMockBuilder('AppserverIo\Routlt\BaseAction')
+        ->disableOriginalConstructor()
+        ->getMock();
+
+        // create an array with available routes
+        $routes = array('/tests' => $action);
+        // prepare some mock mappings
+        $actionMappings = array(
+            HttpProtocol::METHOD_POST => array(
+                '/tests' => array(
+                    '/tests',
+                    'testAction'
+                )
+            ),
+            HttpProtocol::METHOD_GET => array(
+                '/test2' => array(
+                    '/test2',
+                    'testAction'
+                )
+            )
+        );
+
+        // create a mock instance of the DI provider
+        $providerInterface = 'AppserverIo\Appserver\DependencyInjectionContainer\Interfaces\ProviderInterface';
+        $provider = $this->getMock($providerInterface, get_class_methods($providerInterface));
+
+        // assert that the array with the routes will be loaded
+        $controller->expects($this->exactly(2))
+        ->method('getActionMappings')
+        ->will($this->returnValue($actionMappings));
+        $controller->expects($this->once())
+        ->method('getRoutes')
+        ->will($this->returnValue($routes));
+        $controller->expects($this->once())
+        ->method('getProvider')
+        ->will($this->returnValue($provider));
 
         // invoke the method we want to test
         $controller->service($servletRequest, $servletResponse);

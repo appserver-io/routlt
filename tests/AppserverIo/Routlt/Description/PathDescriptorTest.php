@@ -31,6 +31,7 @@ use AppserverIo\Psr\EnterpriseBeans\Annotations\Resource;
 use AppserverIo\Psr\EnterpriseBeans\Annotations\EnterpriseBean;
 use AppserverIo\Routlt\Annotations\Result;
 use AppserverIo\Routlt\Annotations\Results;
+use AppserverIo\Http\HttpProtocol;
 
 /**
  * Test implementation for the PathDescriptor implementation.
@@ -313,7 +314,7 @@ class PathDescriptorTest extends \PHPUnit_Framework_TestCase implements ActionIn
         $actions = $this->descriptor->getActions();
 
         // check that the method name has been overwritten
-        $this->assertEquals($action->getMethodName(), $actions['/test']->getMethodName());
+        $this->assertEquals($action->getMethodName(), $actions['/test'][HttpProtocol::METHOD_GET]->getMethodName());
     }
 
     /**

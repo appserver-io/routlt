@@ -1,3 +1,13 @@
+# Version 2.0.0-beta2
+
+## Bugfixes
+
+* Fixed [#30](https://github.com/appserver-io/routlt/issues/30) - Unsupported HTTP method results in 404
+
+## Features
+
+* Added support for overloading action names by usage of HTTP method annotations
+
 # Version 2.0.0-beta1
 
 ## Bugfixes
@@ -12,7 +22,7 @@
 
 ## Bugfixes
 
-* Fixed #27 - ServletDispatcherResult didn't set correct request URI
+* Fixed [#27](https://github.com/appserver-io/routlt/issues/27) - ServletDispatcherResult didn't set correct request URI
 
 ## Features
 

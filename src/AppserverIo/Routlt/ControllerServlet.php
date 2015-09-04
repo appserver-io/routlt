@@ -251,9 +251,9 @@ class ControllerServlet extends HttpServlet implements ControllerInterface
                 $route = str_replace($actionNamespace, '', $descriptor->getName());
 
                 // initialize the action mappings
-                foreach ($descriptor->getActions() as $actionDescriptor) {
+                foreach ($descriptor->getActions() as $actionDescriptors) {
                     // iterate over all request methods
-                    foreach ($actionDescriptor->getRequestMethods() as $requestMethod) {
+                    foreach ($actionDescriptors as $requestMethod => $actionDescriptor) {
                         // prepare the action path with the route
                         $actionPath = $route;
 
@@ -338,6 +338,40 @@ class ControllerServlet extends HttpServlet implements ControllerInterface
     }
 
     /**
+     * Checks whether or not an action is generally available for any request method.
+     * Will return TRUE if so, FALSE otherwise.
+     * This method replicates a lot of the checks generally necessary but omits the request method check.
+     * Still best called in exception- or edge-cases
+     *
+     * @param string $pathInfo The action path which has been requested
+     *
+     * @return boolean
+     */
+    public function checkGeneralActionAvailability($pathInfo)
+    {
+        // iterate the request methods we have mappings for and check if we can find the requested action
+        foreach ($this->getActionMappings() as $actionMapping) {
+            $run = true;
+            $requestedAction = $pathInfo;
+            do {
+                if (isset($actionMapping[$requestedAction])) {
+                    return true;
+                }
+                // strip the last directory
+                $requestedAction = dirname($requestedAction);
+
+                // query whether we've to stop dispatching
+                if ($requestedAction === '/' || $requestedAction === false) {
+                    $run = false;
+                }
+            } while ($run === true);
+        }
+
+        // nothing found? Return false then
+        return false;
+    }
+
+    /**
      * Returns the array with request method action -> route mappings
      * for the passed servlet request.
      *
@@ -347,7 +381,6 @@ class ControllerServlet extends HttpServlet implements ControllerInterface
      */
     public function getActionMappingsForServletRequest(ServletRequestInterface $servletRequest)
     {
-
         // load the servlet request method
         $requestMethod = $servletRequest->getMethod();
 
@@ -358,6 +391,12 @@ class ControllerServlet extends HttpServlet implements ControllerInterface
         if (isset($actionMappings[$requestMethod])) {
             return $actionMappings[$requestMethod];
         }
+
+        // nothing found? Method must not be allowed then
+        throw new DispatchException(
+            sprintf('Method %s not allowed', $requestMethod),
+            405
+        );
     }
 
     /**
@@ -449,20 +488,33 @@ class ControllerServlet extends HttpServlet implements ControllerInterface
                 $requestedAction = dirname($requestedAction);
 
                 // query whether we've to stop dispatching
-                if ($requestedAction === '/') {
+                if ($requestedAction === '/' || $requestedAction === false) {
                     $run = false;
                 }
 
             } while ($run);
 
+            // We did not find anything for this method/URI connection.
+            // We have to evaluate if there simply is a method restriction
+            // This replicates a lot of the checks we did before but omits extra iterations in a positive dispatch event,
+            // 4xx's should be the exception and can handle that penalty therefore
+            if ($this->checkGeneralActionAvailability($pathInfo)) {
+                // nothing found? Method must not be allowed then
+                throw new DispatchException(
+                    sprintf('Method %s not allowed', $servletRequest->getMethod()),
+                    405
+                );
+            }
+
             // throw an action, because we can't find an action mapping
             throw new DispatchException(
-                sprintf('Can\'t find action to dispatch path info %s', $pathInfo)
+                sprintf('Can\'t find action to dispatch path info %s', $pathInfo),
+                404
             );
 
         } catch (DispatchException $de) {
-            // results in a 404 error page
-            throw new ServletException($de->__toString(), 404);
+            // results in a 4xx error
+            throw new ServletException($de->__toString(), $de->getCode());
         } catch (\Exception $e) {
             // results in a 500 error page
             throw new ServletException($e->__toString(), 500);

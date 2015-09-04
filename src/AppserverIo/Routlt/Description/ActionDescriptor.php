@@ -206,10 +206,10 @@ class ActionDescriptor implements ActionDescriptorInterface
         );
 
         // load the default name to register in naming directory
-        if ($nameAttribute = $annotationInstance->getName()) {
+        if (($nameAttribute = $annotationInstance->getName()) || $nameAttribute === '') {
             $this->setName($nameAttribute);
         } else {
-            // if @Annotation(name=****) is NOT set, we use the method name by default
+            // if @Annotation(name=****) is NOT SET, we use the method name by default
             $this->setName('/' . lcfirst(str_replace('Action', '', $reflectionMethod->getMethodName())));
         }
 
