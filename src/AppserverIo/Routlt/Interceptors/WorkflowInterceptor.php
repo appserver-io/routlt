@@ -45,22 +45,38 @@ class WorkflowInterceptor extends AbstractInterceptor
     protected function execute(MethodInvocationInterface $methodInvocation)
     {
 
-        // get the action, methods and servlet request
-        $action = $this->getAction();
+        try {
 
-        // query whether we want to validate
-        if ($action instanceof Validateable) {
-            $action->validate();
-        }
+            // proceed invocation chain
+            $result = $methodInvocation->proceed();
 
-        // query whether the action is validation aware
-        if ($action instanceof ValidationAware) {
-            if ($action->hasErrors()) {
-                return ActionInterface::FAILURE;
+            // get the action, methods and servlet request
+            $action = $this->getAction();
+
+            // query whether we want to validate
+            if ($action instanceof Validateable) {
+                $action->validate();
             }
+
+            // query whether the action is validation aware
+            if ($action instanceof ValidationAware) {
+                // query whether the action has errors or not
+                if ($action->hasErrors()) {
+                    // attach the action errors to the servlet request
+                    $methodInvocation->getContext()->getServletRequest()->setAttribute('error.messages', $action->getErrors());
+                    // return a failure
+                    $result = ActionInterface::FAILURE;
+                }
+            }
+
+        } catch (\Exception $e) {
+            // if not add an error message
+            $methodInvocation->getContext()->getServletRequest()->setAttribute('error.messages', array('critical' => $e->getMessage()));
+            // action invocation has failed
+            $result = ActionInterface::FAILURE;
         }
 
-        // proceed invocation chain
-        return $methodInvocation->proceed();
+        // return the result
+        return $result;
     }
 }
