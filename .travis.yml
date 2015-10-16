@@ -7,7 +7,7 @@ php:
   
 before_install:
   - pecl install pthreads-beta
-  - pecl install xdebug
+  - pecl install xdebug-2.0.10
   - pyrus install pear/PHP_CodeSniffer
   - phpenv rehash
   - wget https://scrutinizer-ci.com/ocular.phar
