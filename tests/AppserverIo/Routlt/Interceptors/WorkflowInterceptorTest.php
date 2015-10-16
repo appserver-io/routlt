@@ -26,6 +26,7 @@ use AppserverIo\Routlt\Util\ValidationAware;
 use AppserverIo\Routlt\Results\ResultInterface;
 use AppserverIo\Psr\Servlet\Http\HttpServletRequestInterface;
 use AppserverIo\Psr\Servlet\Http\HttpServletResponseInterface;
+use AppserverIo\Appserver\ServletEngine\Http\Request;
 
 /**
  * Test implementation for the WorkflowInterceptor implementation.
@@ -101,7 +102,7 @@ class WorkflowInterceptorTest extends \PHPUnit_Framework_TestCase implements Act
         $mockMethodInvocation = $this->getMock('AppserverIo\Psr\MetaobjectProtocol\Aop\MethodInvocationInterface');
 
         // mock the methods
-        $mockMethodInvocation->expects($this->once())
+        $mockMethodInvocation->expects($this->exactly(2))
             ->method('getContext')
             ->will($this->returnValue($this));
         $mockMethodInvocation->expects($this->once())
@@ -113,6 +114,16 @@ class WorkflowInterceptorTest extends \PHPUnit_Framework_TestCase implements Act
 
         // invoke the interceptor functionality and check the result
         $this->assertSame(ActionInterface::FAILURE, $this->interceptor->intercept($mockMethodInvocation));
+    }
+
+    /**
+     * Returns the servlet response instance.
+     *
+     * @return \AppserverIo\Psr\Servlet\Http\HttpServletRequestInterface The request instance
+     */
+    public function getServletRequest()
+    {
+        return new Request();
     }
 
     /**
