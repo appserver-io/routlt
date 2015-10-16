@@ -46,7 +46,6 @@ class WorkflowInterceptor extends AbstractInterceptor
     {
 
         try {
-
             // proceed invocation chain
             $result = $methodInvocation->proceed();
 
