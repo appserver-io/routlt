@@ -463,8 +463,13 @@ class ControllerServlet extends HttpServlet implements ControllerInterface
                         return;
                     }
 
+                    // initialize the result with the default value
+                    $result = ActionInterface::INPUT;
+
                     // if not dispatch the action
-                    $result = $action->perform($servletRequest, $servletResponse);
+                    if ($newResult = $action->perform($servletRequest, $servletResponse)) {
+                        $result = $newResult;
+                    }
 
                     // process the result if available
                     if (($instance = $action->findResult($result)) instanceof ResultInterface) {

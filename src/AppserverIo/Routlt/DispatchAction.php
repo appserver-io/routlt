@@ -52,6 +52,20 @@ abstract class DispatchAction extends BaseAction implements DispatchActionInterf
     const DEFAULT_METHOD_NAME = 'index';
 
     /**
+     * The servlet request instance.
+     *
+     * @var \AppserverIo\Psr\Servlet\Http\HttpServletRequestInterface
+     */
+    protected $servletRequest;
+
+    /**
+     * The servlet response instance.
+     *
+     * @var \AppserverIo\Psr\Servlet\Http\HttpServletResponseInterface
+     */
+    protected $servletResponse;
+
+    /**
      * Implemented to comply witht the interface.
      *
      * @param \AppserverIo\Psr\Servlet\Http\HttpServletRequestInterface  $servletRequest  The request instance
@@ -61,6 +75,10 @@ abstract class DispatchAction extends BaseAction implements DispatchActionInterf
      */
     public function perform(HttpServletRequestInterface $servletRequest, HttpServletResponseInterface $servletResponse)
     {
+
+        // set servlet request/response
+        $this->setServletRequest($servletRequest);
+        $this->setServletResponse($servletResponse);
 
         // load the requested method name from the context
         $methodName = $this->getAttribute(ContextKeys::METHOD_NAME);
@@ -91,5 +109,49 @@ abstract class DispatchAction extends BaseAction implements DispatchActionInterf
     protected function getActionSuffix($requestedMethodName)
     {
         return $requestedMethodName . DispatchAction::ACTION_SUFFIX;
+    }
+
+    /**
+     * Sets the servlet request instance.
+     *
+     * @param \AppserverIo\Psr\Servlet\Http\HttpServletRequestInterface $servletRequest The request instance
+     *
+     * @return void
+     */
+    public function setServletRequest(HttpServletRequestInterface $servletRequest)
+    {
+        $this->servletRequest = $servletRequest;
+    }
+
+    /**
+     * Sets the servlet response instance.
+     *
+     * @param \AppserverIo\Psr\Servlet\Http\HttpServletResponseInterface $servletResponse The request instance
+     *
+     * @return void
+     */
+    public function setServletResponse(HttpServletResponseInterface $servletResponse)
+    {
+        $this->servletResponse = $servletResponse;
+    }
+
+    /**
+     * Returns the servlet response instance.
+     *
+     * @return \AppserverIo\Psr\Servlet\Http\HttpServletRequestInterface The request instance
+     */
+    public function getServletRequest()
+    {
+        return $this->servletRequest;
+    }
+
+    /**
+     * Returns the servlet request instance.
+     *
+     * @return \AppserverIo\Psr\Servlet\Http\HttpServletResponseInterface The response instance
+     */
+    public function getServletResponse()
+    {
+        return $this->servletResponse;
     }
 }

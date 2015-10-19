@@ -1,3 +1,13 @@
+# Version 2.0.0-beta3
+
+## Bugfixes
+
+* None
+
+## Features
+
+* Remove mandatory return value for actions, use default value "input" if NULL has been returned
+
 # Version 2.0.0-beta2
 
 ## Bugfixes
