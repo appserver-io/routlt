@@ -95,6 +95,38 @@ class DispatchActionTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * Test that the getServletRequest() method returns the expected
+     * ServletRequest instance.
+     *
+     * @return void
+     */
+    public function testGetServletRequest()
+    {
+
+        // create and set the mock servlet request
+        $this->action->setServletRequest($servletRequest = $this->getMock('AppserverIo\Psr\Servlet\Http\HttpServletRequestInterface'));
+
+        // query whether the instances are identically
+        $this->assertSame($servletRequest, $this->action->getServletRequest());
+    }
+
+    /**
+     * Test that the getServletResponse() method returns the expected
+     * ServletResponse instance.
+     *
+     * @return void
+     */
+    public function testGetServletResponse()
+    {
+
+        // create and set the mock servlet response
+        $this->action->setServletResponse($servletResponse = $this->getMock('AppserverIo\Psr\Servlet\Http\HttpServletResponseInterface'));
+
+        // query whether the instances are identically
+        $this->assertSame($servletResponse, $this->action->getServletResponse());
+    }
+
+    /**
      * This test checks whether the getDefaultMethod() returns
      * the expected value.
      *

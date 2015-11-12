@@ -98,22 +98,88 @@ class WorkflowInterceptorTest extends \PHPUnit_Framework_TestCase implements Act
     public function testExecuteWithFailure()
     {
 
+
+        // create a mock servlet request instance
+        $mockServletRequest = $this->getMock('AppserverIo\Appserver\ServletEngine\Http\Request');
+
+        // create a mock servlet response instance
+        $mockServletResponse = $this->getMock('AppserverIo\Appserver\ServletEngine\Http\Response');
+
         // create a method invocation mock
         $mockMethodInvocation = $this->getMock('AppserverIo\Psr\MetaobjectProtocol\Aop\MethodInvocationInterface');
 
         // mock the methods
-        $mockMethodInvocation->expects($this->exactly(2))
+        $mockMethodInvocation->expects($this->once())
             ->method('getContext')
             ->will($this->returnValue($this));
         $mockMethodInvocation->expects($this->once())
+            ->method('proceed')
+            ->will($this->returnValue(ActionInterface::SUCCESS));
+        $mockMethodInvocation->expects($this->once())
             ->method('getParameters')
-            ->will($this->returnValue(array()));
+            ->will(
+                $this->returnValue(
+                    array(
+                        AbstractInterceptor::SERVLET_REQUEST => $mockServletRequest,
+                        AbstractInterceptor::SERVLET_RESPONSE => $mockServletResponse
+                    )
+                    )
+                );
 
         // we add an error message to simulate an error
         $this->addFieldError('test', 'A Message');
 
         // invoke the interceptor functionality and check the result
         $this->assertSame(ActionInterface::FAILURE, $this->interceptor->intercept($mockMethodInvocation));
+    }
+
+    /**
+     * Tests the default interceptor functionality if an exception has been thrown.
+     *
+     * @return void
+     */
+    public function testExecuteWithException()
+    {
+
+        // create a mock for the abstract interceptor
+        $mockAbstractInterceptor = $this->getMockBuilder('AppserverIo\Routlt\Interceptors\WorkflowInterceptor')
+            ->setMethods(array('getAction'))
+            ->getMock();
+
+        // mock the methods
+        $mockAbstractInterceptor->expects($this->once())
+            ->method('getAction')
+            ->willThrowException(new \Exception());
+
+        // create a mock servlet request instance
+        $mockServletRequest = $this->getMock('AppserverIo\Appserver\ServletEngine\Http\Request');
+
+        // create a mock servlet response instance
+        $mockServletResponse = $this->getMock('AppserverIo\Appserver\ServletEngine\Http\Response');
+
+        // create a method invocation mock
+        $mockMethodInvocation = $this->getMock('AppserverIo\Psr\MetaobjectProtocol\Aop\MethodInvocationInterface');
+
+        // mock the methods
+        $mockMethodInvocation->expects($this->once())
+            ->method('getContext')
+            ->will($this->returnValue($this));
+        $mockMethodInvocation->expects($this->once())
+            ->method('proceed')
+            ->will($this->returnValue(ActionInterface::SUCCESS));
+        $mockMethodInvocation->expects($this->once())
+            ->method('getParameters')
+            ->will(
+                $this->returnValue(
+                    array(
+                        AbstractInterceptor::SERVLET_REQUEST => $mockServletRequest,
+                        AbstractInterceptor::SERVLET_RESPONSE => $mockServletResponse
+                    )
+                    )
+                );
+
+        // invoke the interceptor functionality and check the result
+        $this->assertSame(ActionInterface::FAILURE, $mockAbstractInterceptor->intercept($mockMethodInvocation));
     }
 
     /**
