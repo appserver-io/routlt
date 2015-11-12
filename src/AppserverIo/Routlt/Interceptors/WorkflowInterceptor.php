@@ -62,7 +62,7 @@ class WorkflowInterceptor extends AbstractInterceptor
                 // query whether the action has errors or not
                 if ($action->hasErrors()) {
                     // attach the action errors to the servlet request
-                    $methodInvocation->getContext()->getServletRequest()->setAttribute('error.messages', $action->getErrors());
+                    $this->getServletRequest()->setAttribute('error.messages', $action->getErrors());
                     // return a failure
                     $result = ActionInterface::FAILURE;
                 }
@@ -70,7 +70,7 @@ class WorkflowInterceptor extends AbstractInterceptor
 
         } catch (\Exception $e) {
             // if not add an error message
-            $methodInvocation->getContext()->getServletRequest()->setAttribute('error.messages', array('critical' => $e->getMessage()));
+            $this->getServletRequest()->setAttribute('error.messages', array('critical' => $e->getMessage()));
             // action invocation has failed
             $result = ActionInterface::FAILURE;
         }

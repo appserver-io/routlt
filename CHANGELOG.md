@@ -1,3 +1,13 @@
+# Version 2.0.0
+
+## Bugfixes
+
+* Fixed invalid access to not existent getServletRequest() method in WorkflowInterceptor
+
+## Features
+
+* None
+
 # Version 2.0.0-beta3
 
 ## Bugfixes
