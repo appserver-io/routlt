@@ -27,11 +27,11 @@ use AppserverIo\Routlt\Description\DescriptorException;
 use AppserverIo\Routlt\Description\ActionDescriptorInterface;
 use AppserverIo\Description\EpbReferenceDescriptor;
 use AppserverIo\Description\ResReferenceDescriptor;
-use AppserverIo\Psr\Servlet\GenericServlet;
 use AppserverIo\Psr\EnterpriseBeans\Description\EpbReferenceDescriptorInterface;
 use AppserverIo\Psr\EnterpriseBeans\Description\ResReferenceDescriptorInterface;
 use AppserverIo\Routlt\Annotations\Results;
 use AppserverIo\Routlt\Annotations\Result;
+use AppserverIo\Configuration\Interfaces\NodeInterface;
 
 /**
  * Annotation to map a request path info to an action method.
@@ -415,6 +415,17 @@ class PathDescriptor implements PathDescriptorInterface
      * @return \AppserverIo\Routlt\Description\PathDescriptorInterface The initialized descriptor
      */
     public function fromDeploymentDescriptor(\SimpleXmlElement $node)
+    {
+    }
+
+    /**
+     * Initializes a bean configuration instance from the passed configuration node.
+     *
+     * @param \AppserverIo\Configuration\Interfaces\NodeInterface $node The configuration node with the bean configuration
+     *
+     * @return \AppserverIo\Routlt\Description\PathDescriptorInterface The initialized descriptor
+     */
+    public function fromConfiguration(NodeInterface $node)
     {
     }
 
