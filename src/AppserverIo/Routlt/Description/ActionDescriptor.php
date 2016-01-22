@@ -24,6 +24,7 @@ use AppserverIo\Http\HttpProtocol;
 use AppserverIo\Routlt\Annotations\Action;
 use AppserverIo\Lang\Reflection\MethodInterface;
 use AppserverIo\Lang\Reflection\ReflectionAnnotation;
+use AppserverIo\Configuration\Interfaces\NodeInterface;
 
 /**
  * Annotation to map a request path info to an action method.
@@ -245,6 +246,17 @@ class ActionDescriptor implements ActionDescriptorInterface
      * @return \AppserverIo\Routlt\Description\ActionDescriptorInterface The initialized descriptor
      */
     public function fromDeploymentDescriptor(\SimpleXmlElement $node)
+    {
+    }
+
+    /**
+     * Initializes a action configuration instance from the passed configuration node.
+     *
+     * @param \AppserverIo\Configuration\Interfaces\NodeInterface $node The configuration node with the action configuration
+     *
+     * @return \AppserverIo\Routlt\Description\ActionDescriptorInterface The initialized descriptor
+     */
+    public function fromConfiguration(NodeInterface $node)
     {
     }
 

@@ -1,3 +1,13 @@
+# Version 2.1.0
+
+## Bugfixes
+
+* None
+
+## Features
+
+* Add fromConfiguration() method to descriptors
+
 # Version 2.0.0
 
 ## Bugfixes
