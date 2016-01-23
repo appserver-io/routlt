@@ -27,7 +27,6 @@ use AppserverIo\Psr\Context\ContextInterface;
 use AppserverIo\Psr\Servlet\Http\HttpServlet;
 use AppserverIo\Psr\Servlet\ServletException;
 use AppserverIo\Psr\Servlet\ServletConfigInterface;
-use AppserverIo\Psr\Servlet\ServletContextInterface;
 use AppserverIo\Psr\Servlet\ServletRequestInterface;
 use AppserverIo\Psr\Servlet\ServletResponseInterface;
 use AppserverIo\Routlt\Util\ContextKeys;
