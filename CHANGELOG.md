@@ -3,6 +3,8 @@
 ## Bugfixes
 
 * Removed misleading deprecation of RawResult result class
+* Fixed Travis-CI configuration file
+* Updating Dev dependencies
 
 ## Features
 
