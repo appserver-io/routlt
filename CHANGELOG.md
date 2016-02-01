@@ -2,7 +2,7 @@
 
 ## Bugfixes
 
-* None
+* Removed misleading deprecation of RawResult result class
 
 ## Features
 
