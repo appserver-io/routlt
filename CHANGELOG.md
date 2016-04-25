@@ -1,3 +1,14 @@
+# Version 2.1.1
+
+## Bugfixes
+
+* Fixed encoding and appending of additional NULL content to response body in RawResult
+* Fixed composer dependencies to an installable set
+
+## Features
+
+* None
+
 # Version 2.1.0
 
 ## Bugfixes
