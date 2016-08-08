@@ -60,7 +60,7 @@ class RegexTokenizerTest extends \PHPUnit_Framework_TestCase
         $this->tokenizer->tokenize('/products');
         $this->assertEquals('/^\/products$/', $this->tokenizer->getRegex());
         $this->assertEquals('products', $this->tokenizer->getControllerName());
-        $this->assertEquals('index', $this->tokenizer->getMethodName());
+        $this->assertNull($this->tokenizer->getMethodName());
         $this->assertEquals(array(), $this->tokenizer->getRequestParameters());
     }
 
@@ -74,7 +74,7 @@ class RegexTokenizerTest extends \PHPUnit_Framework_TestCase
         $this->tokenizer->init('/products');
         $this->tokenizer->tokenize('/product');
         $this->assertEquals('/^\/products$/', $this->tokenizer->getRegex());
-        $this->assertNull($this->tokenizer->getControllerName());
+        $this->assertEquals('products', $this->tokenizer->getControllerName());
         $this->assertNull($this->tokenizer->getMethodName());
         $this->assertEquals(array(), $this->tokenizer->getRequestParameters());
     }
@@ -88,7 +88,7 @@ class RegexTokenizerTest extends \PHPUnit_Framework_TestCase
     {
         $this->tokenizer->init('/products/view/:id');
         $this->tokenizer->tokenize('/products/view/1');
-        $this->assertEquals('/^\/products\/view\/(?<id>\w+)$/', $this->tokenizer->getRegex());
+        $this->assertEquals('/^\/products\/view\/(?<id>.*)$/', $this->tokenizer->getRegex());
         $this->assertEquals('products', $this->tokenizer->getControllerName());
         $this->assertEquals('view', $this->tokenizer->getMethodName());
         $this->assertEquals(array('id' => 1), $this->tokenizer->getRequestParameters());
@@ -102,8 +102,8 @@ class RegexTokenizerTest extends \PHPUnit_Framework_TestCase
     public function testMatchWithTwoPlaceholders()
     {
         $this->tokenizer->init('/cart/add/:sku/:qty');
-        $this->tokenizer->tokenize('/products/product-1/10');
-        $this->assertEquals('/^\/cart\/add\/(?<sku>product\-\w+)\/(?<quantity>\w+)$/', $this->tokenizer->getRegex());
+        $this->tokenizer->tokenize('/cart/add/product-1/10');
+        $this->assertEquals('/^\/cart\/add\/(?<sku>.*)\/(?<qty>.*)$/', $this->tokenizer->getRegex());
         $this->assertEquals('cart', $this->tokenizer->getControllerName());
         $this->assertEquals('add', $this->tokenizer->getMethodName());
         $this->assertEquals(array('sku' => 'product-1', 'qty' => '10'), $this->tokenizer->getRequestParameters());
@@ -132,8 +132,8 @@ class RegexTokenizerTest extends \PHPUnit_Framework_TestCase
     public function testMatchWithTwoPlaceholdersAndRestrictions()
     {
         $this->tokenizer->init('/cart/add/:sku/:qty', array('sku' => 'product\-\d+', 'qty' => '\d+'));
-        $this->tokenizer->tokenize('/products/product-1/10');
-        $this->assertEquals('/^\/cart\/add\/(?<sku>product\-\d+)\/(?<quantity>\d+)$/', $this->tokenizer->getRegex());
+        $this->tokenizer->tokenize('/cart/add/product-1/10');
+        $this->assertEquals('/^\/cart\/add\/(?<sku>product\-\d+)\/(?<qty>\d+)$/', $this->tokenizer->getRegex());
         $this->assertEquals('cart', $this->tokenizer->getControllerName());
         $this->assertEquals('add', $this->tokenizer->getMethodName());
         $this->assertEquals(array('sku' => 'product-1', 'qty' => '10'), $this->tokenizer->getRequestParameters());

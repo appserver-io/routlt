@@ -36,16 +36,20 @@ interface TokenizerInterface
      * Initializes the tokenizer with an expression
      * used to tokenize the route.
      *
-     * @param string $expression The expression to use
+     * @param string $expression   The expression to use
+     * @param array  $requirements The requirements for the expression
+     * @param array  $defaults     The default values for the found variables
      *
      * @return void
      */
-    public function init($expression);
+    public function init($expression, array $requirements = array(), array $defaults = array());
 
     /**
      * Tokenizes the passed route by using the tokenizers expression.
      *
      * @param string $route The route to be parsed
+     *
+     * @return void
      */
     public function tokenize($route);
 

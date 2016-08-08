@@ -32,17 +32,66 @@ namespace AppserverIo\Routlt\RouteTokenizer;
 class RegexTokenizer implements TokenizerInterface
 {
 
+    protected $regexTemplate = '/^%s$/';
+
+    protected $regex = null;
+
+    protected $controllerName = null;
+
+    protected $methodName = null;
+
+    protected $requestParameters = array();
+
     /**
      * Initializes the tokenizer with an expression
      * used to tokenize the route.
      *
-     * @param string $expression The expression to use
+     * @param string $expression   The expression to use
+     * @param array  $requirements The requirements for the expression
+     * @param array  $defaults     The default values for the found variables
      *
      * @return void
      */
-    public function init($expression)
+    public function init($expression, array $requirements = array(), array $defaults = array())
     {
 
+        $matches = array();
+
+        preg_match_all('/:\w+/', $expression, $matches);
+
+        $vars = reset($matches);
+
+        array_walk($vars, function(&$match) { $match = ltrim($match, ':'); });
+
+        $compiled = $expression;
+
+        foreach ($vars as $var) {
+
+            $sequence = '.*';
+
+            if (isset($requirements[$var])) {
+                $sequence = $requirements[$var];
+            }
+
+            $compiled = str_replace(sprintf(':%s', $var), sprintf('(?<%s>%s)', $var, $sequence), $compiled);
+        }
+
+        $length = strpos($expression, '/:');
+        if ($length === false) {
+            $length = strlen($expression);
+        }
+
+        $path = substr($expression, 0, $length);
+
+        if ($pos = strrpos($path, '/')) {
+            $this->controllerName = ltrim(substr($path, 0, $pos), '/');
+            $this->methodName = ltrim(substr($path, $pos), '/');
+        } else {
+            $this->controllerName = ltrim(substr($path, 0), '/');
+        }
+
+        $this->vars = $vars;
+        $this->regex = sprintf($this->regexTemplate, addcslashes($compiled, '/'));
     }
 
     /**
@@ -52,17 +101,28 @@ class RegexTokenizer implements TokenizerInterface
      */
     public function getRegex()
     {
-
+        return $this->regex;
     }
 
     /**
      * Tokenizes the passed route by using the tokenizers expression.
      *
      * @param string $route The route to be parsed
+     *
+     * @return void
      */
     public function tokenize($route)
     {
 
+        $matches = array();
+
+        preg_match($this->regex, $route, $matches);
+
+        foreach ($this->vars as $var) {
+            if (isset($matches[$var])) {
+                $this->requestParameters[$var] = $matches[$var];
+            }
+        }
     }
 
     /**
@@ -72,7 +132,7 @@ class RegexTokenizer implements TokenizerInterface
      */
     public function getControllerName()
     {
-
+        return $this->controllerName;
     }
 
     /**
@@ -80,7 +140,7 @@ class RegexTokenizer implements TokenizerInterface
      */
     public function getMethodName()
     {
-
+        return $this->methodName;
     }
 
     /**
@@ -90,6 +150,6 @@ class RegexTokenizer implements TokenizerInterface
      */
     public function getRequestParameters()
     {
-
+        return $this->requestParameters;
     }
 }
