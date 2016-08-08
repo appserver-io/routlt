@@ -14,8 +14,7 @@
 		"php" : ">=5.4.0"
 	},
 	"require-dev" : {
-		"appserver-io/build" : "~1.0",
-		"appserver-io/appserver" : "1.2.0-alpha1"
+		"appserver-io/build" : "~1.0"
 	},
 	"autoload" : {
 		"psr-0" : {

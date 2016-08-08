@@ -436,6 +436,20 @@ class ControllerServlet extends HttpServlet implements ControllerInterface
             // load the action mappings for the actual servlet request
             $actionMappings = $this->getActionMappingsForServletRequest($servletRequest);
 
+            $paramMatches = array();
+
+            foreach ($actionMappings as $actionPath => $action) {
+
+                $route = '/'. addcslashes($actionPath, '/') . '$/';
+
+                if (preg_match($route, $requestedAction, $paramMatches)) {
+
+
+
+
+                }
+            }
+
             // we start dispatching the request
             $run = true;
 
