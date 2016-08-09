@@ -254,14 +254,19 @@ class ControllerServlet extends HttpServlet implements ControllerInterface
                 foreach ($descriptor->getActions() as $actionDescriptors) {
                     // iterate over all request methods
                     foreach ($actionDescriptors as $requestMethod => $actionDescriptor) {
-                        // prepare the action path with the route
-                        $actionPath = $route;
+                        // prepare the action path -> concatenate route + action name
+                        $actionPath = sprintf('%s%s', $route, $actionDescriptor->getName());
+
+                        // initialize the regex tokenizer for the actual route
+                        $tokenizer = new RegexTokenizer();
+                        $tokenizer->compile(
+                            $actionPath,
+                            $actionDescriptor->getRestrictions(),
+                            $actionDescriptor->getDefaults()
+                        );
 
                         // prepare the action mapping with the route + the action name
-                        $actionMapping = array($route, $actionDescriptor->getMethodName());
-
-                        // prepare the action path -> concatenate route + action name
-                        $actionPath .= $actionDescriptor->getName();
+                        $actionMapping = array($route, $actionDescriptor->getMethodName(), $tokenizer);
 
                         // add the action path -> route mapping for the request method
                         $this->actionMappings[$requestMethod][$actionPath] = $actionMapping;
@@ -392,13 +397,8 @@ class ControllerServlet extends HttpServlet implements ControllerInterface
             return $actionMappings[$requestMethod];
         }
 
-        error_log(print_r($actionMappings, true));
-
         // nothing found? Method must not be allowed then
-        throw new DispatchException(
-            sprintf('Method %s not allowed', $requestMethod),
-            405
-        );
+        throw new DispatchException(sprintf('Method %s not allowed', $requestMethod), 405);
     }
 
     /**
@@ -441,19 +441,15 @@ class ControllerServlet extends HttpServlet implements ControllerInterface
 
             // iterate over the action mappings and try to find a mapping
             foreach ($actionMappings as $actionPath => $actionMapping) {
-                // initialize the regex tokenizer for the actual route
-                $regexTokenizer = new RegexTokenizer();
-                $regexTokenizer->compile($actionPath);
+                // extract route, method name and tokenizer from the action mapping
+                list ($route, $methodName, $tokenizer) = $actionMapping;
 
                 // try to match actual request by the tokenizer
-                if ($regexTokenizer->match($requestedAction)) {
+                if ($tokenizer->match($requestedAction)) {
                     // initialize the request attributes with the values from the tokenizer
-                    foreach ($regexTokenizer->getRequestParameters() as $key => $value) {
+                    foreach ($tokenizer->getRequestParameters() as $key => $value) {
                         $servletRequest->setAttribute($key, $value);
                     }
-
-                    // extract route + method from the action mapping
-                    list ($route, $methodName) = $actionMapping;
 
                     // resolve the action with the found mapping
                     $action = $routes[$route];
@@ -499,23 +495,17 @@ class ControllerServlet extends HttpServlet implements ControllerInterface
                 }
             }
 
-            // We did not find anything for this method/URI connection.
-            // We have to evaluate if there simply is a method restriction
-            // This replicates a lot of the checks we did before but omits extra iterations in a positive dispatch event,
-            // 4xx's should be the exception and can handle that penalty therefore
+            // We did not find anything for this method/URI connection. We have to evaluate if there simply
+            // is a method restriction. This replicates a lot of the checks we did before but omits extra
+            // iterations in a positive dispatch event, 4xx's should be the exception and can handle that
+            // penalty therefore
             if ($this->checkGeneralActionAvailability($pathInfo)) {
                 // nothing found? Method must not be allowed then
-                throw new DispatchException(
-                    sprintf('Method %s not allowed', $servletRequest->getMethod()),
-                    405
-                );
+                throw new DispatchException(sprintf('Method %s not allowed', $servletRequest->getMethod()), 405);
             }
 
             // throw an action, because we can't find an action mapping
-            throw new DispatchException(
-                sprintf('Can\'t find action to dispatch path info %s', $pathInfo),
-                404
-            );
+            throw new DispatchException(sprintf('Can\'t find action to dispatch path info %s', $pathInfo),404);
 
         } catch (DispatchException $de) {
             // results in a 4xx error

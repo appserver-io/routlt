@@ -60,11 +60,29 @@ class ActionDescriptor implements ActionDescriptorInterface
     protected $requestMethods;
 
     /**
+     * The restrictions for the route placeholders.
+     *
+     * @var array
+     */
+    protected $restrictions;
+
+    /**
+     * The defaults for the route placeholders.
+     *
+     * @var array
+     */
+    protected $defaults;
+
+    /**
      * Initializes the descriptor with the default
      * request methods the action is listening to.
      */
     public function __construct()
     {
+
+        // initialize restrictions and defaults
+        $this->defaults = array();
+        $this->restrictions = array();
 
         // initialize the request methods
         $this->requestMethods = array(
@@ -143,6 +161,50 @@ class ActionDescriptor implements ActionDescriptorInterface
     public function getRequestMethods()
     {
         return $this->requestMethods;
+    }
+
+    /**
+     * Sets the restrictions for the route placeholders.
+     *
+     * @param array $restrictions The restrictions for the route placeholders
+     *
+     * @return void
+     */
+    public function setRestrictions(array $restrictions)
+    {
+        $this->restrictions = $restrictions;
+    }
+
+    /**
+     * Returns the restrictions for the route placeholders.
+     *
+     * @return array The restrictions for the route placeholders
+     */
+    public function getRestrictions()
+    {
+        return $this->restrictions;
+    }
+
+    /**
+     * Sets the defaults for the route placeholders.
+     *
+     * @param array $defaults The defaults for the route placeholders
+     *
+     * @return void
+     */
+    public function setDefaults(array $defaults)
+    {
+        $this->defaults = $defaults;
+    }
+
+    /**
+     * Returns the defaults for the route placeholders.
+     *
+     * @return array The defaults for the route placeholders
+     */
+    public function getDefaults()
+    {
+        return $this->defaults;
     }
 
     /**
@@ -232,6 +294,22 @@ class ActionDescriptor implements ActionDescriptorInterface
         if (sizeof($annotatedRequestMethods) > 0) {
             // if yes, override the default request methods
             $this->setRequestMethods($annotatedRequestMethods);
+        }
+
+        // initialize the restrictions for the route placeholders
+        if (is_array($restrictions = $annotationInstance->getRestrictions())) {
+            foreach ($restrictions as $restriction) {
+                list($name, $value) = $restriction;
+                $this->restrictions[$name] = $value;
+            }
+        }
+
+        // initialize the defaults for the route placeholders
+        if (is_array($defaults = $annotationInstance->getDefaults())) {
+            foreach ($defaults as $default) {
+                list($name, $value) = $default;
+                $this->defaults[$name] = $value;
+            }
         }
 
         // return the instance
