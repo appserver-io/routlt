@@ -35,6 +35,7 @@ use AppserverIo\Routlt\Util\ServletContextAware;
 use AppserverIo\Routlt\Results\ResultInterface;
 use AppserverIo\Routlt\Description\PathDescriptorInterface;
 use AppserverIo\Routlt\Description\ResultDescriptorInterface;
+use AppserverIo\Routlt\RouteTokenizer\RegexTokenizer;
 
 /**
  * Abstract example implementation that provides some kind of basic MVC functionality
@@ -391,6 +392,8 @@ class ControllerServlet extends HttpServlet implements ControllerInterface
             return $actionMappings[$requestMethod];
         }
 
+        error_log(print_r($actionMappings, true));
+
         // nothing found? Method must not be allowed then
         throw new DispatchException(
             sprintf('Method %s not allowed', $requestMethod),
@@ -436,34 +439,27 @@ class ControllerServlet extends HttpServlet implements ControllerInterface
             // load the action mappings for the actual servlet request
             $actionMappings = $this->getActionMappingsForServletRequest($servletRequest);
 
-            $paramMatches = array();
+            // iterate over the action mappings and try to find a mapping
+            foreach ($actionMappings as $actionPath => $actionMapping) {
+                // initialize the regex tokenizer for the actual route
+                $regexTokenizer = new RegexTokenizer();
+                $regexTokenizer->compile($actionPath);
 
-            foreach ($actionMappings as $actionPath => $action) {
+                // try to match actual request by the tokenizer
+                if ($regexTokenizer->match($requestedAction)) {
+                    // initialize the request attributes with the values from the tokenizer
+                    foreach ($regexTokenizer->getRequestParameters() as $key => $value) {
+                        $servletRequest->setAttribute($key, $value);
+                    }
 
-                $route = '/'. addcslashes($actionPath, '/') . '$/';
-
-                if (preg_match($route, $requestedAction, $paramMatches)) {
-
-
-
-
-                }
-            }
-
-            // we start dispatching the request
-            $run = true;
-
-            do {
-                // query whether one of the routes match the path information
-                if (isset($actionMappings[$requestedAction])) {
                     // extract route + method from the action mapping
-                    list ($route, $method) = $actionMappings[$requestedAction];
+                    list ($route, $methodName) = $actionMapping;
 
                     // resolve the action with the found mapping
                     $action = $routes[$route];
 
                     // set the method that has to be invoked in the action context
-                    $action->setAttribute(ContextKeys::METHOD_NAME, $method);
+                    $action->setAttribute(ContextKeys::METHOD_NAME, $methodName);
 
                     // inject the dependencies
                     $provider->injectDependencies($action, $sessionId);
@@ -501,16 +497,7 @@ class ControllerServlet extends HttpServlet implements ControllerInterface
                     // stop processing
                     return;
                 }
-
-                // strip the last directory
-                $requestedAction = dirname($requestedAction);
-
-                // query whether we've to stop dispatching
-                if ($requestedAction === '/' || $requestedAction === false) {
-                    $run = false;
-                }
-
-            } while ($run);
+            }
 
             // We did not find anything for this method/URI connection.
             // We have to evaluate if there simply is a method restriction

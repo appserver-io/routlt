@@ -33,8 +33,7 @@ interface TokenizerInterface
 {
 
     /**
-     * Initializes the tokenizer with an expression
-     * used to tokenize the route.
+     * Compiles the passed route expression into a valid regex.
      *
      * @param string $expression   The expression to use
      * @param array  $requirements The requirements for the expression
@@ -42,16 +41,16 @@ interface TokenizerInterface
      *
      * @return void
      */
-    public function init($expression, array $requirements = array(), array $defaults = array());
+    public function compile($expression, array $requirements = array(), array $defaults = array());
 
     /**
      * Tokenizes the passed route by using the tokenizers expression.
      *
      * @param string $route The route to be parsed
      *
-     * @return void
+     * @return boolean TRUE if the passed route matches the expression, else FALSE
      */
-    public function tokenize($route);
+    public function match($route);
 
     /**
      * Return's the controller name found in the route.

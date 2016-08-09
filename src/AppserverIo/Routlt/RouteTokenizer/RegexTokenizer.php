@@ -32,19 +32,43 @@ namespace AppserverIo\Routlt\RouteTokenizer;
 class RegexTokenizer implements TokenizerInterface
 {
 
+    /**
+     * The template for to create the compiled regex from.
+     *
+     * @var string
+     */
     protected $regexTemplate = '/^%s$/';
 
-    protected $regex = null;
+    /**
+     * The compiled regex, used to extract the variables from the route.
+     *
+     * @var string
+     */
+    protected $compiledRegex = null;
 
+    /**
+     * The controller name, extracted from the route.
+     *
+     * @var string
+     */
     protected $controllerName = null;
 
+    /**
+     * The method name, extracted from the route.
+     *
+     * @var string
+     */
     protected $methodName = null;
 
+    /**
+     * The request parameters, extracted from the route.
+     *
+     * @var array
+     */
     protected $requestParameters = array();
 
     /**
-     * Initializes the tokenizer with an expression
-     * used to tokenize the route.
+     * Compiles the passed route expression into a valid regex.
      *
      * @param string $expression   The expression to use
      * @param array  $requirements The requirements for the expression
@@ -52,56 +76,59 @@ class RegexTokenizer implements TokenizerInterface
      *
      * @return void
      */
-    public function init($expression, array $requirements = array(), array $defaults = array())
+    public function compile($expression, array $requirements = array(), array $defaults = array())
     {
 
+        // extract the placeholders from the expression
         $matches = array();
-
         preg_match_all('/:\w+/', $expression, $matches);
-
         $vars = reset($matches);
 
-        array_walk($vars, function(&$match) { $match = ltrim($match, ':'); });
+        // remove the leading colon from the variable names
+        array_walk(
+            $vars,
+            function(&$match) {
+                $match = ltrim($match, ':');
+            }
+        );
 
-        $compiled = $expression;
+        // initialize the member with the found variable names
+        $this->vars = $vars;
 
-        foreach ($vars as $var) {
+        // initialize the string that has to be compiled
+        $toCompile = $expression;
 
+        // try to compile the regex group expression for each variable
+        foreach ($this->vars as $var) {
+            // by default the sequence to use is .*
             $sequence = '.*';
-
+            // check if a sequence for the variable has been passed
             if (isset($requirements[$var])) {
                 $sequence = $requirements[$var];
             }
-
-            $compiled = str_replace(sprintf(':%s', $var), sprintf('(?<%s>%s)', $var, $sequence), $compiled);
+            // replace the placeholder with the regex group expression
+            $toCompile = str_replace(sprintf(':%s', $var), sprintf('(?<%s>%s)', $var, $sequence), $toCompile);
         }
 
+        // initialize the member with the compiled regex
+        $this->compiledRegex = sprintf($this->regexTemplate, addcslashes($toCompile, '/'));
+
+        // try to find the position of the first variable
         $length = strpos($expression, '/:');
         if ($length === false) {
             $length = strlen($expression);
         }
 
+        // separate controller/method name from the expression
         $path = substr($expression, 0, $length);
 
+        // extract controller and method name by the last / found in the path
         if ($pos = strrpos($path, '/')) {
-            $this->controllerName = ltrim(substr($path, 0, $pos), '/');
-            $this->methodName = ltrim(substr($path, $pos), '/');
+            $this->controllerName = substr($path, 1, $pos - 1);
+            $this->methodName = substr($path, $pos + 1);
         } else {
-            $this->controllerName = ltrim(substr($path, 0), '/');
+            $this->controllerName = substr($path, 1);
         }
-
-        $this->vars = $vars;
-        $this->regex = sprintf($this->regexTemplate, addcslashes($compiled, '/'));
-    }
-
-    /**
-     * Return's the regex build from the expression.
-     *
-     * @return string The regex
-     */
-    public function getRegex()
-    {
-        return $this->regex;
     }
 
     /**
@@ -109,20 +136,41 @@ class RegexTokenizer implements TokenizerInterface
      *
      * @param string $route The route to be parsed
      *
-     * @return void
+     * @return boolean TRUE if the passed route matches the expression, else FALSE
      */
-    public function tokenize($route)
+    public function match($route)
     {
 
+        // initialize the array for the variable matches
         $matches = array();
 
-        preg_match($this->regex, $route, $matches);
+        // execute the regex and extract the variables
+        $result = preg_match($this->getCompiledRegex(), $route, $matches);
 
+        // append the variable values to the request parameters
         foreach ($this->vars as $var) {
             if (isset($matches[$var])) {
                 $this->requestParameters[$var] = $matches[$var];
             }
         }
+
+        // return TRUE if the compiled regex matched
+        if ($result === 1) {
+            return true;
+        }
+
+        // else we return FALSE
+        return false;
+    }
+
+    /**
+     * Return's the regex build from the expression.
+     *
+     * @return string The regex
+     */
+    public function getCompiledRegex()
+    {
+        return $this->compiledRegex;
     }
 
     /**
