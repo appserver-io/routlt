@@ -56,6 +56,20 @@ interface ActionDescriptorInterface extends DescriptorInterface
     public function getRequestMethods();
 
     /**
+     * Returns the restrictions for the route placeholders.
+     *
+     * @return array The restrictions for the route placeholders
+     */
+    public function getRestrictions();
+
+    /**
+     * Returns the defaults for the route placeholders.
+     *
+     * @return array The defaults for the route placeholders
+     */
+    public function getDefaults();
+
+    /**
      * Merges the passed configuration into this one. Configuration values
      * of the passed configuration will overwrite the this one.
      *

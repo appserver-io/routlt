@@ -95,6 +95,51 @@ class RegexTokenizerTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * Tests tokenzing a route with exactly one placeholder and a default value.
+     *
+     * @return void
+     */
+    public function testMatchWithOnePlaceholderAndDefaultValue()
+    {
+        $this->tokenizer->compile('/products/view/:id', array(), array('id' => 1));
+        $this->assertTrue($this->tokenizer->match('/products/view'));
+        $this->assertEquals('/^\/products\/view\/(?<id>.*)$/', $this->tokenizer->getCompiledRegex());
+        $this->assertEquals('products', $this->tokenizer->getControllerName());
+        $this->assertEquals('view', $this->tokenizer->getMethodName());
+        $this->assertEquals(array('id' => 1), $this->tokenizer->getRequestParameters());
+    }
+
+    /**
+     * Tests tokenzing a route with exactly two placeholders and default values.
+     *
+     * @return void
+     */
+    public function testMatchWithTwoPlaceholdersAndDefaultValues()
+    {
+        $this->tokenizer->compile('/products/view/:id/:qty', array('id' => '\d+', 'qty' => '\d+'), array('id' => 1, 'qty' => 10));
+        $this->assertTrue($this->tokenizer->match('/products/view'));
+        $this->assertEquals('/^\/products\/view\/(?<id>\d+)\/(?<qty>\d+)$/', $this->tokenizer->getCompiledRegex());
+        $this->assertEquals('products', $this->tokenizer->getControllerName());
+        $this->assertEquals('view', $this->tokenizer->getMethodName());
+        $this->assertEquals(array('id' => 1, 'qty' => 10), $this->tokenizer->getRequestParameters());
+    }
+
+    /**
+     * Tests tokenzing a route with exactly two placeholders and default values.
+     *
+     * @return void
+     */
+    public function testMatchWithTwoPlaceholdersOneMissingAndDefaultValues()
+    {
+        $this->tokenizer->compile('/products/view/:sku/:qty', array('sku' => '\w+', 'qty' => '\d+'), array('qty' => 10));
+        $this->assertTrue($this->tokenizer->match('/products/view/product-1'));
+        $this->assertEquals('/^\/products\/view\/(?<sku>\d+)\/(?<qty>\d+)$/', $this->tokenizer->getCompiledRegex());
+        $this->assertEquals('products', $this->tokenizer->getControllerName());
+        $this->assertEquals('view', $this->tokenizer->getMethodName());
+        $this->assertEquals(array('sku' => 1, 'qty' => 10), $this->tokenizer->getRequestParameters());
+    }
+
+    /**
      * Tests tokenzing a route with exactly two placeholders.
      *
      * @return void

@@ -40,25 +40,53 @@ class RegexTokenizer implements TokenizerInterface
     protected $regexTemplate = '/^%s$/';
 
     /**
+     * The path with the controller/method name.
+     *
+     * @var string
+     */
+    protected $path;
+
+    /**
+     * The uncompiled expression.
+     *
+     * @var string
+     */
+    protected $expression;
+
+    /**
      * The compiled regex, used to extract the variables from the route.
      *
      * @var string
      */
-    protected $compiledRegex = null;
+    protected $compiledRegex;
 
     /**
      * The controller name, extracted from the route.
      *
      * @var string
      */
-    protected $controllerName = null;
+    protected $controllerName;
 
     /**
      * The method name, extracted from the route.
      *
      * @var string
      */
-    protected $methodName = null;
+    protected $methodName;
+
+   /**
+    * The array containing the declared placeholders.
+    *
+    * @var array
+    */
+    protected $vars = array();
+
+    /**
+     * The array with the default values for the placeholders.
+     *
+     * @var array
+     */
+    protected $defaults = array();
 
     /**
      * The request parameters, extracted from the route.
@@ -79,9 +107,13 @@ class RegexTokenizer implements TokenizerInterface
     public function compile($expression, array $requirements = array(), array $defaults = array())
     {
 
+        // intialize the expression
+        $this->expression = $expression;
+        $this->defaults = $defaults;
+
         // extract the placeholders from the expression
         $matches = array();
-        preg_match_all('/:\w+/', $expression, $matches);
+        preg_match_all('/:\w+/', $this->expression, $matches);
         $vars = reset($matches);
 
         // remove the leading colon from the variable names
@@ -96,7 +128,7 @@ class RegexTokenizer implements TokenizerInterface
         $this->vars = $vars;
 
         // initialize the string that has to be compiled
-        $toCompile = $expression;
+        $toCompile = $this->expression;
 
         // try to compile the regex group expression for each variable
         foreach ($this->vars as $var) {
@@ -114,20 +146,20 @@ class RegexTokenizer implements TokenizerInterface
         $this->compiledRegex = sprintf($this->regexTemplate, addcslashes($toCompile, '/'));
 
         // try to find the position of the first variable
-        $length = strpos($expression, '/:');
+        $length = strpos($this->expression, '/:');
         if ($length === false) {
-            $length = strlen($expression);
+            $length = strlen($this->expression);
         }
 
         // separate controller/method name from the expression
-        $path = substr($expression, 0, $length);
+        $this->path = substr($this->expression, 0, $length);
 
         // extract controller and method name by the last / found in the path
-        if ($pos = strrpos($path, '/')) {
-            $this->controllerName = substr($path, 1, $pos - 1);
-            $this->methodName = substr($path, $pos + 1);
+        if ($pos = strrpos($this->path, '/')) {
+            $this->controllerName = substr($this->path, 1, $pos - 1);
+            $this->methodName = substr($this->path, $pos + 1);
         } else {
-            $this->controllerName = substr($path, 1);
+            $this->controllerName = substr($this->path, 1);
         }
     }
 
@@ -145,7 +177,7 @@ class RegexTokenizer implements TokenizerInterface
         $matches = array();
 
         // execute the regex and extract the variables
-        $result = preg_match($this->getCompiledRegex(), $route, $matches);
+        $result = preg_match($this->getCompiledRegex(), $this->applyDefaults($route), $matches);
 
         // append the variable values to the request parameters
         foreach ($this->vars as $var) {
@@ -161,6 +193,46 @@ class RegexTokenizer implements TokenizerInterface
 
         // else we return FALSE
         return false;
+    }
+
+    /**
+     * If necessary, this method applies the default values to the passed route.
+     *
+     * @param string $route The route to apply the default values to
+     *
+     * @return string The route with the default values applied
+     */
+    protected function applyDefaults($route)
+    {
+
+        // query whether or not the route matches
+        if (preg_match(sprintf('/%s/', addcslashes($this->path, '/')), $route)) {
+            // initialize the array for the appended variables
+            $vars = array();
+
+            // try to extract the appended variables
+            $varString = ltrim(str_replace($this->path, '', $route), '/');
+            if (empty($varString) === false) {
+                $vars = explode('/', $varString);
+            }
+
+            // iterate over all variables
+            foreach ($this->vars as $key => $var) {
+                // query whether or not, we've a default value and the variable has NOT been set
+                if (isset($this->defaults[$var]) && !isset($vars[$key])) {
+                    $vars[$key] = $this->defaults[$var];
+                }
+            }
+
+            // if we've found vars,
+            if (sizeof($vars) > 0) {
+                $route = sprintf('%s/%s', $this->path, implode('/', $vars));
+            }
+
+        }
+
+        // return the route with the defaults applied
+        return $route;
     }
 
     /**
