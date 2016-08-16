@@ -1,7 +1,7 @@
 <?php
 
 /**
- * AppserverIo\Routlt\RouteTokenizer\TokenizerInterface
+ * AppserverIo\Routlt\ActionMappingInterface
  *
  * NOTICE OF LICENSE
  *
@@ -18,7 +18,7 @@
  * @link      http://www.appserver.io
  */
 
-namespace AppserverIo\Routlt\RouteTokenizer;
+namespace AppserverIo\Routlt;
 
 /**
  * Interface for all route tokenizer implementations.
@@ -29,7 +29,7 @@ namespace AppserverIo\Routlt\RouteTokenizer;
  * @link      http://github.com/appserver-io/routlt
  * @link      http://www.appserver.io
  */
-interface TokenizerInterface
+interface ActionMappingInterface
 {
 
     /**
@@ -42,6 +42,13 @@ interface TokenizerInterface
      * @return void
      */
     public function compile($expression, array $requirements = array(), array $defaults = array());
+
+    /**
+     * Return's the regex build from the expression.
+     *
+     * @return string The regex
+     */
+    public function getCompiledRegex();
 
     /**
      * Tokenizes the passed route by using the tokenizers expression.
@@ -61,6 +68,8 @@ interface TokenizerInterface
 
     /**
      * Return's the method name found in the route.
+     *
+     * @return string The method name
      */
     public function getMethodName();
 

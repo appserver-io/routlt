@@ -35,7 +35,6 @@ use AppserverIo\Routlt\Util\ServletContextAware;
 use AppserverIo\Routlt\Results\ResultInterface;
 use AppserverIo\Routlt\Description\PathDescriptorInterface;
 use AppserverIo\Routlt\Description\ResultDescriptorInterface;
-use AppserverIo\Routlt\RouteTokenizer\RegexTokenizer;
 
 /**
  * Abstract example implementation that provides some kind of basic MVC functionality
@@ -248,38 +247,39 @@ class ControllerServlet extends HttpServlet implements ControllerInterface
                 }
 
                 // prepare the route, e. g. /index/index
-                $route = str_replace($actionNamespace, '', $descriptor->getName());
+                $controllerName = str_replace($actionNamespace, '', $descriptor->getName());
 
                 // initialize the action mappings
                 foreach ($descriptor->getActions() as $actionDescriptors) {
                     // iterate over all request methods
                     foreach ($actionDescriptors as $requestMethod => $actionDescriptor) {
+                        // prepare the real action method name
+                        $methodName = $actionDescriptor->getMethodName();
                         // prepare the action path -> concatenate route + action name
-                        $actionPath = sprintf('%s%s', $route, $actionDescriptor->getName());
+                        $actionPath = sprintf('%s%s', $controllerName, $actionDescriptor->getName());
 
-                        // initialize the regex tokenizer for the actual route
-                        $tokenizer = new RegexTokenizer();
-                        $tokenizer->compile(
+                        // initialize the action mapping for the actual route
+                        $actionMapping = new ActionMapping();
+                        $actionMapping->setControllerName($controllerName);
+                        $actionMapping->setMethodName($methodName);
+                        $actionMapping->compile(
                             $actionPath,
                             $actionDescriptor->getRestrictions(),
                             $actionDescriptor->getDefaults()
                         );
-
-                        // prepare the action mapping with the route + the action name
-                        $actionMapping = array($route, $actionDescriptor->getMethodName(), $tokenizer);
 
                         // add the action path -> route mapping for the request method
                         $this->actionMappings[$requestMethod][$actionPath] = $actionMapping;
 
                         // add an alias for the route for the action's default method
                         if ($actionDescriptor->getMethodName() === $action->getDefaultMethod()) {
-                            $this->actionMappings[$requestMethod][$route] = $actionMapping;
+                            $this->actionMappings[$requestMethod][$controllerName] = $actionMapping;
                         }
                     }
                 }
 
                 // add the initialized action
-                $this->routes[$route] = $action;
+                $this->routes[$controllerName] = $action;
             }
         }
     }
@@ -441,21 +441,18 @@ class ControllerServlet extends HttpServlet implements ControllerInterface
 
             // iterate over the action mappings and try to find a mapping
             foreach ($actionMappings as $actionPath => $actionMapping) {
-                // extract route, method name and tokenizer from the action mapping
-                list ($route, $methodName, $tokenizer) = $actionMapping;
-
                 // try to match actual request by the tokenizer
-                if ($tokenizer->match($requestedAction)) {
+                if ($actionMapping->match($requestedAction)) {
                     // initialize the request attributes with the values from the tokenizer
-                    foreach ($tokenizer->getRequestParameters() as $key => $value) {
+                    foreach ($actionMapping->getRequestParameters() as $key => $value) {
                         $servletRequest->setAttribute($key, $value);
                     }
 
                     // resolve the action with the found mapping
-                    $action = $routes[$route];
+                    $action = $routes[$actionMapping->getControllerName()];
 
                     // set the method that has to be invoked in the action context
-                    $action->setAttribute(ContextKeys::METHOD_NAME, $methodName);
+                    $action->setAttribute(ContextKeys::METHOD_NAME, $actionMapping->getMethodName());
 
                     // inject the dependencies
                     $provider->injectDependencies($action, $sessionId);
@@ -505,7 +502,7 @@ class ControllerServlet extends HttpServlet implements ControllerInterface
             }
 
             // throw an action, because we can't find an action mapping
-            throw new DispatchException(sprintf('Can\'t find action to dispatch path info %s', $pathInfo),404);
+            throw new DispatchException(sprintf('Can\'t find action to dispatch path info %s', $pathInfo), 404);
 
         } catch (DispatchException $de) {
             // results in a 4xx error

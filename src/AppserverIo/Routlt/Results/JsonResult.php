@@ -75,7 +75,7 @@ class JsonResult implements ResultInterface, ActionAware
         if ($action instanceof ValidationAware && $action->hasErrors()) {
             $content = $action->getErrors();
         } else {
-            $content = $servletRequest->getAttribute($this->getName());
+            $content = $servletRequest->getAttribute(JsonResult::DATA);
         }
 
         // add the header for the JSON content type

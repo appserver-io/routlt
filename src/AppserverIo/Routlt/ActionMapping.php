@@ -1,7 +1,7 @@
 <?php
 
 /**
- * AppserverIo\Routlt\RouteTokenizer\RegexTokenizer
+ * AppserverIo\Routlt\ActionMapping
  *
  * NOTICE OF LICENSE
  *
@@ -18,7 +18,7 @@
  * @link      http://www.appserver.io
  */
 
-namespace AppserverIo\Routlt\RouteTokenizer;
+namespace AppserverIo\Routlt;
 
 /**
  * Tokenize implementation using a regex to parse a route.
@@ -29,7 +29,7 @@ namespace AppserverIo\Routlt\RouteTokenizer;
  * @link      http://github.com/appserver-io/routlt
  * @link      http://www.appserver.io
  */
-class RegexTokenizer implements TokenizerInterface
+class ActionMapping implements ActionMappingInterface
 {
 
     /**
@@ -145,22 +145,8 @@ class RegexTokenizer implements TokenizerInterface
         // initialize the member with the compiled regex
         $this->compiledRegex = sprintf($this->regexTemplate, addcslashes($toCompile, '/'));
 
-        // try to find the position of the first variable
-        $length = strpos($this->expression, '/:');
-        if ($length === false) {
-            $length = strlen($this->expression);
-        }
-
-        // separate controller/method name from the expression
-        $this->path = substr($this->expression, 0, $length);
-
-        // extract controller and method name by the last / found in the path
-        if ($pos = strrpos($this->path, '/')) {
-            $this->controllerName = substr($this->path, 1, $pos - 1);
-            $this->methodName = substr($this->path, $pos + 1);
-        } else {
-            $this->controllerName = substr($this->path, 1);
-        }
+        // intialize the path name
+        $this->path = sprintf('%s%s', $this->controllerName, $this->methodName);
     }
 
     /**
@@ -196,6 +182,16 @@ class RegexTokenizer implements TokenizerInterface
     }
 
     /**
+     * Return's the path with the controller/method name.
+     *
+     * @return string The path with the controller/method name
+     */
+    protected function getPath()
+    {
+        return $this->path;
+    }
+
+    /**
      * If necessary, this method applies the default values to the passed route.
      *
      * @param string $route The route to apply the default values to
@@ -224,7 +220,7 @@ class RegexTokenizer implements TokenizerInterface
                 }
             }
 
-            // if we've found vars,
+            // if we've found vars, append them to the path
             if (sizeof($vars) > 0) {
                 $route = sprintf('%s/%s', $this->path, implode('/', $vars));
             }
@@ -246,6 +242,18 @@ class RegexTokenizer implements TokenizerInterface
     }
 
     /**
+     * Initializes the action mapping with the passed controller name.
+     *
+     * @param string $controllerName The controller name found in the route
+     *
+     * @return void
+     */
+    public function setControllerName($controllerName)
+    {
+        $this->controllerName = $controllerName;
+    }
+
+    /**
      * Return's the controller name found in the route.
      *
      * @return string The controller name
@@ -256,7 +264,21 @@ class RegexTokenizer implements TokenizerInterface
     }
 
     /**
+     * Initializes the action mapping with the passed method name.
+     *
+     * @param string $methodName The method name found in the route
+     *
+     * @return void
+     */
+    public function setMethodName($methodName)
+    {
+        $this->methodName = $methodName;
+    }
+
+    /**
      * Return's the method name found in the route.
+     *
+     * @return string The method name
      */
     public function getMethodName()
     {
