@@ -111,21 +111,31 @@ class ActionMapping implements ActionMappingInterface
         $this->expression = $expression;
         $this->defaults = $defaults;
 
-        // extract the placeholders from the expression
-        $matches = array();
-        preg_match_all('/:\w+/', $this->expression, $matches);
-        $vars = reset($matches);
+        // the element number of the FIRST variable
+        $pathLength = null;
 
-        // remove the leading colon from the variable names
-        array_walk(
-            $vars,
-            function(&$match) {
-                $match = ltrim($match, ':');
+        // extract the variables from the expression, also store their position
+        $elements = explode('/', ltrim($expression, '/'));
+        foreach ($elements as $key => $element) {
+            // query whether or not we found a variable
+            if (strpos($element, ':') === 0) {
+                // add the variable and store with the position as key
+                $this->vars[$key] = ltrim($element, ':');
+                // we store the position of the FIRST variable
+                if ($pathLength == null) {
+                    $pathLength = $key;
+                }
             }
-        );
+        }
 
-        // initialize the member with the found variable names
-        $this->vars = $vars;
+        // query whether or not we found variables
+        if ($pathLength) {
+            // if yes, cut of the array at that position
+            $elements = array_slice($elements, 0, $pathLength);
+        }
+
+        // the path ends where the variables begin or
+        $this->path = sprintf('/%s', implode('/', $elements));
 
         // initialize the string that has to be compiled
         $toCompile = $this->expression;
@@ -144,9 +154,6 @@ class ActionMapping implements ActionMappingInterface
 
         // initialize the member with the compiled regex
         $this->compiledRegex = sprintf($this->regexTemplate, addcslashes($toCompile, '/'));
-
-        // intialize the path name
-        $this->path = sprintf('%s%s', $this->controllerName, $this->methodName);
     }
 
     /**

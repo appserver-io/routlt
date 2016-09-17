@@ -1,3 +1,13 @@
+# Version 2.2.0-beta1
+
+## Bugfixes
+
+* None
+
+## Features
+
+* Closed [#38](https://github.com/appserver-io/routlt/issues/38) - URL Routes according to REST defacto standard
+
 # Version 2.1.0
 
 ## Bugfixes
