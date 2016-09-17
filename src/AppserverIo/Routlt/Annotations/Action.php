@@ -63,4 +63,28 @@ class Action extends ReflectionAnnotation
             return $this->values['name'];
         }
     }
+
+    /**
+     * Returns the value of the name attribute.
+     *
+     * @return string|null The annotations name attribute
+     */
+    public function getRestrictions()
+    {
+        if (isset($this->values['restrictions'])) {
+            return $this->values['restrictions'];
+        }
+    }
+
+    /**
+     * Returns the value of the name attribute.
+     *
+     * @return string|null The annotations name attribute
+     */
+    public function getDefaults()
+    {
+        if (isset($this->values['defaults'])) {
+            return $this->values['defaults'];
+        }
+    }
 }

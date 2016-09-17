@@ -247,33 +247,49 @@ class ControllerServlet extends HttpServlet implements ControllerInterface
                 }
 
                 // prepare the route, e. g. /index/index
-                $route = str_replace($actionNamespace, '', $descriptor->getName());
+                $controllerName = str_replace($actionNamespace, '', $descriptor->getName());
 
                 // initialize the action mappings
                 foreach ($descriptor->getActions() as $actionDescriptors) {
                     // iterate over all request methods
                     foreach ($actionDescriptors as $requestMethod => $actionDescriptor) {
-                        // prepare the action path with the route
-                        $actionPath = $route;
-
-                        // prepare the action mapping with the route + the action name
-                        $actionMapping = array($route, $actionDescriptor->getMethodName());
-
+                        // prepare the real action method name
+                        $methodName = $actionDescriptor->getMethodName();
                         // prepare the action path -> concatenate route + action name
-                        $actionPath .= $actionDescriptor->getName();
+                        $actionPath = sprintf('%s%s', $controllerName, $actionDescriptor->getName());
+
+                        // initialize the action mapping for the actual route
+                        $actionMapping = new ActionMapping();
+                        $actionMapping->setControllerName($controllerName);
+                        $actionMapping->setMethodName($methodName);
+                        $actionMapping->compile(
+                            $actionPath,
+                            $actionDescriptor->getRestrictions(),
+                            $actionDescriptor->getDefaults()
+                        );
 
                         // add the action path -> route mapping for the request method
                         $this->actionMappings[$requestMethod][$actionPath] = $actionMapping;
 
                         // add an alias for the route for the action's default method
                         if ($actionDescriptor->getMethodName() === $action->getDefaultMethod()) {
-                            $this->actionMappings[$requestMethod][$route] = $actionMapping;
+                            // initialize the action mapping for the default route
+                            $actionMapping = new ActionMapping();
+                            $actionMapping->setControllerName($controllerName);
+                            $actionMapping->setMethodName($methodName);
+                            $actionMapping->compile(
+                                $controllerName,
+                                $actionDescriptor->getRestrictions(),
+                                $actionDescriptor->getDefaults()
+                            );
+                            // add the action mapping for the default route
+                            $this->actionMappings[$requestMethod][$controllerName] = $actionMapping;
                         }
                     }
                 }
 
                 // add the initialized action
-                $this->routes[$route] = $action;
+                $this->routes[$controllerName] = $action;
             }
         }
     }
@@ -392,10 +408,7 @@ class ControllerServlet extends HttpServlet implements ControllerInterface
         }
 
         // nothing found? Method must not be allowed then
-        throw new DispatchException(
-            sprintf('Method %s not allowed', $requestMethod),
-            405
-        );
+        throw new DispatchException(sprintf('Method %s not allowed', $requestMethod), 405);
     }
 
     /**
@@ -436,20 +449,27 @@ class ControllerServlet extends HttpServlet implements ControllerInterface
             // load the action mappings for the actual servlet request
             $actionMappings = $this->getActionMappingsForServletRequest($servletRequest);
 
-            // we start dispatching the request
-            $run = true;
+            // initialize the parameter map with the values from the request
+            if ($servletRequest->getParameterMap()) {
+                $parameterMap = $servletRequest->getParameterMap();
+            } else {
+                $parameterMap = array();
+            }
 
-            do {
-                // query whether one of the routes match the path information
-                if (isset($actionMappings[$requestedAction])) {
-                    // extract route + method from the action mapping
-                    list ($route, $method) = $actionMappings[$requestedAction];
+            // iterate over the action mappings and try to find a mapping
+            foreach ($actionMappings as $actionMapping) {
+                // try to match actual request by the tokenizer
+                if ($actionMapping->match($requestedAction)) {
+                    // initialize the request attributes with the values from the action mapping
+                    $servletRequest->setParameterMap(
+                        array_merge($parameterMap, $actionMapping->getRequestParameters())
+                    );
 
                     // resolve the action with the found mapping
-                    $action = $routes[$route];
+                    $action = $routes[$actionMapping->getControllerName()];
 
                     // set the method that has to be invoked in the action context
-                    $action->setAttribute(ContextKeys::METHOD_NAME, $method);
+                    $action->setAttribute(ContextKeys::METHOD_NAME, $actionMapping->getMethodName());
 
                     // inject the dependencies
                     $provider->injectDependencies($action, $sessionId);
@@ -487,34 +507,19 @@ class ControllerServlet extends HttpServlet implements ControllerInterface
                     // stop processing
                     return;
                 }
+            }
 
-                // strip the last directory
-                $requestedAction = dirname($requestedAction);
-
-                // query whether we've to stop dispatching
-                if ($requestedAction === '/' || $requestedAction === false) {
-                    $run = false;
-                }
-
-            } while ($run);
-
-            // We did not find anything for this method/URI connection.
-            // We have to evaluate if there simply is a method restriction
-            // This replicates a lot of the checks we did before but omits extra iterations in a positive dispatch event,
-            // 4xx's should be the exception and can handle that penalty therefore
+            // We did not find anything for this method/URI connection. We have to evaluate if there simply
+            // is a method restriction. This replicates a lot of the checks we did before but omits extra
+            // iterations in a positive dispatch event, 4xx's should be the exception and can handle that
+            // penalty therefore
             if ($this->checkGeneralActionAvailability($pathInfo)) {
                 // nothing found? Method must not be allowed then
-                throw new DispatchException(
-                    sprintf('Method %s not allowed', $servletRequest->getMethod()),
-                    405
-                );
+                throw new DispatchException(sprintf('Method %s not allowed', $servletRequest->getMethod()), 405);
             }
 
             // throw an action, because we can't find an action mapping
-            throw new DispatchException(
-                sprintf('Can\'t find action to dispatch path info %s', $pathInfo),
-                404
-            );
+            throw new DispatchException(sprintf('Can\'t find action to dispatch path info %s', $pathInfo), 404);
 
         } catch (DispatchException $de) {
             // results in a 4xx error
