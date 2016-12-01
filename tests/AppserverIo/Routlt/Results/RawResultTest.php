@@ -120,12 +120,14 @@ class RawResultTest extends \PHPUnit_Framework_TestCase implements ActionInterfa
         $this->setAttribute(RawResultTest::RESULT, $result = array('key' => 'value'));
 
         // create a mock servlet request instance
-        $mockServletRequest = $this->getMock('AppserverIo\Appserver\ServletEngine\Http\Request');
+        $mockServletRequest = $this->getMockBuilder($requestInterface = 'AppserverIo\Routlt\Mock\MockHttpServletRequestInterface')
+                                   ->setMethods(get_class_methods($requestInterface))
+                                   ->getMock();
 
         // create a mock servlet response instance
-        $mockServletResponse = $this->getMockBuilder('AppserverIo\Appserver\ServletEngine\Http\Response')
-            ->setMethods(array('addHeader', 'appendBodyStream'))
-            ->getMock();
+        $mockServletResponse = $this->getMockBuilder($responseInterface = 'AppserverIo\Psr\Servlet\Http\HttpServletResponseInterface')
+                                    ->setMethods(get_class_methods($responseInterface))
+                                    ->getMock();
 
         // mock the necessary response methods
         $mockServletResponse->expects($this->once())
@@ -151,12 +153,14 @@ class RawResultTest extends \PHPUnit_Framework_TestCase implements ActionInterfa
     {
 
         // create a mock servlet request instance
-        $mockServletRequest = $this->getMock('AppserverIo\Appserver\ServletEngine\Http\Request');
+        $mockServletRequest = $this->getMockBuilder($requestInterface = 'AppserverIo\Routlt\Mock\MockHttpServletRequestInterface')
+                                   ->setMethods(get_class_methods($requestInterface))
+                                   ->getMock();
 
         // create a mock servlet response instance
-        $mockServletResponse = $this->getMockBuilder('AppserverIo\Appserver\ServletEngine\Http\Response')
-            ->setMethods(array('addHeader', 'appendBodyStream'))
-            ->getMock();
+        $mockServletResponse = $this->getMockBuilder($responseInterface = 'AppserverIo\Psr\Servlet\Http\HttpServletResponseInterface')
+                                    ->setMethods(get_class_methods($responseInterface))
+                                    ->getMock();
 
         // we need some errors
         $this->errors = array(

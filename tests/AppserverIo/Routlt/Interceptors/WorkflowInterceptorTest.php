@@ -26,7 +26,6 @@ use AppserverIo\Routlt\Util\ValidationAware;
 use AppserverIo\Routlt\Results\ResultInterface;
 use AppserverIo\Psr\Servlet\Http\HttpServletRequestInterface;
 use AppserverIo\Psr\Servlet\Http\HttpServletResponseInterface;
-use AppserverIo\Appserver\ServletEngine\Http\Request;
 
 /**
  * Test implementation for the WorkflowInterceptor implementation.
@@ -100,10 +99,10 @@ class WorkflowInterceptorTest extends \PHPUnit_Framework_TestCase implements Act
 
 
         // create a mock servlet request instance
-        $mockServletRequest = $this->getMock('AppserverIo\Appserver\ServletEngine\Http\Request');
+        $mockServletRequest = $this->getMock('AppserverIo\Routlt\Mock\MockHttpServletRequestInterface');
 
         // create a mock servlet response instance
-        $mockServletResponse = $this->getMock('AppserverIo\Appserver\ServletEngine\Http\Response');
+        $mockServletResponse = $this->getMock('AppserverIo\Psr\Servlet\Http\HttpServletResponseInterface');
 
         // create a method invocation mock
         $mockMethodInvocation = $this->getMock('AppserverIo\Psr\MetaobjectProtocol\Aop\MethodInvocationInterface');
@@ -152,10 +151,10 @@ class WorkflowInterceptorTest extends \PHPUnit_Framework_TestCase implements Act
             ->willThrowException(new \Exception());
 
         // create a mock servlet request instance
-        $mockServletRequest = $this->getMock('AppserverIo\Appserver\ServletEngine\Http\Request');
+        $mockServletRequest = $this->getMock('AppserverIo\Routlt\Mock\MockHttpServletRequestInterface');
 
         // create a mock servlet response instance
-        $mockServletResponse = $this->getMock('AppserverIo\Appserver\ServletEngine\Http\Response');
+        $mockServletResponse = $this->getMock('AppserverIo\Psr\Servlet\Http\HttpServletResponseInterface');
 
         // create a method invocation mock
         $mockMethodInvocation = $this->getMock('AppserverIo\Psr\MetaobjectProtocol\Aop\MethodInvocationInterface');
@@ -189,7 +188,9 @@ class WorkflowInterceptorTest extends \PHPUnit_Framework_TestCase implements Act
      */
     public function getServletRequest()
     {
-        return new Request();
+        return $this->getMockBuilder($requestInterface = 'AppserverIo\Routlt\Mock\MockHttpServletRequestInterface')
+                    ->setMethods($requestInterface)
+                    ->getMock();
     }
 
     /**
