@@ -231,7 +231,6 @@ class ActionMapping implements ActionMappingInterface
             if (sizeof($vars) > 0) {
                 $route = sprintf('%s/%s', $this->path, implode('/', $vars));
             }
-
         }
 
         // return the route with the defaults applied
