@@ -1,3 +1,12 @@
+# Version 2.2.0-beta3
+
+## Bugfixes
+
+* None
+
+## Features
+
+* Add PATCH request method restriction by @Patch annotation
 
 # Version 2.2.0-beta2
 

@@ -93,7 +93,8 @@ class ActionDescriptor implements ActionDescriptorInterface
             HttpProtocol::METHOD_OPTIONS,
             HttpProtocol::METHOD_POST,
             HttpProtocol::METHOD_PUT,
-            HttpProtocol::METHOD_TRACE
+            HttpProtocol::METHOD_TRACE,
+            HttpProtocol::METHOD_PATCH
         );
     }
 
