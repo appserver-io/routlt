@@ -50,18 +50,37 @@ class ActionMappingTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * Tests the setter/getter for the method name.
+     *
+     * @return void
+     */
+    public function testSetGetMethodName()
+    {
+        $this->actionMapping->setMethodName($methodName = 'index');
+        $this->assertSame($methodName, $this->actionMapping->getMethodName());
+    }
+
+    /**
+     * Tests the getter/setter for the controller name.
+     *
+     * @return void
+     */
+    public function testSetGetControllerName()
+    {
+        $this->actionMapping->setControllerName($controllerName = 'index');
+        $this->assertSame($controllerName, $this->actionMapping->getControllerName());
+    }
+
+    /**
      * Tests tokenzing a route without a placeholder.
      *
      * @return void
      */
     public function testMatchWithoutPlaceholder()
     {
-        $this->actionMapping->setControllerName('/products');
         $this->actionMapping->compile('/products');
         $this->assertTrue($this->actionMapping->match('/products'));
         $this->assertEquals('/^\/products$/', $this->actionMapping->getCompiledRegex());
-        $this->assertEquals('/products', $this->actionMapping->getControllerName());
-        $this->assertNull($this->actionMapping->getMethodName());
         $this->assertEquals(array(), $this->actionMapping->getRequestParameters());
     }
 
@@ -72,12 +91,9 @@ class ActionMappingTest extends \PHPUnit_Framework_TestCase
      */
     public function testNoMatchWithoutPlaceholder()
     {
-        $this->actionMapping->setControllerName('/products');
         $this->actionMapping->compile('/products');
         $this->assertFalse($this->actionMapping->match('/product'));
         $this->assertEquals('/^\/products$/', $this->actionMapping->getCompiledRegex());
-        $this->assertEquals('/products', $this->actionMapping->getControllerName());
-        $this->assertNull($this->actionMapping->getMethodName());
         $this->assertEquals(array(), $this->actionMapping->getRequestParameters());
     }
 
@@ -88,14 +104,23 @@ class ActionMappingTest extends \PHPUnit_Framework_TestCase
      */
     public function testMatchWithOnePlaceholder()
     {
-        $this->actionMapping->setControllerName('/products');
-        $this->actionMapping->setMethodName('/view');
         $this->actionMapping->compile('/products/view/:id');
         $this->assertTrue($this->actionMapping->match('/products/view/1'));
         $this->assertEquals('/^\/products\/view\/(?<id>.*)$/', $this->actionMapping->getCompiledRegex());
-        $this->assertEquals('/products', $this->actionMapping->getControllerName());
-        $this->assertEquals('/view', $this->actionMapping->getMethodName());
         $this->assertEquals(array('id' => 1), $this->actionMapping->getRequestParameters());
+    }
+
+    /**
+     * Tests tokenzing a route with exactly one placeholder in the middle.
+     *
+     * @return void
+     */
+    public function testMatchWithOnePlaceholderInTheMiddle()
+    {
+        $this->actionMapping->compile('/articles/:id/:relation');
+        $this->assertTrue($this->actionMapping->match('/articles/1/author'));
+        $this->assertEquals('/^\/articles\/(?<id>.*)\/(?<relation>.*)$/', $this->actionMapping->getCompiledRegex());
+        $this->assertEquals(array('id' => 1, 'relation' => 'author'), $this->actionMapping->getRequestParameters());
     }
 
     /**
@@ -105,13 +130,9 @@ class ActionMappingTest extends \PHPUnit_Framework_TestCase
      */
     public function testMatchWithOnePlaceholderAndDefaultValue()
     {
-        $this->actionMapping->setControllerName('/products');
-        $this->actionMapping->setMethodName('/view');
         $this->actionMapping->compile('/products/view/:id', array(), array('id' => 1));
         $this->assertTrue($this->actionMapping->match('/products/view'));
         $this->assertEquals('/^\/products\/view\/(?<id>.*)$/', $this->actionMapping->getCompiledRegex());
-        $this->assertEquals('/products', $this->actionMapping->getControllerName());
-        $this->assertEquals('/view', $this->actionMapping->getMethodName());
         $this->assertEquals(array('id' => 1), $this->actionMapping->getRequestParameters());
     }
 
@@ -122,13 +143,9 @@ class ActionMappingTest extends \PHPUnit_Framework_TestCase
      */
     public function testMatchWithTwoPlaceholdersAndDefaultValues()
     {
-        $this->actionMapping->setControllerName('/products');
-        $this->actionMapping->setMethodName('/view');
         $this->actionMapping->compile('/products/view/:id/:qty', array('id' => '\d+', 'qty' => '\d+'), array('id' => 1, 'qty' => 10));
         $this->assertTrue($this->actionMapping->match('/products/view'));
         $this->assertEquals('/^\/products\/view\/(?<id>\d+)\/(?<qty>\d+)$/', $this->actionMapping->getCompiledRegex());
-        $this->assertEquals('/products', $this->actionMapping->getControllerName());
-        $this->assertEquals('/view', $this->actionMapping->getMethodName());
         $this->assertEquals(array('id' => 1, 'qty' => 10), $this->actionMapping->getRequestParameters());
     }
 
@@ -139,13 +156,9 @@ class ActionMappingTest extends \PHPUnit_Framework_TestCase
      */
     public function testMatchWithTwoPlaceholdersOneMissingAndDefaultValues()
     {
-        $this->actionMapping->setControllerName('/products');
-        $this->actionMapping->setMethodName('/view');
         $this->actionMapping->compile('/products/view/:sku/:qty', array('sku' => '.*', 'qty' => '\d+'), array('qty' => 10));
         $this->assertTrue($this->actionMapping->match('/products/view/product-1'));
         $this->assertEquals('/^\/products\/view\/(?<sku>.*)\/(?<qty>\d+)$/', $this->actionMapping->getCompiledRegex());
-        $this->assertEquals('/products', $this->actionMapping->getControllerName());
-        $this->assertEquals('/view', $this->actionMapping->getMethodName());
         $this->assertEquals(array('sku' => 'product-1', 'qty' => 10), $this->actionMapping->getRequestParameters());
     }
 
@@ -156,13 +169,9 @@ class ActionMappingTest extends \PHPUnit_Framework_TestCase
      */
     public function testMatchWithTwoPlaceholders()
     {
-        $this->actionMapping->setControllerName('/cart');
-        $this->actionMapping->setMethodName('/add');
         $this->actionMapping->compile('/cart/add/:sku/:qty');
         $this->assertTrue($this->actionMapping->match('/cart/add/product-1/10'));
         $this->assertEquals('/^\/cart\/add\/(?<sku>.*)\/(?<qty>.*)$/', $this->actionMapping->getCompiledRegex());
-        $this->assertEquals('/cart', $this->actionMapping->getControllerName());
-        $this->assertEquals('/add', $this->actionMapping->getMethodName());
         $this->assertEquals(array('sku' => 'product-1', 'qty' => '10'), $this->actionMapping->getRequestParameters());
     }
 
@@ -173,13 +182,9 @@ class ActionMappingTest extends \PHPUnit_Framework_TestCase
      */
     public function testMatchWithOnePlaceholderAndRestriction()
     {
-        $this->actionMapping->setControllerName('/products');
-        $this->actionMapping->setMethodName('/view');
         $this->actionMapping->compile('/products/view/:id', array('id' => '\d+'));
         $this->assertTrue($this->actionMapping->match('/products/view/1'));
-        $this->assertEquals('/^\/products\/view\/(?<id>\d+)$/', $this->actionMapping->getCompiledRegex());
-        $this->assertEquals('/products', $this->actionMapping->getControllerName());
-        $this->assertEquals('/view', $this->actionMapping->getMethodName());
+        $this->assertEquals('/^\/products\/view\/(?<id>\d+)$/', $this->actionMapping->getCompiledRegex());;
         $this->assertEquals(array('id' => '1'), $this->actionMapping->getRequestParameters());
     }
 
@@ -190,13 +195,9 @@ class ActionMappingTest extends \PHPUnit_Framework_TestCase
      */
     public function testMatchWithTwoPlaceholdersAndRestrictions()
     {
-        $this->actionMapping->setControllerName('/cart');
-        $this->actionMapping->setMethodName('/add');
         $this->actionMapping->compile('/cart/add/:sku/:qty', array('sku' => 'product\-\d+', 'qty' => '\d+'));
         $this->assertTrue($this->actionMapping->match('/cart/add/product-1/10'));
         $this->assertEquals('/^\/cart\/add\/(?<sku>product\-\d+)\/(?<qty>\d+)$/', $this->actionMapping->getCompiledRegex());
-        $this->assertEquals('/cart', $this->actionMapping->getControllerName());
-        $this->assertEquals('/add', $this->actionMapping->getMethodName());
         $this->assertEquals(array('sku' => 'product-1', 'qty' => '10'), $this->actionMapping->getRequestParameters());
     }
 }

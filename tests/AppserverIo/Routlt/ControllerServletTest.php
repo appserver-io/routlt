@@ -183,10 +183,10 @@ class ControllerServletTest extends \PHPUnit_Framework_TestCase
             ->getMock();
 
         // mock the methods
-        $actionDescriptor->expects($this->once())
+        $actionDescriptor->expects($this->exactly(2))
                          ->method('getRestrictions')
                          ->willReturn(array());
-        $actionDescriptor->expects($this->once())
+        $actionDescriptor->expects($this->exactly(2))
                          ->method('getDefaults')
                          ->willReturn(array());
 

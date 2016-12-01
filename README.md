@@ -89,7 +89,11 @@ Let's assume, you've installed appserver.io on Linux/Mac OS X under ```/opt/apps
 </web-app>
 ```
 
-As Rout.Lt 2 provides annotations to configure routes and actions, the `routlt.json` configuration file, needed for version ~1.0, is not longer necessry nor supported.
+## Action Mapping
+
+As Rout.Lt 2 provides annotations to configure routes and actions, the `routlt.json` configuration file, needed for version ~1.0, is not longer necessary nor supported.
+
+### Using Annotations
 
 You have two annotations, namely `@Path` and `@Action` to configure the routing of your application. These annotations gives you the possiblity to map the `Path Info` of a request to a method in a action class. This mechanism is adopted by many of the available frameworks. The `Path Info` segments will be separated by a slash. The first segment has to map to the value of the `@Path` annotations `name` attribute, the second to one of the `@Action` annotations of one of methods.
 
@@ -143,6 +147,77 @@ class IndexAction extends DispatchAction
 After saving the above code to a file named `/opt/appserver/webapps/myapp/WEB-INF/classes/MyApp/Actions/IndexAction.php` and [restarting](http://appserver.io/get-started/documentation/basic-usage.html#start-and-stop-scripts), open the URL `http://127.0.0.1:9080/myapp/index.do/index` with your favorite browser. You should see `Hello World!` there.
 
 > If you don't specify the `name` attributes, depending on the annotation, Rout.Lt uses the class or the method name. As the `Action` suffix has to be cut off, it is important, that the action and the action methods always ends with `Action` and nothing else.
+
+### Wildcards
+
+Up with version 2.2 you can also use wildcards in the `@Action` annotation's name attribute, e. g.
+
+```php
+/**
+ * Action to fetch an articles relation and return the result, e. g. as JSON API compatible result.
+ *
+ * @param \TechDivision\Servlet\Http\HttpServletRequestInterface  $servletRequest  The request instance
+ * @param \TechDivision\Servlet\Http\HttpServletResponseInterface $servletResponse The response instance
+ *
+ * @return void
+ * @Action(name="/articles/:id/:relation")
+ */
+public function nameDoesntMatterAction(HttpServletRequestInterface $servletRequest, HttpServletResponseInterface $servletResponse)
+{
+    // fetch an articles relation, e. g the author and return's the result
+}
+```
+
+The values, mapped by the wildcards, are available, as usual request parameters, through the `$servletRequest->getParameter()` method, e. g.
+
+```php
+/**
+ * Action to fetch an articles relation and return the result, e. g. as JSON API compatible result.
+ *
+ * @param \TechDivision\Servlet\Http\HttpServletRequestInterface  $servletRequest  The request instance
+ * @param \TechDivision\Servlet\Http\HttpServletResponseInterface $servletResponse The response instance
+ *
+ * @return void
+ * @Action(name="/articles/:id/:relation")
+ */
+public function nameDoesntMatterAction(HttpServletRequestInterface $servletRequest, HttpServletResponseInterface $servletResponse)
+{
+
+    // load ID and relation
+    $id = $servletRequest->getParameter('id', FILTER_VALIDATE_INT);
+    $relation = $servletRequest->getParameter('relation');
+    
+    // fetch an articles relation, e. g the author and return's the result
+}
+```
+
+### Restrictions
+
+Additionally to the wildcards it is possible to define restrictions for each wildcard like
+
+```php
+/**
+  * @Action(name="/articles/:id/:relation", restrictions={{"id", "\d+"}, {"relation", "\w+"}})
+  */
+```
+
+If a restriction is defined, the variable is only mapped, if the restriction complies. The functionality behind the restrictions uses regular expressions to make sure, the passed value complies. Therefore, each restriction consist's of the wildcard name and the restriction term itself e. g. `{"id", "\d+"}`. The restriction term must be a valid regular expression term, like `\d+` that makes sure, that the value **MUST** be a digit. If no restriction has been set, Rout.Lt assumes that the passed value is a string and uses the defaul `\w+` term to check the consistency.
+
+### Defaults
+
+Beside the restrictions it is possible to define default values for wildcards, like
+
+```php
+/**
+  * @Action(
+  *     name="/articles/:id/:relation", 
+  *     restrictions={{"id", "\d+"}, {"relation", "\w+"}}, 
+  *     defaults={{"relation", "author"}}
+  * )
+  */
+```
+
+If the relation has not been given in the path info, like `/articles/3`, the default value `author` will be set and is available as request parameter then.
 
 ## Action -> Request Method Mapping
 

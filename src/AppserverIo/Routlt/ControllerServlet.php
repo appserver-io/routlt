@@ -273,6 +273,16 @@ class ControllerServlet extends HttpServlet implements ControllerInterface
 
                         // add an alias for the route for the action's default method
                         if ($actionDescriptor->getMethodName() === $action->getDefaultMethod()) {
+                            // initialize the action mapping for the default route
+                            $actionMapping = new ActionMapping();
+                            $actionMapping->setControllerName($controllerName);
+                            $actionMapping->setMethodName($methodName);
+                            $actionMapping->compile(
+                                $controllerName,
+                                $actionDescriptor->getRestrictions(),
+                                $actionDescriptor->getDefaults()
+                            );
+                            // add the action mapping for the default route
                             $this->actionMappings[$requestMethod][$controllerName] = $actionMapping;
                         }
                     }
@@ -439,14 +449,21 @@ class ControllerServlet extends HttpServlet implements ControllerInterface
             // load the action mappings for the actual servlet request
             $actionMappings = $this->getActionMappingsForServletRequest($servletRequest);
 
+            // initialize the parameter map with the values from the request
+            if ($servletRequest->getParameterMap()) {
+                $parameterMap = $servletRequest->getParameterMap();
+            } else {
+                $parameterMap = array();
+            }
+
             // iterate over the action mappings and try to find a mapping
             foreach ($actionMappings as $actionMapping) {
                 // try to match actual request by the tokenizer
                 if ($actionMapping->match($requestedAction)) {
-                    // initialize the request attributes with the values from the tokenizer
-                    foreach ($actionMapping->getRequestParameters() as $key => $value) {
-                        $servletRequest->setAttribute($key, $value);
-                    }
+                    // initialize the request attributes with the values from the action mapping
+                    $servletRequest->setParameterMap(
+                        array_merge($parameterMap, $actionMapping->getRequestParameters())
+                    );
 
                     // resolve the action with the found mapping
                     $action = $routes[$actionMapping->getControllerName()];

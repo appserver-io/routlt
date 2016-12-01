@@ -20,6 +20,7 @@
 
 namespace AppserverIo\Routlt\Results;
 
+use AppserverIo\Appserver\ServletEngine\Http\Response;
 use AppserverIo\Http\HttpProtocol;
 use AppserverIo\Routlt\ActionInterface;
 use AppserverIo\Routlt\Util\ValidationAware;
@@ -185,6 +186,31 @@ class RawResultTest extends \PHPUnit_Framework_TestCase implements ActionInterfa
     }
 
     /**
+     * Tests the result process() method without any data in the result
+     *
+     * @return void
+     */
+    public function testProcessWithoutAnyData()
+    {
+
+        // create a mock servlet request instance
+        $mockServletRequest = $this->getMock('AppserverIo\Appserver\ServletEngine\Http\Request');
+
+        // create a mock servlet response instance
+        $servletResponse = new Response();
+        $servletResponse->init();
+
+        // set the action instance
+        $this->result->setAction($this);
+
+        // process the result
+        $this->result->process($mockServletRequest, $servletResponse);
+
+        // test if the response body is truly empty
+        $this->assertEmpty($servletResponse->getBodyContent());
+    }
+
+    /**
      * Method that will be invoked before we dispatch the request.
      *
      * @param \AppserverIo\Psr\Servlet\Http\HttpServletRequestInterface  $servletRequest  The request instance
@@ -315,7 +341,7 @@ class RawResultTest extends \PHPUnit_Framework_TestCase implements ActionInterfa
      */
     public function getAttribute($key)
     {
-        return $this->attributes[$key];
+        return isset($this->attributes[$key]) ? $this->attributes[$key] : null;
     }
 
     /**

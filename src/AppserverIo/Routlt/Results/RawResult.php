@@ -75,7 +75,7 @@ class RawResult implements ResultInterface, ActionAware
         }
 
         // query whether the action requires content encoding or not
-        if ($action instanceof EncodingAware) {
+        if ($action instanceof EncodingAware && !empty($bodyContent)) {
             $bodyContent = $action->encode($bodyContent);
         }
 

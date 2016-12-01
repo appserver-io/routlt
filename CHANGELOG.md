@@ -1,3 +1,4 @@
+
 # Version 2.2.0-beta2
 
 ## Bugfixes
@@ -8,11 +9,34 @@
 
 * Refactoring ActionMapping initialization
 
-# Version 2.1.0
+# Version 2.2.0-beta1
 
 ## Bugfixes
 
 * None
+
+## Features
+
+* Closed [#38](https://github.com/appserver-io/routlt/issues/38) - URL Routes according to REST defacto standard
+
+# Version 2.1.1
+
+## Bugfixes
+
+* Fixed encoding and appending of additional NULL content to response body in RawResult
+* Fixed composer dependencies to an installable set
+
+## Features
+
+* None
+
+# Version 2.1.0
+
+## Bugfixes
+
+* Removed misleading deprecation of RawResult result class
+* Fixed Travis-CI configuration file
+* Updating Dev dependencies
 
 ## Features
 
