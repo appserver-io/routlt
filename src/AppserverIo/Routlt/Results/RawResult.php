@@ -20,15 +20,10 @@
 
 namespace AppserverIo\Routlt\Results;
 
-use AppserverIo\Http\HttpProtocol;
-use AppserverIo\Routlt\ActionInterface;
 use AppserverIo\Routlt\Util\ActionAware;
 use AppserverIo\Routlt\Util\EncodingAware;
 use AppserverIo\Routlt\Util\ValidationAware;
 use AppserverIo\Routlt\Util\DefaultHeadersAware;
-use AppserverIo\Routlt\Util\ServletContextAware;
-use AppserverIo\Routlt\Description\ResultDescriptorInterface;
-use AppserverIo\Psr\Servlet\ServletContextInterface;
 use AppserverIo\Psr\Servlet\ServletRequestInterface;
 use AppserverIo\Psr\Servlet\ServletResponseInterface;
 

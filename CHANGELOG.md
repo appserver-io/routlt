@@ -1,3 +1,14 @@
+
+# Version 2.2.0-beta2
+
+## Bugfixes
+
+* None
+
+## Features
+
+* Refactoring ActionMapping initialization
+
 # Version 2.2.0-beta1
 
 ## Bugfixes

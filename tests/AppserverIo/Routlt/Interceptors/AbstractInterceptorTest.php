@@ -21,10 +21,6 @@
 namespace AppserverIo\Routlt\Interceptors;
 
 use AppserverIo\Routlt\ActionInterface;
-use AppserverIo\Routlt\Util\ValidationAware;
-use AppserverIo\Routlt\Results\ResultInterface;
-use AppserverIo\Psr\Servlet\Http\HttpServletRequestInterface;
-use AppserverIo\Psr\Servlet\Http\HttpServletResponseInterface;
 
 /**
  * Test implementation for the AbstractInterceptorTest implementation.
@@ -121,7 +117,7 @@ class AbstractInterceptorTest extends \PHPUnit_Framework_TestCase
         // mock the execute method
         $this->interceptor->expects($this->once())
             ->method('execute')
-            ->will($this->throwException(new \Exception($message = 'Test Exception Message')));
+            ->will($this->throwException(new \Exception('Test Exception Message')));
 
         // invoke the interceptor functionality and check the result
         $this->assertSame(ActionInterface::FAILURE, $this->interceptor->intercept($mockMethodInvocation));
@@ -134,7 +130,7 @@ class AbstractInterceptorTest extends \PHPUnit_Framework_TestCase
      */
     public function testSetGetParameters()
     {
-        $this->interceptor->setParameters($parameters = array($key = 'key' => $value = 'value'));
+        $this->interceptor->setParameters(array($key = 'key' => $value = 'value'));
         $this->assertSame($value, $this->interceptor->getParameter($key));
     }
 
@@ -171,7 +167,7 @@ class AbstractInterceptorTest extends \PHPUnit_Framework_TestCase
      */
     public function testSetGetWithEmptyParameters()
     {
-        $this->interceptor->setParameters($parameters = array());
+        $this->interceptor->setParameters(array());
         $this->assertNull($this->interceptor->getParameter('key'));
     }
 

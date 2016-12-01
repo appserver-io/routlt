@@ -139,7 +139,7 @@ class ResultDescriptorTest extends \PHPUnit_Framework_TestCase
 
         // create the descriptor we want to merge
         $descriptor = new ResultDescriptor();
-        $descriptor->setName($newName = 'success');
+        $descriptor->setName('success');
         $descriptor->setType('OtherResult');
         $descriptor->setResult('/phtml/another_test.phtml');
 
@@ -193,7 +193,7 @@ class ResultDescriptorTest extends \PHPUnit_Framework_TestCase
 
         // create the descriptor we want to merge
         $descriptor = new ResultDescriptor();
-        $descriptor->setName($newName = 'failure');
+        $descriptor->setName('failure');
         $descriptor->setType('OtherResult');
         $descriptor->setResult('/phtml/another_test.phtml');
 

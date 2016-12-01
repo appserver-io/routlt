@@ -141,16 +141,20 @@ class ServletDispatcherResult implements ResultInterface, ServletContextAware
     public function process(ServletRequestInterface $servletRequest, ServletResponseInterface $servletResponse)
     {
 
+        // initialize the variables for the path and the query string
+        $path = null;
+        $query = null;
+
         // load result and session-ID
         extract(parse_url($this->getResult()));
 
         // initialize the request URI
-        if (isset($path)) {
+        if (!empty($path)) {
             $servletRequest->setRequestUri($path);
         }
 
         // initialize the query string
-        if (isset($query)) {
+        if (!empty($query)) {
             $servletRequest->setQueryString($query);
         }
 

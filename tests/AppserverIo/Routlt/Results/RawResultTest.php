@@ -121,12 +121,14 @@ class RawResultTest extends \PHPUnit_Framework_TestCase implements ActionInterfa
         $this->setAttribute(RawResultTest::RESULT, $result = array('key' => 'value'));
 
         // create a mock servlet request instance
-        $mockServletRequest = $this->getMock('AppserverIo\Appserver\ServletEngine\Http\Request');
+        $mockServletRequest = $this->getMockBuilder($requestInterface = 'AppserverIo\Routlt\Mock\MockHttpServletRequestInterface')
+                                   ->setMethods(get_class_methods($requestInterface))
+                                   ->getMock();
 
         // create a mock servlet response instance
-        $mockServletResponse = $this->getMockBuilder('AppserverIo\Appserver\ServletEngine\Http\Response')
-            ->setMethods(array('addHeader', 'appendBodyStream'))
-            ->getMock();
+        $mockServletResponse = $this->getMockBuilder($responseInterface = 'AppserverIo\Psr\Servlet\Http\HttpServletResponseInterface')
+                                    ->setMethods(get_class_methods($responseInterface))
+                                    ->getMock();
 
         // mock the necessary response methods
         $mockServletResponse->expects($this->once())
@@ -152,12 +154,14 @@ class RawResultTest extends \PHPUnit_Framework_TestCase implements ActionInterfa
     {
 
         // create a mock servlet request instance
-        $mockServletRequest = $this->getMock('AppserverIo\Appserver\ServletEngine\Http\Request');
+        $mockServletRequest = $this->getMockBuilder($requestInterface = 'AppserverIo\Routlt\Mock\MockHttpServletRequestInterface')
+                                   ->setMethods(get_class_methods($requestInterface))
+                                   ->getMock();
 
         // create a mock servlet response instance
-        $mockServletResponse = $this->getMockBuilder('AppserverIo\Appserver\ServletEngine\Http\Response')
-            ->setMethods(array('addHeader', 'appendBodyStream'))
-            ->getMock();
+        $mockServletResponse = $this->getMockBuilder($responseInterface = 'AppserverIo\Psr\Servlet\Http\HttpServletResponseInterface')
+                                    ->setMethods(get_class_methods($responseInterface))
+                                    ->getMock();
 
         // we need some errors
         $this->errors = array(
@@ -190,20 +194,28 @@ class RawResultTest extends \PHPUnit_Framework_TestCase implements ActionInterfa
     {
 
         // create a mock servlet request instance
-        $mockServletRequest = $this->getMock('AppserverIo\Appserver\ServletEngine\Http\Request');
+        $mockServletRequest = $this->getMockBuilder($requestInterface = 'AppserverIo\Routlt\Mock\MockHttpServletRequestInterface')
+                                   ->setMethods(get_class_methods($requestInterface))
+                                   ->getMock();
 
         // create a mock servlet response instance
-        $servletResponse = new Response();
-        $servletResponse->init();
+        $mockServletResponse = $this->getMockBuilder($responseInterface = 'AppserverIo\Psr\Servlet\Http\HttpServletResponseInterface')
+                                    ->setMethods(get_class_methods($responseInterface))
+                                    ->getMock();
+
+        // mock the methods
+        $mockServletResponse->expects($this->once())
+                            ->method('addHeader')
+                            ->with(HttpProtocol::HEADER_CONTENT_TYPE, 'application/json');
+        $mockServletResponse->expects($this->once())
+                            ->method('appendBodyStream')
+                            ->with(null);
 
         // set the action instance
         $this->result->setAction($this);
 
         // process the result
-        $this->result->process($mockServletRequest, $servletResponse);
-
-        // test if the response body is truly empty
-        $this->assertEmpty($servletResponse->getBodyContent());
+        $this->result->process($mockServletRequest, $mockServletResponse);
     }
 
     /**

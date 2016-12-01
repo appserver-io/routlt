@@ -97,9 +97,9 @@ class ServletDispatcherResultTest extends \PHPUnit_Framework_TestCase
     {
 
         // create a mock servlet request instance
-        $mockServletRequest = $this->getMockBuilder('AppserverIo\Appserver\ServletEngine\Http\Request')
-            ->setMethods(array('getProposedSessionId', 'getServletPath', 'setRequestUri', 'setQueryString', 'prepare'))
-            ->getMock();
+        $mockServletRequest = $this->getMockBuilder($requestInterface = 'AppserverIo\Routlt\Mock\MockHttpServletRequestInterface')
+                                   ->setMethods(get_class_methods($requestInterface))
+                                   ->getMock();
 
         // mock the necessary request methods
         $mockServletRequest->expects($this->once())
@@ -118,28 +118,30 @@ class ServletDispatcherResultTest extends \PHPUnit_Framework_TestCase
             ->method('prepare');
 
         // create a mock servlet response instance
-        $mockServletResponse = $this->getMock('AppserverIo\Appserver\ServletEngine\Http\Response');
+        $mockServletResponse = $this->getMockBuilder($responseInterface = 'AppserverIo\Psr\Servlet\Http\HttpServletResponseInterface')
+                                    ->setMethods(get_class_methods($responseInterface))
+                                    ->getMock();
 
         // create a mock servlet instance
         $mockServlet = $this->getMockBuilder($servletInterface = 'AppserverIo\Psr\Servlet\ServletInterface')
-            ->setMethods(get_class_methods($servletInterface))
-            ->getMock();
+                            ->setMethods(get_class_methods($servletInterface))
+                            ->getMock();
 
         // mock the necessary servlet method
         $mockServlet->expects($this->once())
-            ->method('service')
-            ->with($mockServletRequest, $mockServletResponse);
+                    ->method('service')
+                    ->with($mockServletRequest, $mockServletResponse);
 
         // create a mock instance of the servlet context instance
-        $mockServletContext = $this->getMockBuilder($servletContextInterface = 'AppserverIo\Routlt\Results\Mock\MockServletManagerInterface')
-            ->setMethods(get_class_methods($servletContextInterface))
-            ->getMock();
+        $mockServletContext = $this->getMockBuilder($servletContextInterface = 'AppserverIo\Routlt\Mock\MockServletContextInterface')
+                                   ->setMethods(get_class_methods($servletContextInterface))
+                                   ->getMock();
 
         // mock the necessary servlet context method
         $mockServletContext->expects($this->once())
-            ->method('lookup')
-            ->with('/path/to/my_template.dhtml', $sessionId)
-            ->will($this->returnValue($mockServlet));
+                           ->method('lookup')
+                           ->with('/path/to/my_template.dhtml', $sessionId)
+                           ->will($this->returnValue($mockServlet));
 
         // set the servlet context instance
         $this->result->setServletContext($mockServletContext);
