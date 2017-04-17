@@ -25,9 +25,37 @@ If you want to write an application that uses Rout.Lt 2, you have to install it 
 
 ## Configuration
 
-As Rout.Lt 2 is based on a servlet, you first need an `web.xml` inside the `WEB-INF` folder of your application.
+Roul.Lt 2 comes with it's own annotations and configuration filse. 
 
-Let's assume, you've installed appserver.io on Linux/Mac OS X under ```/opt/appserver``` and your application is named `myapp` you'll save the `web.xml` containing the following content in directory `/opt/appserver/myapp/WEB-INF`
+### Application
+
+Therefore, it is necessary, that these annoatations as well as all other framework specfic configuration files will be initialized on application startup. To ensure this, you have to provide a custom `META-INF/context.xml` file with your application, which needs the additional `<descriptors/>` node for the object manager configuration
+
+```xml
+<managers>
+    ...
+    <manager
+        name="ObjectManagerInterface"
+        type="AppserverIo\Appserver\DependencyInjectionContainer\ObjectManager"
+        factory="AppserverIo\Appserver\DependencyInjectionContainer\ObjectManagerFactory">
+        <descriptors>
+            <descriptor>AppserverIo\Description\ServletDescriptor</descriptor>
+            <descriptor>AppserverIo\Description\MessageDrivenBeanDescriptor</descriptor>
+            <descriptor>AppserverIo\Description\StatefulSessionBeanDescriptor</descriptor>
+            <descriptor>AppserverIo\Description\SingletonSessionBeanDescriptor</descriptor>
+            <descriptor>AppserverIo\Description\StatelessSessionBeanDescriptor</descriptor>
+            <descriptor>AppserverIo\Routlt\Description\PathDescriptor</descriptor>
+        </descriptors>
+    </manager>
+    ...
+</managers>
+```
+
+### Servlet Engine
+
+As Rout.Lt 2 is based on a servlet, you also need to provide an `WEB-INF/web.xml` your application.
+
+Let's assume, you've installed appserver.io on Linux/Mac OS X under `/opt/appserver` and your application is named `myapp` you'll save the `web.xml` containing the following content in directory `/opt/appserver/myapp/WEB-INF`
 
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
