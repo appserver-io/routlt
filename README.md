@@ -29,7 +29,7 @@ Roul.Lt 2 comes with it's own annotations and configuration filse.
 
 ### Application
 
-Therefore, it is necessary, that these annoatations as well as all other framework specfic configuration files will be initialized on application startup. To ensure this, you have to provide a custom `META-INF/context.xml` file with your application, which needs the additional `<descriptors/>' declaration for the Object Manager
+Therefore, it is necessary, that these annoatations as well as all other framework specfic configuration files will be initialized on application startup. To ensure this, you have to provide a custom `META-INF/context.xml` file with your application, which needs the additional `<descriptors/>` node for the object manager configuration
 
 ```xml
 <managers>
