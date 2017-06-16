@@ -472,7 +472,7 @@ class ControllerServlet extends HttpServlet implements ControllerInterface
                     $action->setAttribute(ContextKeys::METHOD_NAME, $actionMapping->getMethodName());
 
                     // inject the dependencies
-                    $provider->injectDependencies($action, $sessionId);
+                    $provider->injectDependencies($action);
 
                     // pre-dispatch the action
                     $action->preDispatch($servletRequest, $servletResponse);
