@@ -41,7 +41,7 @@ class XhrParamsInterceptor extends AbstractInterceptor
      * Then it tries to find and invoke a setter with the param that matches
      * the setters name.
      *
-     * @param AppserverIo\Psr\MetaobjectProtocol\Aop\MethodInvocationInterface $methodInvocation Initially invoked method
+     * @param \AppserverIo\Psr\MetaobjectProtocol\Aop\MethodInvocationInterface $methodInvocation Initially invoked method
      *
      * @return string|null The action result
      */

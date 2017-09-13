@@ -87,4 +87,16 @@ class Result extends ReflectionAnnotation
             return $this->values['result'];
         }
     }
+
+    /**
+     * Returns the value of the code attribute.
+     *
+     * @return string|null The annotations code attribute
+     */
+    public function getCode()
+    {
+        if (isset($this->values['code'])) {
+            return $this->values['code'];
+        }
+    }
 }

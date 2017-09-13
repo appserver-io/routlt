@@ -38,7 +38,7 @@ class ParamsInterceptor extends AbstractInterceptor
      * Iterates over all servlet request parameters and tries to find and
      * invoke a setter with the param that matches the setters name.
      *
-     * @param AppserverIo\Psr\MetaobjectProtocol\Aop\MethodInvocationInterface $methodInvocation Initially invoked method
+     * @param \AppserverIo\Psr\MetaobjectProtocol\Aop\MethodInvocationInterface $methodInvocation Initially invoked method
      *
      * @return string|null The action result
      */

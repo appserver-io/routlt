@@ -25,7 +25,7 @@ use AppserverIo\Psr\Servlet\ServletRequestInterface;
 use AppserverIo\Psr\Servlet\ServletResponseInterface;
 
 /**
- * Result implementation that supports action based default headers and encoding.
+ * Result implementation redirects to the page defined as result.
  *
  * @author     Tim Wagner <tw@techdivision.com>
  * @copyright  2015 TechDivision GmbH <info@techdivision.com>
@@ -64,7 +64,7 @@ class RedirectResult implements ResultInterface
 
         // stop processing the request and redirect to the URL
         $servletRequest->setDispatched(true);
-        $servletResponse->setStatusCode(307);
+        $servletResponse->setStatusCode($this->getCode());
         $servletResponse->addHeader(Protocol::HEADER_LOCATION, $result);
     }
 }

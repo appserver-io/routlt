@@ -37,7 +37,7 @@ interface EncodingAware
      *
      * @param string $data The data to be encoded
      *
-     * @return The encoded data.
+     * @return string The encoded data.
      */
     public function encode($data);
 }
