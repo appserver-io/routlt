@@ -6,7 +6,7 @@
 
 ## Features
 
-* None
+* Add new RedirectResult implementation
 
 # Version 2.2.0-beta3
 
