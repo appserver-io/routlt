@@ -124,7 +124,7 @@ abstract class AbstractInterceptor implements InterceptorInterface
     /**
      * Returns the instance of the actual servlet response.
      *
-     * @return \AppserverIo\Psr\Servlet\ServletResonseInterface|null The actual servlet response instance
+     * @return \AppserverIo\Psr\Servlet\ServletResponseInterface|null The actual servlet response instance
      */
     public function getServletResponse()
     {
@@ -146,7 +146,7 @@ abstract class AbstractInterceptor implements InterceptorInterface
     /**
      * Executes the custom interceptor functionality.
      *
-     * @param AppserverIo\Psr\MetaobjectProtocol\Aop\MethodInvocationInterface $methodInvocation Initially invoked method
+     * @param \AppserverIo\Psr\MetaobjectProtocol\Aop\MethodInvocationInterface $methodInvocation Initially invoked method
      *
      * @return mixed The interceptors return value
      */
@@ -155,7 +155,7 @@ abstract class AbstractInterceptor implements InterceptorInterface
     /**
      * Method that implements the interceptors functionality.
      *
-     * @param AppserverIo\Psr\MetaobjectProtocol\Aop\MethodInvocationInterface $methodInvocation Initially invoked method
+     * @param \AppserverIo\Psr\MetaobjectProtocol\Aop\MethodInvocationInterface $methodInvocation Initially invoked method
      *
      * @return string|null The action result
      */

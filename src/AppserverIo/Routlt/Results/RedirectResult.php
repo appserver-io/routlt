@@ -1,7 +1,7 @@
 <?php
 
 /**
- * AppserverIo\Routlt\Results\RawResult
+ * AppserverIo\Routlt\Results\RedirectResult
  *
  * NOTICE OF LICENSE
  *
@@ -20,15 +20,12 @@
 
 namespace AppserverIo\Routlt\Results;
 
-use AppserverIo\Routlt\Util\ActionAware;
-use AppserverIo\Routlt\Util\EncodingAware;
-use AppserverIo\Routlt\Util\ValidationAware;
-use AppserverIo\Routlt\Util\DefaultHeadersAware;
+use AppserverIo\Psr\HttpMessage\Protocol;
 use AppserverIo\Psr\Servlet\ServletRequestInterface;
 use AppserverIo\Psr\Servlet\ServletResponseInterface;
 
 /**
- * Result implementation that supports action based default headers and encoding.
+ * Result implementation redirects to the page defined as result.
  *
  * @author     Tim Wagner <tw@techdivision.com>
  * @copyright  2015 TechDivision GmbH <info@techdivision.com>
@@ -36,7 +33,7 @@ use AppserverIo\Psr\Servlet\ServletResponseInterface;
  * @link       http://github.com/appserver-io/routlt
  * @link       http://www.appserver.io
  */
-class RawResult implements ResultInterface, ActionAware
+class RedirectResult implements ResultInterface
 {
 
     /**
@@ -57,35 +54,17 @@ class RawResult implements ResultInterface, ActionAware
     public function process(ServletRequestInterface $servletRequest, ServletResponseInterface $servletResponse)
     {
 
-        // load the action instance
-        $action = $this->getAction();
+        // initialize the location we want to redirect to
+        $result = $this->getResult();
 
-        // add the actions default headers to the response
-        if ($action instanceof DefaultHeadersAware && $action->hasDefaultHeaders()) {
-            foreach ($action->getDefaultHeaders() as $name => $value) {
-                // query whether or not a header with the given name has already been set
-                if ($servletResponse->hasHeader($name)) {
-                    continue;
-                }
-
-                // if not, set the default header
-                $servletResponse->addHeader($name, $value);
-            }
+        // add the base modifier, if necessary
+        if ($baseModifier = $servletRequest->getBaseModifier()) {
+            $result = $baseModifier . $result;
         }
 
-        // query whether the action contains errors or not
-        if ($action instanceof ValidationAware && $action->hasErrors()) {
-            $bodyContent = $action->getErrors();
-        } else {
-            $bodyContent = $action->getAttribute($this->getResult());
-        }
-
-        // query whether the action requires content encoding or not
-        if ($action instanceof EncodingAware && !empty($bodyContent)) {
-            $bodyContent = $action->encode($bodyContent);
-        }
-
-        // set the encoded body content
-        $servletResponse->appendBodyStream($bodyContent);
+        // stop processing the request and redirect to the URL
+        $servletRequest->setDispatched(true);
+        $servletResponse->setStatusCode($this->getCode());
+        $servletResponse->addHeader(Protocol::HEADER_LOCATION, $result);
     }
 }

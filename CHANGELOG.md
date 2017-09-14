@@ -1,3 +1,13 @@
+# Version 2.2.0-beta4
+
+## Bugfixes
+
+* Query whether or not a header already exists before overriding it with a default header in RawResult class
+
+## Features
+
+* Add new RedirectResult implementation
+
 # Version 2.2.0-beta3
 
 ## Bugfixes

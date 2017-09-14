@@ -56,6 +56,13 @@ interface ResultDescriptorInterface extends DescriptorInterface
     public function getResult();
 
     /**
+     * Returns the HTTP response code that has to be send.
+     *
+     * @return integer The HTTP response code
+     */
+    public function getCode();
+
+    /**
      * Merges the passed configuration into this one. Configuration values
      * of the passed configuration will overwrite the this one.
      *

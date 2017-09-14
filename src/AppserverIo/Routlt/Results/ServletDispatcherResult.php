@@ -24,7 +24,6 @@ use AppserverIo\Routlt\Util\ServletContextAware;
 use AppserverIo\Psr\Servlet\ServletContextInterface;
 use AppserverIo\Psr\Servlet\ServletRequestInterface;
 use AppserverIo\Psr\Servlet\ServletResponseInterface;
-use AppserverIo\Routlt\Description\ResultDescriptorInterface;
 
 /**
  * Result implementation that dispatches another servlet.
@@ -39,25 +38,11 @@ class ServletDispatcherResult implements ResultInterface, ServletContextAware
 {
 
     /**
-     * The action result name.
+     * Trait proving basic result functionality.
      *
-     * @var string
+     * @var \AppserverIo\Routlt\Results\ResultTrait
      */
-    protected $name;
-
-    /**
-     * The action result type.
-     *
-     * @var string
-     */
-    protected $type;
-
-    /**
-     * The action result value.
-     *
-     * @var array
-     */
-    protected $result;
+    use ResultTrait;
 
     /**
      * The servlet context instance.
@@ -65,48 +50,6 @@ class ServletDispatcherResult implements ResultInterface, ServletContextAware
      * @param \AppserverIo\Psr\Servlet\ServletContextInterface
      */
     protected $servletContext;
-
-    /**
-     * Initializes the instance with the configured result value.
-     *
-     * @param \AppserverIo\Routlt\Results\ResultDescriptorInterface $resultDescriptor The result descriptor instance
-     */
-    public function __construct(ResultDescriptorInterface $resultDescriptor)
-    {
-        $this->name = $resultDescriptor->getName();
-        $this->type = $resultDescriptor->getType();
-        $this->result = $resultDescriptor->getResult();
-    }
-
-    /**
-     * Returns the action result name.
-     *
-     * @return string The action result name
-     */
-    public function getName()
-    {
-        return $this->name;
-    }
-
-    /**
-     * Returns the action result type.
-     *
-     * @return string The action result type
-     */
-    public function getType()
-    {
-        return $this->type;
-    }
-
-    /**
-     * Returns the action result value.
-     *
-     * @return string The action result value
-     */
-    public function getResult()
-    {
-        return $this->result;
-    }
 
     /**
      * Sets the actual servlet context instance.

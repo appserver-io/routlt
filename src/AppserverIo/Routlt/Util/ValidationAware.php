@@ -42,7 +42,7 @@ interface ValidationAware
     /**
      * Returns the array with action errors.
      *
-     * @return The array with action errors
+     * @return array The array with action errors
      */
     public function getErrors();
 

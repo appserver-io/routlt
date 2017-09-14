@@ -20,18 +20,15 @@
 
 namespace AppserverIo\Routlt\Description;
 
-use AppserverIo\Lang\Reflection\ClassInterface;
-use AppserverIo\Lang\Reflection\ReflectionAnnotation;
 use AppserverIo\Routlt\Annotations\Path;
-use AppserverIo\Routlt\Description\DescriptorException;
-use AppserverIo\Routlt\Description\ActionDescriptorInterface;
+use AppserverIo\Routlt\Annotations\Result;
+use AppserverIo\Routlt\Annotations\Results;
+use AppserverIo\Lang\Reflection\ClassInterface;
 use AppserverIo\Description\EpbReferenceDescriptor;
 use AppserverIo\Description\ResReferenceDescriptor;
+use AppserverIo\Configuration\Interfaces\NodeInterface;
 use AppserverIo\Psr\EnterpriseBeans\Description\EpbReferenceDescriptorInterface;
 use AppserverIo\Psr\EnterpriseBeans\Description\ResReferenceDescriptorInterface;
-use AppserverIo\Routlt\Annotations\Results;
-use AppserverIo\Routlt\Annotations\Result;
-use AppserverIo\Configuration\Interfaces\NodeInterface;
 
 /**
  * Annotation to map a request path info to an action method.
@@ -205,7 +202,7 @@ class PathDescriptor implements PathDescriptorInterface
     /**
      * Adds a EPB reference configuration.
      *
-     * @param \AppserverIo\Appserver\DependencyInjectionContainer\Interfaces\EpbReferenceDescriptorInterface $epbReference The EPB reference configuration
+     * @param \AppserverIo\Psr\EnterpriseBeans\Description\EpbReferenceDescriptorInterface $epbReference The EPB reference configuration
      *
      * @return void
      */
@@ -239,7 +236,7 @@ class PathDescriptor implements PathDescriptorInterface
     /**
      * Adds a resource reference configuration.
      *
-     * @param \AppserverIo\Appserver\DependencyInjectionContainer\Interfaces\ResReferenceDescriptorInterface $resReference The resource reference configuration
+     * @param \AppserverIo\Psr\EnterpriseBeans\Description\ResReferenceDescriptorInterface $resReference The resource reference configuration
      *
      * @return void
      */
