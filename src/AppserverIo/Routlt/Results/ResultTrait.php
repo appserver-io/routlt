@@ -31,7 +31,6 @@ use AppserverIo\Routlt\Description\ResultDescriptorInterface;
  * @license    http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  * @link       http://github.com/appserver-io/routlt
  * @link       http://www.appserver.io
- * @deprecated Since 2.0.0-alpha5, use AppserverIo\Routlt\Results\RawResult instead
  */
 trait ResultTrait
 {
@@ -58,14 +57,22 @@ trait ResultTrait
     protected $result;
 
     /**
+     * The HTTP response code that has to be send.
+     *
+     * @var string
+     */
+    protected $code = 200;
+
+    /**
      * Initializes the instance with the configured result value.
      *
-     * @param \AppserverIo\Routlt\Results\ResultDescriptorInterface $resultDescriptor The result descriptor instance
+     * @param \AppserverIo\Routlt\Description\\ResultDescriptorInterface $resultDescriptor The result descriptor instance
      */
     public function __construct(ResultDescriptorInterface $resultDescriptor)
     {
         $this->name = $resultDescriptor->getName();
         $this->type = $resultDescriptor->getType();
+        $this->code = $resultDescriptor->getCode();
         $this->result = $resultDescriptor->getResult();
     }
 
@@ -97,6 +104,16 @@ trait ResultTrait
     public function getResult()
     {
         return $this->result;
+    }
+
+    /**
+     * Returns the HTTP response code that has to be send.
+     *
+     * @return integer The HTTP response code
+     */
+    public function getCode()
+    {
+        return $this->code;
     }
 
     /**

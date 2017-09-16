@@ -1,3 +1,13 @@
+# Version 2.2.0-beta5
+
+## Bugfixes
+
+* None
+
+## Features
+
+* Switch to latest appserver-io-psr/epb version 4.0.0
+
 # Version 2.2.0-beta4
 
 ## Bugfixes
@@ -6,7 +16,7 @@
 
 ## Features
 
-* None
+* Add new RedirectResult implementation
 
 # Version 2.2.0-beta3
 

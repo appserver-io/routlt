@@ -42,7 +42,7 @@ interface DefaultHeadersAware
     /**
      * Returns the array with action's default headers.
      *
-     * @return The array with action's default headers
+     * @return array The array with action's default headers
      */
     public function getDefaultHeaders();
 }

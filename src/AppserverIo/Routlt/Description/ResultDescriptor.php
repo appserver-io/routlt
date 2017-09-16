@@ -20,9 +20,7 @@
 
 namespace AppserverIo\Routlt\Description;
 
-use AppserverIo\Routlt\Annotations\Result;
 use AppserverIo\Lang\Reflection\AnnotationInterface;
-use AppserverIo\Lang\Reflection\ReflectionAnnotation;
 use AppserverIo\Configuration\Interfaces\NodeInterface;
 
 /**
@@ -54,9 +52,16 @@ class ResultDescriptor implements ResultDescriptorInterface
     /**
      * The action result value.
      *
-     * @var array
+     * @var string
      */
     protected $result;
+
+    /**
+     * The HTTP response code that has to be send.
+     *
+     * @var string
+     */
+    protected $code = 200;
 
     /**
      * Sets the action result name.
@@ -125,6 +130,28 @@ class ResultDescriptor implements ResultDescriptorInterface
     }
 
     /**
+     * Sets the HTTP response code that has to be send.
+     *
+     * @param integer $code The HTTP response code
+     *
+     * @return void
+     */
+    public function setCode($code)
+    {
+        $this->code = $code;
+    }
+
+    /**
+     * Returns the HTTP response code that has to be send.
+     *
+     * @return integer The HTTP response code
+     */
+    public function getCode()
+    {
+        return $this->code;
+    }
+
+    /**
      * Returns a new descriptor instance.
      *
      * @return \AppserverIo\Routlt\Description\ResultDescriptorInterface The descriptor instance
@@ -154,6 +181,11 @@ class ResultDescriptor implements ResultDescriptorInterface
         $this->setName($annotationInstance->getName());
         $this->setType($annotationInstance->getType());
         $this->setResult($annotationInstance->getResult());
+
+        // set the HTTP response code if given
+        if ($code = $annotationInstance->getCode()) {
+            $this->setCode($code);
+        }
 
         // return the instance
         return $this;
@@ -208,6 +240,11 @@ class ResultDescriptor implements ResultDescriptorInterface
         // merge the result
         if ($result = $resultDescriptor->getResult()) {
             $this->setResult($result);
+        }
+
+        // merge the code
+        if ($code = $resultDescriptor->getCode()) {
+            $this->setCode($code);
         }
     }
 }

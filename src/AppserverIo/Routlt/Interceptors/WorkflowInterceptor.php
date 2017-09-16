@@ -38,7 +38,7 @@ class WorkflowInterceptor extends AbstractInterceptor
     /**
      * Method that implements the interceptors functionality.
      *
-     * @param AppserverIo\Psr\MetaobjectProtocol\Aop\MethodInvocationInterface $methodInvocation Initially invoked method
+     * @param \AppserverIo\Psr\MetaobjectProtocol\Aop\MethodInvocationInterface $methodInvocation Initially invoked method
      *
      * @return string|null The action result
      */

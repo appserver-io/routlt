@@ -207,7 +207,7 @@ abstract class BaseAction extends Object implements ActionInterface, ValidationA
     /**
      * Returns the array with action errors.
      *
-     * @return The array with action errors
+     * @return array The array with action errors
      * @see \AppserverIo\Routlt\Util\ValidationAware::getErrors()
      */
     public function getErrors()
