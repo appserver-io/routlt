@@ -458,6 +458,7 @@ class ControllerServlet extends HttpServlet implements ControllerInterface
 
             // iterate over the action mappings and try to find a mapping
             foreach ($actionMappings as $actionMapping) {
+
                 // try to match actual request by the tokenizer
                 if ($actionMapping->match($requestedAction)) {
                     // initialize the request attributes with the values from the action mapping
@@ -492,6 +493,7 @@ class ControllerServlet extends HttpServlet implements ControllerInterface
 
                     // process the result if available
                     if (($instance = $action->findResult($result)) instanceof ResultInterface) {
+                        $provider->injectDependencies($instance);
                         // query whether or not the result is action aware
                         if ($instance instanceof ActionAware) {
                             $instance->setAction($action);
