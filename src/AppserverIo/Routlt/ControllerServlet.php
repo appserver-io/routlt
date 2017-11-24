@@ -458,7 +458,6 @@ class ControllerServlet extends HttpServlet implements ControllerInterface
 
             // iterate over the action mappings and try to find a mapping
             foreach ($actionMappings as $actionMapping) {
-
                 // try to match actual request by the tokenizer
                 if ($actionMapping->match($requestedAction)) {
                     // initialize the request attributes with the values from the action mapping
