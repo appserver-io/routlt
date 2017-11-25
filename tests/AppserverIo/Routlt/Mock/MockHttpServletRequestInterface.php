@@ -76,7 +76,6 @@ interface MockHttpServletRequestInterface extends HttpServletRequestInterface
      * @param string $key The key of the value to return from the context.
      *
      * @return mixed The requested attribute
-     * @see \AppserverIo\Psr\Context\Context::getAttribute($key)
      */
     public function getAttribute($key);
 

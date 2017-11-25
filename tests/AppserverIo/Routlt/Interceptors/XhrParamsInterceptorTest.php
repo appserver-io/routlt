@@ -240,7 +240,7 @@ class XhrParamsInterceptorTest extends \PHPUnit_Framework_TestCase implements Ac
     /**
      * Returns the array with action errors.
      *
-     * @return The array with action errors
+     * @return array The array with action errors
      * @see \AppserverIo\Routlt\Util\ValidationAware::getErrors()
      */
     public function getErrors()

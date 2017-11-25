@@ -21,9 +21,10 @@
 namespace AppserverIo\Routlt;
 
 use AppserverIo\Lang\Object;
-use AppserverIo\Routlt\Util\ValidationAware;
 use AppserverIo\Routlt\Results\ResultInterface;
-use AppserverIo\Psr\Context\ContextInterface;
+use AppserverIo\Routlt\Util\ValidationAware;
+use AppserverIo\Routlt\Util\ServletContextAware;
+use AppserverIo\Psr\Servlet\ServletContextInterface;
 use AppserverIo\Psr\Servlet\Http\HttpServletRequestInterface;
 use AppserverIo\Psr\Servlet\Http\HttpServletResponseInterface;
 
@@ -36,7 +37,7 @@ use AppserverIo\Psr\Servlet\Http\HttpServletResponseInterface;
  * @link      http://github.com/appserver-io/routlt
  * @link      http://www.appserver.io
  */
-abstract class BaseAction extends Object implements ActionInterface, ValidationAware
+abstract class BaseAction extends Object implements ActionInterface, ValidationAware, ServletContextAware
 {
 
     /**
@@ -49,9 +50,9 @@ abstract class BaseAction extends Object implements ActionInterface, ValidationA
     /**
      * The context for the actual request.
      *
-     * @var \AppserverIo\Psr\Context\ContextInterface
+     * @var \AppserverIo\Psr\Servlet\ServletContextInterface
      */
-    protected $context = null;
+    protected $servletContext = null;
 
     /**
      * The array with the action errors.
@@ -68,14 +69,25 @@ abstract class BaseAction extends Object implements ActionInterface, ValidationA
     protected $results = array();
 
     /**
-     * Initializes the action with the context for the
-     * actual request.
+     * Sets the actual servlet context instance.
      *
-     * @param \AppserverIo\Psr\Context\ContextInterface $context The context for the actual request
+     * @param \AppserverIo\Psr\Servlet\ServletContextInterface $servletContext The servlet context instance
+     *
+     * @return void
      */
-    public function __construct(ContextInterface $context)
+    public function setServletContext(ServletContextInterface $servletContext)
     {
-        $this->context = $context;
+        $this->servletContext = $servletContext;
+    }
+
+    /**
+     * Returns the servlet context instance.
+     *
+     * @return \AppserverIo\Psr\Servlet\ServletContextInterface The servlet context instance
+     */
+    public function getServletContext()
+    {
+        return $this->servletContext;
     }
 
     /**
@@ -136,7 +148,7 @@ abstract class BaseAction extends Object implements ActionInterface, ValidationA
      */
     public function setAttribute($key, $value)
     {
-        $this->getContext()->setAttribute($key, $value);
+        $this->getServletContext()->setAttribute($key, $value);
     }
 
     /**
@@ -148,7 +160,7 @@ abstract class BaseAction extends Object implements ActionInterface, ValidationA
      */
     public function getAttribute($key)
     {
-        return $this->getContext()->getAttribute($key);
+        return $this->getServletContext()->getAttribute($key);
     }
 
     /**

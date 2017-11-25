@@ -64,11 +64,13 @@ trait ResultTrait
     protected $code = 200;
 
     /**
-     * Initializes the instance with the configured result value.
+     * Initializes the result from the result descriptor instance.
      *
-     * @param \AppserverIo\Routlt\Description\\ResultDescriptorInterface $resultDescriptor The result descriptor instance
+     * @param \AppserverIo\Routlt\Description\ResultDescriptorInterface $resultDescriptor The result descriptor instance
+     *
+     * @return void
      */
-    public function __construct(ResultDescriptorInterface $resultDescriptor)
+    public function init(ResultDescriptorInterface $resultDescriptor)
     {
         $this->name = $resultDescriptor->getName();
         $this->type = $resultDescriptor->getType();

@@ -197,7 +197,7 @@ class WorkflowInterceptorTest extends \PHPUnit_Framework_TestCase implements Act
      * The validation method that implements the action's validation method.
      *
      * @return void
-     * @see AppserverIo\Routlt\Util\Validatable::validate()
+     * @see \AppserverIo\Routlt\Util\Validateable::validate()
      */
     public function validate()
     {
@@ -304,7 +304,7 @@ class WorkflowInterceptorTest extends \PHPUnit_Framework_TestCase implements Act
     /**
      * Returns the array with action errors.
      *
-     * @return The array with action errors
+     * @return array The array with action errors
      * @see \AppserverIo\Routlt\Util\ValidationAware::getErrors()
      */
     public function getErrors()

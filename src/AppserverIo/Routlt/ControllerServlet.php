@@ -22,8 +22,8 @@ namespace AppserverIo\Routlt;
 
 use AppserverIo\Http\HttpProtocol;
 use AppserverIo\Properties\Properties;
-use AppserverIo\Psr\Context\ArrayContext;
-use AppserverIo\Psr\Context\ContextInterface;
+use AppserverIo\Psr\Di\ProviderInterface;
+use AppserverIo\Psr\Di\ObjectManagerInterface;
 use AppserverIo\Psr\Servlet\Http\HttpServlet;
 use AppserverIo\Psr\Servlet\ServletException;
 use AppserverIo\Psr\Servlet\ServletConfigInterface;
@@ -105,27 +105,23 @@ class ControllerServlet extends HttpServlet implements ControllerInterface
     }
 
     /**
-     * Returns the session manager instance.
+     * Returns the available routes.
      *
-     * @param \AppserverIo\Psr\Servlet\ServletRequestInterface $servletRequest The request instance
-     *
-     * @return \AppserverIo\Appserver\ServletEngine\SessionManagerInterface The session manager instance
+     * @return array The array with the available routes
      */
-    public function getSessionManager(ServletRequestInterface $servletRequest)
+    public function getRoutes()
     {
-        return $servletRequest->getContext()->search('SessionManagerInterface');
+        return $this->routes;
     }
 
     /**
-     * Returns the provide instance.
+     * Returns the array with request method action -> route mappings.
      *
-     * @param \AppserverIo\Psr\Servlet\ServletRequestInterface $servletRequest The request instance
-     *
-     * @return \AppserverIo\Appserver\DependencyInjectionContainer\Interfaces\ProviderInterface The provider instance
+     * @return array The request method action -> route mappings
      */
-    public function getProvider(ServletRequestInterface $servletRequest)
+    public function getActionMappings()
     {
-        return $servletRequest->getContext()->search('ProviderInterface');
+        return $this->actionMappings;
     }
 
     /**
@@ -141,11 +137,21 @@ class ControllerServlet extends HttpServlet implements ControllerInterface
     /**
      * Returns the object manager instance
      *
-     * @return \AppserverIo\Appserver\DependencyInjectionContainer\Interfaces\ObjectManagerInterface The object manager instance
+     * @return \AppserverIo\Psr\Di\ObjectManagerInterface The object manager instance
      */
     public function getObjectManager()
     {
-        return $this->getNamingDirectory()->search('ObjectManagerInterface');
+        return $this->getNamingDirectory()->search(ObjectManagerInterface::IDENTIFIER);
+    }
+
+    /**
+     * Returns the DI provider instance.
+     *
+     * @return \AppserverIo\Psr\Di\ProviderInterface The DI provider instance
+     */
+    public function getProvider()
+    {
+        return $this->getNamingDirectory()->search(ProviderInterface::IDENTIFIER);
     }
 
     /**
@@ -223,27 +229,16 @@ class ControllerServlet extends HttpServlet implements ControllerInterface
         foreach ($this->getObjectManager()->getObjectDescriptors() as $descriptor) {
             // check if we've found a servlet descriptor
             if ($descriptor instanceof PathDescriptorInterface) {
+                // register the action's references
+                $this->getServletContext()->registerReferences($descriptor);
+
                 // initialize a new action instance
-                $action = $this->newActionInstance($descriptor->getClassName(), new ArrayContext());
-
-                // if the action is servlet context aware
-                if ($action instanceof ServletContextAware) {
-                    $action->setServletContext($this->getServletContext());
-                }
-
-                // register the EPB references
-                foreach ($descriptor->getEpbReferences() as $epbReference) {
-                    $this->getServletContext()->registerEpbReference($epbReference);
-                }
-
-                // register the resource references
-                foreach ($descriptor->getResReferences() as $resReference) {
-                    $this->getServletContext()->registerResReference($resReference);
-                }
+                $action = $this->initActionInstance($descriptor);
 
                 // prepare the action's the result descriptors
+                /** @var \AppserverIo\Routlt\Description\ResultDescriptorInterface $resultDescriptor */
                 foreach ($descriptor->getResults() as $resultDescriptor) {
-                    $action->addResult($this->newResultInstance($resultDescriptor));
+                    $action->addResult($this->initResultInstance($resultDescriptor));
                 }
 
                 // prepare the route, e. g. /index/index
@@ -252,6 +247,7 @@ class ControllerServlet extends HttpServlet implements ControllerInterface
                 // initialize the action mappings
                 foreach ($descriptor->getActions() as $actionDescriptors) {
                     // iterate over all request methods
+                    /** @var \AppserverIo\Routlt\Description\ActionDescriptorInterface $actionDescriptor */
                     foreach ($actionDescriptors as $requestMethod => $actionDescriptor) {
                         // prepare the real action method name
                         $methodName = $actionDescriptor->getMethodName();
@@ -295,16 +291,25 @@ class ControllerServlet extends HttpServlet implements ControllerInterface
     }
 
     /**
-     * Creates a new instance of the action with the passed class name and context.
+     * Creates a new instance of the action from the passed path descriptor instance.
      *
-     * @param string                                    $className The class name of the action to be created
-     * @param \AppserverIo\Psr\Context\ContextInterface $context   The action context
+     * @param \AppserverIo\Routlt\Description\PathDescriptorInterface $pathDescriptor The path descriptor to create the action from
      *
      * @return \AppserverIo\Routlt\ActionInterface The action instance
      */
-    public function newActionInstance($className, ContextInterface $context)
+    protected function initActionInstance(PathDescriptorInterface $pathDescriptor)
     {
-        return new $className($context);
+
+        // create a new action instance
+        $actionInstance = $this->getProvider()->get($pathDescriptor->getClassName());
+
+        // if the action is servlet context aware
+        if ($actionInstance instanceof ServletContextAware) {
+            $actionInstance->setServletContext($this->getServletContext());
+        }
+
+        // return the action instance
+        return $actionInstance;
     }
 
     /**
@@ -312,44 +317,24 @@ class ControllerServlet extends HttpServlet implements ControllerInterface
      *
      * @param \AppserverIo\Routlt\Description\ResultDescriptorInterface $resultDescriptor The action result descriptor
      *
-     * @return \AppserverIo\Routlt\ActionInterface The action instance
+     * @return \AppserverIo\Routlt\Results\ResultInterface The result instance
      */
-    public function newResultInstance(ResultDescriptorInterface $resultDescriptor)
+    protected function initResultInstance(ResultDescriptorInterface $resultDescriptor)
     {
 
-        // load the class name
-        $className = $resultDescriptor->getType();
+        // create the result instance
+        $resultInstance = $this->getProvider()->get($resultDescriptor->getType());
 
-        // create a new instance of the result
-        $result = new $className($resultDescriptor);
+        // initialize the instance from the result descriptor
+        $resultInstance->init($resultDescriptor);
 
         // if the result is servlet context aware
-        if ($result instanceof ServletContextAware) {
-            $result->setServletContext($this->getServletContext());
+        if ($resultInstance instanceof ServletContextAware) {
+            $resultInstance->setServletContext($this->getServletContext());
         }
 
-        // return the instance
-        return $result;
-    }
-
-    /**
-     * Returns the available routes.
-     *
-     * @return array The array with the available routes
-     */
-    public function getRoutes()
-    {
-        return $this->routes;
-    }
-
-    /**
-     * Returns the array with request method action -> route mappings.
-     *
-     * @return array The request method action -> route mappings
-     */
-    public function getActionMappings()
-    {
-        return $this->actionMappings;
+        // return the result instance
+        return $resultInstance;
     }
 
     /**
@@ -364,6 +349,7 @@ class ControllerServlet extends HttpServlet implements ControllerInterface
      */
     public function checkGeneralActionAvailability($pathInfo)
     {
+
         // iterate the request methods we have mappings for and check if we can find the requested action
         foreach ($this->getActionMappings() as $actionMapping) {
             $run = true;
@@ -428,10 +414,6 @@ class ControllerServlet extends HttpServlet implements ControllerInterface
             // pre-initialize response
             $servletResponse->addHeader(HttpProtocol::HEADER_X_POWERED_BY, get_class($this));
 
-            // load the the DI provider and session manager instance
-            $provider = $this->getProvider($servletRequest);
-            $sessionId = $servletRequest->getProposedSessionId();
-
             // load the path info from the servlet request
             $pathInfo = $servletRequest->getPathInfo();
 
@@ -470,9 +452,6 @@ class ControllerServlet extends HttpServlet implements ControllerInterface
 
                     // set the method that has to be invoked in the action context
                     $action->setAttribute(ContextKeys::METHOD_NAME, $actionMapping->getMethodName());
-
-                    // inject the dependencies
-                    $provider->injectDependencies($action);
 
                     // pre-dispatch the action
                     $action->preDispatch($servletRequest, $servletResponse);

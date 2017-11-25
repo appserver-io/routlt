@@ -55,6 +55,16 @@ class ServletDispatcherResultTest extends \PHPUnit_Framework_TestCase
      */
     public function setUp()
     {
+        $this->result = new ServletDispatcherResult();
+    }
+
+    /**
+     * Tests the constructor intialization.
+     *
+     * @return void
+     */
+    public function testInit()
+    {
 
         // create a mock result descriptor
         $mockResultDescriptor = $this->getMockBuilder($interface = 'AppserverIo\Routlt\Description\ResultDescriptorInterface')
@@ -72,17 +82,10 @@ class ServletDispatcherResultTest extends \PHPUnit_Framework_TestCase
             ->method('getResult')
             ->will($this->returnValue('/path/to/my_template.dhtml/index/index?test=test'));
 
-        // initialize the result
-        $this->result = new ServletDispatcherResult($mockResultDescriptor);
-    }
+        // invoke the init method
+        $this->result->init($mockResultDescriptor);
 
-    /**
-     * Tests the constructor intialization.
-     *
-     * @return void
-     */
-    public function testConstructor()
-    {
+        // make some assertions
         $this->assertSame(ActionInterface::SUCCESS, $this->result->getName());
         $this->assertSame('AppserverIo\Routlt\Results\ServletDispatcherResult', $this->result->getType());
         $this->assertSame('/path/to/my_template.dhtml/index/index?test=test', $this->result->getResult());
@@ -95,6 +98,25 @@ class ServletDispatcherResultTest extends \PHPUnit_Framework_TestCase
      */
     public function testProcess()
     {
+
+        // create a mock result descriptor
+        $mockResultDescriptor = $this->getMockBuilder($interface = 'AppserverIo\Routlt\Description\ResultDescriptorInterface')
+            ->setMethods(get_class_methods($interface))
+            ->getMock();
+
+        // mock the methods
+        $mockResultDescriptor->expects($this->once())
+            ->method('getName')
+            ->will($this->returnValue(ActionInterface::SUCCESS));
+        $mockResultDescriptor->expects($this->once())
+            ->method('getType')
+            ->will($this->returnValue('AppserverIo\Routlt\Results\ServletDispatcherResult'));
+        $mockResultDescriptor->expects($this->once())
+            ->method('getResult')
+            ->will($this->returnValue('/path/to/my_template.dhtml/index/index?test=test'));
+
+        // invoke the init method
+        $this->result->init($mockResultDescriptor);
 
         // create a mock servlet request instance
         $mockServletRequest = $this->getMockBuilder($requestInterface = 'AppserverIo\Routlt\Mock\MockHttpServletRequestInterface')

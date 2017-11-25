@@ -46,18 +46,7 @@ class BaseActionTest extends \PHPUnit_Framework_TestCase
      */
     public function setUp()
     {
-        $this->action = $this->getMockForAbstractClass('AppserverIo\Routlt\BaseAction', array($this->getMock('AppserverIo\Psr\Context\ContextInterface')));
-    }
-
-    /**
-     * This test checks the resolved class name.
-     *
-     * @return void
-     */
-    public function testGetConstructorAndGetContext()
-    {
-        $action = $this->getMockForAbstractClass('AppserverIo\Routlt\BaseAction', array($context = $this->getMock('AppserverIo\Psr\Context\ContextInterface')));
-        $this->assertSame($context, $action->getContext());
+        $this->action = $this->getMockForAbstractClass('AppserverIo\Routlt\BaseAction');
     }
 
     /**
@@ -92,19 +81,29 @@ class BaseActionTest extends \PHPUnit_Framework_TestCase
     public function testSetGetAttribute()
     {
 
-        // initialize a context
-        $context = $this->getMock('AppserverIo\Psr\Context\ArrayContext');
-        $context
+        // create a mock servlet context
+        $servletContextInterace = 'AppserverIo\Routlt\Mock\MockServletContextInterface';
+        $servletContext = $this->getMock($servletContextInterace, get_class_methods($servletContextInterace));
+
+        // mock the methods
+        $servletContext
             ->expects($this->once())
             ->method('setAttribute')
             ->with($key = 'testKey', $value = 'testValue');
-        $context
-            ->expects($this->once())
+        $servletContext->expects($this->once())
             ->method('getAttribute')
-            ->will($this->returnValue($value));
+            ->with($key)
+            ->willReturn($value);
 
         // initialize the action
-        $action = $this->getMockForAbstractClass('AppserverIo\Routlt\BaseAction', array($context));
+        $action = $this->getMockBuilder('AppserverIo\Routlt\BaseAction')
+            ->setMethods(array('getServletContext'))
+            ->getMockForAbstractClass();
+
+        // mock the methods
+        $action->expects($this->any())
+            ->method('getServletContext')
+            ->willReturn($servletContext);
 
         // add a value to the context
         $action->setAttribute($key, $value);
@@ -128,7 +127,7 @@ class BaseActionTest extends \PHPUnit_Framework_TestCase
      * Check that the method findResult() didn't return a value if the requested one
      * is not available.
      *
-     * @return sting
+     * @return void
      */
     public function testFindResultWithoutResult()
     {
