@@ -97,7 +97,7 @@ class ControllerServletTest extends \PHPUnit_Framework_TestCase
         // create a mock instance of the DI provider
         $providerInterface = 'AppserverIo\Psr\Di\ProviderInterface';
         $provider = $this->getMock($providerInterface, get_class_methods($providerInterface));
-        $provider->expects($this->once())->method('injectDependencies');
+        $provider->expects($this->exactly(2))->method('injectDependencies');
 
         // assert that the array with the routes will be loaded
         $controller->expects($this->once())
@@ -152,7 +152,7 @@ class ControllerServletTest extends \PHPUnit_Framework_TestCase
         // create a mock instance of the DI provider
         $providerInterface = 'AppserverIo\Psr\Di\ProviderInterface';
         $provider = $this->getMock($providerInterface, get_class_methods($providerInterface));
-        $provider->expects($this->once())->method('injectDependencies');
+        $provider->expects($this->exactly(2))->method('injectDependencies');
 
         // assert that the array with the routes will be loaded
         $controller->expects($this->once())
