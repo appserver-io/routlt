@@ -25,30 +25,36 @@ If you want to write an application that uses Rout.Lt 2, you have to install it 
 
 ## Configuration
 
-Roul.Lt 2 comes with it's own annotations and configuration filse. 
+Rout.Lt 2 comes with it's own annotations and configuration files.
 
 ### Application
 
-Therefore, it is necessary, that these annoatations as well as all other framework specfic configuration files will be initialized on application startup. To ensure this, you have to provide a custom `META-INF/context.xml` file with your application, which needs the additional `<descriptors/>` node for the object manager configuration
+Therefore, it is necessary, that these annotations as well as all other framework specific configuration files will be initialized on application startup. To ensure this, you have to provide a custom `META-INF/context.xml` file with your application, which needs the additional `<descriptors/>` node for the object manager configuration
 
 ```xml
-<managers>
-    ...
-    <manager
-        name="ObjectManagerInterface"
-        type="AppserverIo\Appserver\DependencyInjectionContainer\ObjectManager"
-        factory="AppserverIo\Appserver\DependencyInjectionContainer\ObjectManagerFactory">
-        <descriptors>
-            <descriptor>AppserverIo\Description\ServletDescriptor</descriptor>
-            <descriptor>AppserverIo\Description\MessageDrivenBeanDescriptor</descriptor>
-            <descriptor>AppserverIo\Description\StatefulSessionBeanDescriptor</descriptor>
-            <descriptor>AppserverIo\Description\SingletonSessionBeanDescriptor</descriptor>
-            <descriptor>AppserverIo\Description\StatelessSessionBeanDescriptor</descriptor>
-            <descriptor>AppserverIo\Routlt\Description\PathDescriptor</descriptor>
-        </descriptors>
-    </manager>
-    ...
-</managers>
+<?xml version="1.0" encoding="UTF-8"?>
+<context
+        name="routlt"
+        type="AppserverIo\Appserver\Application\Application"
+        xmlns="http://www.appserver.io/appserver">
+    <managers>
+        ...
+        <manager
+            name="ObjectManagerInterface"
+            type="AppserverIo\Appserver\DependencyInjectionContainer\ObjectManager"
+            factory="AppserverIo\Appserver\DependencyInjectionContainer\ObjectManagerFactory">
+            <descriptors>
+                <descriptor>AppserverIo\Description\ServletDescriptor</descriptor>
+                <descriptor>AppserverIo\Description\MessageDrivenBeanDescriptor</descriptor>
+                <descriptor>AppserverIo\Description\StatefulSessionBeanDescriptor</descriptor>
+                <descriptor>AppserverIo\Description\SingletonSessionBeanDescriptor</descriptor>
+                <descriptor>AppserverIo\Description\StatelessSessionBeanDescriptor</descriptor>
+                <descriptor>AppserverIo\Routlt\Description\PathDescriptor</descriptor>
+            </descriptors>
+        </manager>
+        ...
+    </managers>
+</context>
 ```
 
 ### Servlet Engine
@@ -123,9 +129,9 @@ As Rout.Lt 2 provides annotations to configure routes and actions, the `routlt.j
 
 ### Using Annotations
 
-You have two annotations, namely `@Path` and `@Action` to configure the routing of your application. These annotations gives you the possiblity to map the `Path Info` of a request to a method in a action class. This mechanism is adopted by many of the available frameworks. The `Path Info` segments will be separated by a slash. The first segment has to map to the value of the `@Path` annotations `name` attribute, the second to one of the `@Action` annotations of one of methods.
+You have two annotations, namely `@Path` and `@Action` to configure the routing of your application. These annotations give you the possibility to map the `Path Info` of a request to a method in an action class. This mechanism is adopted by many of the available frameworks. The `Path Info` segments will be separated by a slash. The first segment has to map to the value of the `@Path` annotations `name` attribute, the second to one of the `@Action` annotations of one of methods.
 
-For example, assuming want to dispatch the URL `http://127.0.0.1:9080/myapp/index.do/index/login`, you need the implementation of an action class that looks like this. 
+For example, assuming you want to dispatch the URL `http://127.0.0.1:9080/myapp/index.do/index/login`, you need the implementation of an action class that looks like this. 
 
 ```php
 
@@ -268,13 +274,13 @@ public function indexAction(HttpServletRequestInterface $servletRequest, HttpSer
 }
 ```
 
-Annotations are available for all request methods `CONNECT`, `DELETE`, `GET`, `HEAD`, `OPTIONS`, `POST`, `PUT` and `TRACE`. If you don't add one of the above annotations, an action will be invoked on **ALL** of the request methods.
+Annotations are available for all request methods `CONNECT`, `DELETE`, `GET`, `HEAD`, `OPTIONS`, `POST`, `PUT`, `PATCH` and `TRACE`. If you don't add one of the above annotations, an action will be invoked on **ALL** of the request methods.
 
 > If you add one of them, the action will be invoked on that annotation only. On all other request methods, a `AppserverIo\Psr\Servlet\ServletException` with a `404` status code will be thrown, which results in a `404` error page.
 
 ## Results
 
-By specifying results with the @Results annotation, a developer is able to specify a post processor, to process action results, e. g. by a template engine. By default, Rout.Lt 2 provides a servlet that uses simple DHTML files as templates and processes them in the scope of the servlet's `process()` method. This allows access to servlet request/response instances as well as servlet configutation parameters.
+By specifying results with the @Results annotation, a developer is able to specify a post processor, to process action results, e. g. by a template engine. By default, Rout.Lt 2 provides a servlet that uses simple DHTML files as templates and processes them in the scope of the servlet's `process()` method. This allows access to servlet request/response instances as well as servlet configuration parameters.
 
 The following example uses a @Results annotation, which contains a nested @Result annotation, to process the `/path/to/my_template.dhtml` after invoking the `indexAction()` method.
 
