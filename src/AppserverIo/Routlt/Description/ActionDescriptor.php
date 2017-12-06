@@ -25,6 +25,7 @@ use AppserverIo\Routlt\Annotations\Action;
 use AppserverIo\Lang\Reflection\MethodInterface;
 use AppserverIo\Lang\Reflection\ReflectionAnnotation;
 use AppserverIo\Configuration\Interfaces\NodeInterface;
+use AppserverIo\Description\AbstractNameAwareDescriptor;
 
 /**
  * Annotation to map a request path info to an action method.
@@ -35,15 +36,8 @@ use AppserverIo\Configuration\Interfaces\NodeInterface;
  * @link       http://github.com/appserver-io/routlt
  * @link       http://www.appserver.io
  */
-class ActionDescriptor implements ActionDescriptorInterface
+class ActionDescriptor extends AbstractNameAwareDescriptor implements ActionDescriptorInterface
 {
-
-    /**
-     * The path info.
-     *
-     * @var string
-     */
-    protected $name;
 
     /**
      * The action method name.
@@ -96,28 +90,6 @@ class ActionDescriptor implements ActionDescriptorInterface
             HttpProtocol::METHOD_TRACE,
             HttpProtocol::METHOD_PATCH
         );
-    }
-
-    /**
-     * Sets the action path info.
-     *
-     * @param string $name The action path info
-     *
-     * @return void
-     */
-    public function setName($name)
-    {
-        $this->name = $name;
-    }
-
-    /**
-     * Returns the path info.
-     *
-     * @return string The path info
-     */
-    public function getName()
-    {
-        return $this->name;
     }
 
     /**

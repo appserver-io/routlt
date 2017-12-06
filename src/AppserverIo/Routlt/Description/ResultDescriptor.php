@@ -22,6 +22,7 @@ namespace AppserverIo\Routlt\Description;
 
 use AppserverIo\Lang\Reflection\AnnotationInterface;
 use AppserverIo\Configuration\Interfaces\NodeInterface;
+use AppserverIo\Description\AbstractNameAwareDescriptor;
 
 /**
  * Descriptor implementation for a action result.
@@ -32,15 +33,8 @@ use AppserverIo\Configuration\Interfaces\NodeInterface;
  * @link       http://github.com/appserver-io/routlt
  * @link       http://www.appserver.io
  */
-class ResultDescriptor implements ResultDescriptorInterface
+class ResultDescriptor extends AbstractNameAwareDescriptor implements ResultDescriptorInterface
 {
-
-    /**
-     * The arction result name.
-     *
-     * @var string
-     */
-    protected $name;
 
     /**
      * The action result type.
@@ -62,28 +56,6 @@ class ResultDescriptor implements ResultDescriptorInterface
      * @var string
      */
     protected $code = 200;
-
-    /**
-     * Sets the action result name.
-     *
-     * @param string $name The action result name
-     *
-     * @return void
-     */
-    public function setName($name)
-    {
-        $this->name = $name;
-    }
-
-    /**
-     * Returns the action result name.
-     *
-     * @return string The action result name
-     */
-    public function getName()
-    {
-        return $this->name;
-    }
 
     /**
      * Sets the action result type.

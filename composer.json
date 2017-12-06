@@ -24,7 +24,7 @@
         "appserver-io-psr/naming": "dev-di as 1.1.0",
         "appserver-io-psr/servlet": "dev-di as 3.0.0",
         "appserver-io-psr/context": "~1.0",
-        "appserver-io-psr/deployment": "~1.0"
+        "appserver-io-psr/deployment": "dev-di as 1.1.0"
     },
     "require-dev": {
         "appserver-io/build": "~1.0"

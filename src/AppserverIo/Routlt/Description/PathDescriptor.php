@@ -26,8 +26,7 @@ use AppserverIo\Routlt\Annotations\Results;
 use AppserverIo\Lang\Reflection\ClassInterface;
 use AppserverIo\Configuration\Interfaces\NodeInterface;
 use AppserverIo\Description\DescriptorReferencesTrait;
-use AppserverIo\Description\AbstractReferenceDescriptor;
-use AppserverIo\Description\ReferenceDescriptorInterface;
+use AppserverIo\Description\AbstractNameAwareDescriptor;
 
 /**
  * Annotation to map a request path info to an action method.
@@ -38,7 +37,7 @@ use AppserverIo\Description\ReferenceDescriptorInterface;
  * @link       http://github.com/appserver-io/routlt
  * @link       http://www.appserver.io
  */
-class PathDescriptor extends AbstractReferenceDescriptor implements PathDescriptorInterface, ReferenceDescriptorInterface
+class PathDescriptor extends AbstractNameAwareDescriptor implements PathDescriptorInterface
 {
 
     /**
