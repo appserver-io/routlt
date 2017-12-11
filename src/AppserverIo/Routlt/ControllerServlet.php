@@ -301,7 +301,7 @@ class ControllerServlet extends HttpServlet implements ControllerInterface
     {
 
         // create a new action instance
-        $actionInstance = $this->getProvider()->get($pathDescriptor->getClassName());
+        $actionInstance = $this->getProvider()->get($pathDescriptor->getName());
 
         // if the action is servlet context aware
         if ($actionInstance instanceof ServletContextAware) {
