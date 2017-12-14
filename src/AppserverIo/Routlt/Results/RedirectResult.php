@@ -33,15 +33,8 @@ use AppserverIo\Psr\Servlet\ServletResponseInterface;
  * @link       http://github.com/appserver-io/routlt
  * @link       http://www.appserver.io
  */
-class RedirectResult implements ResultInterface
+class RedirectResult extends AbstractResult
 {
-
-    /**
-     * Trait proving basic result functionality.
-     *
-     * @var \AppserverIo\Routlt\Results\ResultTrait
-     */
-    use ResultTrait;
 
     /**
      * Processes an action result by dispatching the configured servlet.

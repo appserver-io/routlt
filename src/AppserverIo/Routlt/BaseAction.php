@@ -23,7 +23,9 @@ namespace AppserverIo\Routlt;
 use AppserverIo\Lang\Object;
 use AppserverIo\Routlt\Results\ResultInterface;
 use AppserverIo\Routlt\Util\ValidationAware;
+use AppserverIo\Routlt\Util\DescriptorAware;
 use AppserverIo\Routlt\Util\ServletContextAware;
+use AppserverIo\Psr\Deployment\DescriptorInterface;
 use AppserverIo\Psr\Servlet\ServletContextInterface;
 use AppserverIo\Psr\Servlet\Http\HttpServletRequestInterface;
 use AppserverIo\Psr\Servlet\Http\HttpServletResponseInterface;
@@ -37,7 +39,7 @@ use AppserverIo\Psr\Servlet\Http\HttpServletResponseInterface;
  * @link      http://github.com/appserver-io/routlt
  * @link      http://www.appserver.io
  */
-abstract class BaseAction extends Object implements ActionInterface, ValidationAware, ServletContextAware
+abstract class BaseAction extends Object implements ActionInterface, ValidationAware, ServletContextAware, DescriptorAware
 {
 
     /**
@@ -67,6 +69,13 @@ abstract class BaseAction extends Object implements ActionInterface, ValidationA
      * @var array
      */
     protected $results = array();
+
+    /**
+     * The descriptor instance.
+     *
+     * @var \AppserverIo\Psr\Deployment\DescriptorInterface
+     */
+    protected $descriptor;
 
     /**
      * Sets the actual servlet context instance.
@@ -126,16 +135,6 @@ abstract class BaseAction extends Object implements ActionInterface, ValidationA
     public function getDefaultMethod()
     {
         return BaseAction::DEFAULT_METHOD_NAME;
-    }
-
-    /**
-     * Returns the context for the actual request.
-     *
-     * @return \AppserverIo\Psr\Context\ContextInterface The context for the actual request
-     */
-    public function getContext()
-    {
-        return $this->context;
     }
 
     /**
@@ -225,5 +224,27 @@ abstract class BaseAction extends Object implements ActionInterface, ValidationA
     public function getErrors()
     {
         return $this->errors;
+    }
+
+    /**
+     * Sets the descriptor instance.
+     *
+     * @param \AppserverIo\Psr\Deployment\DescriptorInterface $descriptor The descriptor instance
+     *
+     * @return void
+     */
+    public function setDescriptor(DescriptorInterface $descriptor)
+    {
+        $this->descriptor = $descriptor;
+    }
+
+    /**
+     * Returns the descriptor instance.
+     *
+     * @return \AppserverIo\Psr\Deployment\DescriptorInterface The descriptor instance
+     */
+    public function getDescriptor()
+    {
+        return $this->descriptor;
     }
 }

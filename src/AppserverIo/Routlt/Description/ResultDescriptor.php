@@ -22,7 +22,10 @@ namespace AppserverIo\Routlt\Description;
 
 use AppserverIo\Lang\Reflection\AnnotationInterface;
 use AppserverIo\Configuration\Interfaces\NodeInterface;
+use AppserverIo\Description\DescriptorReferencesTrait;
 use AppserverIo\Description\AbstractNameAwareDescriptor;
+use AppserverIo\Lang\Reflection\ClassInterface;
+use AppserverIo\Routlt\Annotations\Result;
 
 /**
  * Descriptor implementation for a action result.
@@ -35,6 +38,20 @@ use AppserverIo\Description\AbstractNameAwareDescriptor;
  */
 class ResultDescriptor extends AbstractNameAwareDescriptor implements ResultDescriptorInterface
 {
+
+    /**
+     * The trait with the references descriptors.
+     *
+     * @var AppserverIo\Description\DescriptorReferencesTrait
+     */
+    use DescriptorReferencesTrait;
+
+    /**
+     * The beans class name.
+     *
+     * @var string
+     */
+    protected $className;
 
     /**
      * The action result type.
@@ -56,6 +73,28 @@ class ResultDescriptor extends AbstractNameAwareDescriptor implements ResultDesc
      * @var string
      */
     protected $code = 200;
+
+    /**
+     * Sets the beans class name.
+     *
+     * @param string $className The beans class name
+     *
+     * @return void
+     */
+    public function setClassName($className)
+    {
+        $this->className = $className;
+    }
+
+    /**
+     * Returns the beans class name.
+     *
+     * @return string The beans class name
+     */
+    public function getClassName()
+    {
+        return $this->className;
+    }
 
     /**
      * Sets the action result type.
@@ -134,6 +173,86 @@ class ResultDescriptor extends AbstractNameAwareDescriptor implements ResultDesc
     }
 
     /**
+     * Returns a new annotation instance for the passed reflection class.
+     *
+     * @param \AppserverIo\Lang\Reflection\ClassInterface $reflectionClass The reflection class with the bean configuration
+     *
+     * @return \AppserverIo\Lang\Reflection\AnnotationInterface The reflection annotation
+     */
+    protected function newAnnotationInstance(ClassInterface $reflectionClass)
+    {
+        return $reflectionClass->getAnnotation(Result::ANNOTATION);
+    }
+
+    /**
+     * Initializes the bean configuration instance from the passed reflection class instance.
+     *
+     * @param \AppserverIo\Lang\Reflection\ClassInterface $reflectionClass The reflection class with the bean configuration
+     *
+     * @return \AppserverIo\Routlt\Description\PathDescriptorInterface The initialized descriptor
+     */
+    public function fromReflectionClass(ClassInterface $reflectionClass)
+    {
+
+        // add the annotation alias to the reflection class
+        $reflectionClass->addAnnotationAlias(Result::ANNOTATION, Result::__getClass());
+
+        // query if we've an action
+        if ($reflectionClass->implementsInterface('AppserverIo\Routlt\Results\ResultInterface') === false &&
+            $reflectionClass->toPhpReflectionClass()->isAbstract() === false) {
+            // if not, do nothing
+            return;
+        }
+
+        // query if we've a servlet with a @Path annotation
+        if ($reflectionClass->hasAnnotation(Result::ANNOTATION) === false) {
+            // if not, do nothing
+            return;
+        }
+
+        // create a new annotation instance
+        $reflectionAnnotation = $this->newAnnotationInstance($reflectionClass);
+
+        // load class name
+        $this->setClassName($reflectionClass->getName());
+
+        // initialize the annotation instance
+        $annotationInstance = $reflectionAnnotation->newInstance(
+            $reflectionAnnotation->getAnnotationName(),
+            $reflectionAnnotation->getValues()
+        );
+
+        // load the default name to register in naming directory
+        if ($nameAttribute = $annotationInstance->getName()) {
+            $name = $nameAttribute;
+        } else {
+            // if @Annotation(name=****) is NOT set, we use the class name by default
+            $name = $reflectionClass->getShortName();
+        }
+
+        // prepare and set the name
+        $this->setName($name);
+
+        // initialize the descriptor properties from the annotation values
+        $this->setType($annotationInstance->getType());
+        $this->setResult($annotationInstance->getResult());
+
+        // set the HTTP response code if given
+        if ($code = $annotationInstance->getCode()) {
+            $this->setCode($code);
+        }
+
+        // initialize the shared flag @Result(shared=true)
+        $this->setShared($annotationInstance->getShared());
+
+        // initialize references from the passed reflection class
+        $this->referencesFromReflectionClass($reflectionClass);
+
+        // return the instance
+        return $this;
+    }
+
+    /**
      * Initializes the result configuration instance from the passed reflection annotation instance.
      *
      * @param \AppserverIo\Lang\Reflection\AnnotationInterface $reflectionAnnotation The reflection annotation with the result configuration
@@ -204,6 +323,11 @@ class ResultDescriptor extends AbstractNameAwareDescriptor implements ResultDesc
             );
         }
 
+        // merge the class name
+        if ($className = $resultDescriptor->getClassName()) {
+            $this->setClassName($className);
+        }
+
         // merge the type
         if ($type = $resultDescriptor->getType()) {
             $this->setType($type);
@@ -218,5 +342,8 @@ class ResultDescriptor extends AbstractNameAwareDescriptor implements ResultDesc
         if ($code = $resultDescriptor->getCode()) {
             $this->setCode($code);
         }
+
+        // merge the shared flag
+        $this->setShared($resultDescriptor->isShared());
     }
 }

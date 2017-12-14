@@ -35,6 +35,7 @@ use AppserverIo\Routlt\Util\ServletContextAware;
 use AppserverIo\Routlt\Results\ResultInterface;
 use AppserverIo\Routlt\Description\PathDescriptorInterface;
 use AppserverIo\Routlt\Description\ResultDescriptorInterface;
+use AppserverIo\Routlt\Util\DescriptorAware;
 
 /**
  * Abstract example implementation that provides some kind of basic MVC functionality
@@ -76,6 +77,13 @@ class ControllerServlet extends HttpServlet implements ControllerInterface
      * @var array
      */
     protected $routes = array();
+
+    /**
+     * The array with the path descriptors.
+     *
+     * @var array
+     */
+    protected $paths = array();
 
     /**
      * The array with request method action -> route mappings.
@@ -183,7 +191,27 @@ class ControllerServlet extends HttpServlet implements ControllerInterface
      */
     public function addPathDescriptor(PathDescriptorInterface $pathDescriptor)
     {
-        $this->paths[] = $pathDescriptor;
+        $this->paths[$pathDescriptor->getName()] = $pathDescriptor;
+    }
+
+    /**
+     * Returns the path descriptor with the passed name.
+     *
+     * @param string $name The name of the path descriptor to return
+     *
+     * @return \AppserverIo\Routlt\Description\PathDescriptorInterface The path descriptor instance
+     * @throws \Exception
+     */
+    public function getPathDescriptor($name)
+    {
+
+        // query whether or not the path descriptor exists
+        if (isset($this->paths[$name])) {
+            return $this->paths[$name];
+        }
+
+        // throw an exception if the requested path descriptor ist NOT available
+        throw new \Exception(sprintf('Can\'t find path descriptor with name "%s"', $name));
     }
 
     /**
@@ -231,14 +259,16 @@ class ControllerServlet extends HttpServlet implements ControllerInterface
             if ($descriptor instanceof PathDescriptorInterface) {
                 // register the action's references
                 $this->getServletContext()->registerReferences($descriptor);
-
                 // initialize a new action instance
                 $action = $this->initActionInstance($descriptor);
 
                 // prepare the action's the result descriptors
                 /** @var \AppserverIo\Routlt\Description\ResultDescriptorInterface $resultDescriptor */
                 foreach ($descriptor->getResults() as $resultDescriptor) {
-                    $action->addResult($this->initResultInstance($resultDescriptor));
+                    // register the result's references
+                    $this->getServletContext()->registerReferences($resultDescriptor);
+                    // initialize a new result instance and add it to the action
+                    $action->addResult($this->initResultInstance($resultDescriptor, $action));
                 }
 
                 // prepare the route, e. g. /index/index
@@ -308,6 +338,11 @@ class ControllerServlet extends HttpServlet implements ControllerInterface
             $actionInstance->setServletContext($this->getServletContext());
         }
 
+        // if the action is descriptor aware
+        if ($actionInstance instanceof DescriptorAware) {
+            $actionInstance->setDescriptor($pathDescriptor);
+        }
+
         // return the action instance
         return $actionInstance;
     }
@@ -316,22 +351,33 @@ class ControllerServlet extends HttpServlet implements ControllerInterface
      * Creates a new instance of the action result the passed descriptor.
      *
      * @param \AppserverIo\Routlt\Description\ResultDescriptorInterface $resultDescriptor The action result descriptor
+     * @param \AppserverIo\Routlt\ActionInterface                       $action           The action instance the result is bound to
      *
      * @return \AppserverIo\Routlt\Results\ResultInterface The result instance
      */
-    protected function initResultInstance(ResultDescriptorInterface $resultDescriptor)
+    protected function initResultInstance(ResultDescriptorInterface $resultDescriptor, ActionInterface $action)
     {
 
         // create the result instance
         $resultInstance = $this->getProvider()->get($resultDescriptor->getType());
 
-        // initialize the instance from the result descriptor
-        $resultInstance->init($resultDescriptor);
+        // if the result is action aware
+        if ($resultInstance instanceof ActionAware) {
+            $resultInstance->setAction($action);
+        }
+
+        // if the result is descriptor aware
+        if ($resultInstance instanceof DescriptorAware) {
+            $resultInstance->setDescriptor($resultDescriptor);
+        }
 
         // if the result is servlet context aware
         if ($resultInstance instanceof ServletContextAware) {
             $resultInstance->setServletContext($this->getServletContext());
         }
+
+        // initialize the instance from the result descriptor
+        $resultInstance->init($resultDescriptor);
 
         // return the result instance
         return $resultInstance;
@@ -428,6 +474,9 @@ class ControllerServlet extends HttpServlet implements ControllerInterface
             // load the routes
             $routes = $this->getRoutes();
 
+            // load the DI provider
+            $provider = $this->getProvider();
+
             // load the action mappings for the actual servlet request
             $actionMappings = $this->getActionMappingsForServletRequest($servletRequest);
 
@@ -450,6 +499,11 @@ class ControllerServlet extends HttpServlet implements ControllerInterface
                     // resolve the action with the found mapping
                     $action = $routes[$actionMapping->getControllerName()];
 
+                    // query whether or not the action has a descriptor
+                    if ($action instanceof DescriptorAware) {
+                        $provider->injectDependencies($action->getDescriptor(), $action);
+                    }
+
                     // set the method that has to be invoked in the action context
                     $action->setAttribute(ContextKeys::METHOD_NAME, $actionMapping->getMethodName());
 
@@ -471,6 +525,11 @@ class ControllerServlet extends HttpServlet implements ControllerInterface
 
                     // process the result if available
                     if (($instance = $action->findResult($result)) instanceof ResultInterface) {
+                        // query whether or not the result has a descriptor
+                        if ($instance instanceof DescriptorAware) {
+                            $provider->injectDependencies($instance->getDescriptor(), $instance);
+                        }
+
                         // query whether or not the result is action aware
                         if ($instance instanceof ActionAware) {
                             $instance->setAction($action);

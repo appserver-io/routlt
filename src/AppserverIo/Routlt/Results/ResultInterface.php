@@ -22,7 +22,6 @@ namespace AppserverIo\Routlt\Results;
 
 use AppserverIo\Psr\Servlet\ServletRequestInterface;
 use AppserverIo\Psr\Servlet\ServletResponseInterface;
-use AppserverIo\Routlt\Description\ResultDescriptorInterface;
 
 /**
  * The interface for all result implementations.
@@ -60,11 +59,9 @@ interface ResultInterface
     /**
      * Initializes the result from the result descriptor instance.
      *
-     * @param \AppserverIo\Routlt\Description\ResultDescriptorInterface $resultDescriptor The result descriptor instance
-     *
      * @return void
      */
-    public function init(ResultDescriptorInterface $resultDescriptor);
+    public function init();
 
     /**
      * Processes an action result by dispatching the configured servlet.

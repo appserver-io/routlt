@@ -21,7 +21,6 @@
 namespace AppserverIo\Routlt\Results;
 
 use AppserverIo\Http\HttpProtocol;
-use AppserverIo\Routlt\Util\ActionAware;
 use AppserverIo\Routlt\Util\ValidationAware;
 use AppserverIo\Psr\Servlet\ServletRequestInterface;
 use AppserverIo\Psr\Servlet\ServletResponseInterface;
@@ -36,7 +35,7 @@ use AppserverIo\Psr\Servlet\ServletResponseInterface;
  * @link       http://www.appserver.io
  * @deprecated Since 2.0.0-alpha5, use AppserverIo\Routlt\Results\RawResult instead
  */
-class JsonResult implements ResultInterface, ActionAware
+class JsonResult extends AbstractResult
 {
 
     /**
@@ -45,13 +44,6 @@ class JsonResult implements ResultInterface, ActionAware
      * @var string
      */
     const DATA = 'json-result.data';
-
-    /**
-     * Trait proving basic result functionality.
-     *
-     * @var \AppserverIo\Routlt\Results\ResultTrait
-     */
-    use ResultTrait;
 
     /**
      * Processes an action result by dispatching the configured servlet.

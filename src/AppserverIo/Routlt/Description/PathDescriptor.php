@@ -258,6 +258,9 @@ class PathDescriptor extends AbstractNameAwareDescriptor implements PathDescript
             }
         }
 
+        // initialize the shared flag @Path(shared=true)
+        $this->setShared($annotationInstance->getShared());
+
         // initialize references from the passed reflection class
         $this->referencesFromReflectionClass($reflectionClass);
 
@@ -310,6 +313,9 @@ class PathDescriptor extends AbstractNameAwareDescriptor implements PathDescript
         if ($name = $pathDescriptor->getName()) {
             $this->setName($name);
         }
+
+        // merge the shared flag
+        $this->setShared($pathDescriptor->isShared());
 
         // merge the action method descriptors
         foreach ($pathDescriptor->getActions() as $action) {

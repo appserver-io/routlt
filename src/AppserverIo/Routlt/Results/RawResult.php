@@ -20,7 +20,6 @@
 
 namespace AppserverIo\Routlt\Results;
 
-use AppserverIo\Routlt\Util\ActionAware;
 use AppserverIo\Routlt\Util\EncodingAware;
 use AppserverIo\Routlt\Util\ValidationAware;
 use AppserverIo\Routlt\Util\DefaultHeadersAware;
@@ -36,15 +35,8 @@ use AppserverIo\Psr\Servlet\ServletResponseInterface;
  * @link       http://github.com/appserver-io/routlt
  * @link       http://www.appserver.io
  */
-class RawResult implements ResultInterface, ActionAware
+class RawResult extends AbstractResult
 {
-
-    /**
-     * Trait proving basic result functionality.
-     *
-     * @var \AppserverIo\Routlt\Results\ResultTrait
-     */
-    use ResultTrait;
 
     /**
      * Processes an action result by dispatching the configured servlet.

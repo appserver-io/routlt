@@ -34,15 +34,8 @@ use AppserverIo\Psr\Servlet\ServletResponseInterface;
  * @link       http://github.com/appserver-io/routlt
  * @link       http://www.appserver.io
  */
-class ServletDispatcherResult implements ResultInterface, ServletContextAware
+class ServletDispatcherResult extends AbstractResult implements ServletContextAware
 {
-
-    /**
-     * Trait proving basic result functionality.
-     *
-     * @var \AppserverIo\Routlt\Results\ResultTrait
-     */
-    use ResultTrait;
 
     /**
      * The servlet context instance.

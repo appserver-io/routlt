@@ -82,8 +82,11 @@ class ServletDispatcherResultTest extends \PHPUnit_Framework_TestCase
             ->method('getResult')
             ->will($this->returnValue('/path/to/my_template.dhtml/index/index?test=test'));
 
+        // set the descriptor instance
+        $this->result->setDescriptor($mockResultDescriptor);
+
         // invoke the init method
-        $this->result->init($mockResultDescriptor);
+        $this->result->init();
 
         // make some assertions
         $this->assertSame(ActionInterface::SUCCESS, $this->result->getName());
@@ -115,8 +118,11 @@ class ServletDispatcherResultTest extends \PHPUnit_Framework_TestCase
             ->method('getResult')
             ->will($this->returnValue('/path/to/my_template.dhtml/index/index?test=test'));
 
+        // set the descriptor instance
+        $this->result->setDescriptor($mockResultDescriptor);
+
         // invoke the init method
-        $this->result->init($mockResultDescriptor);
+        $this->result->init();
 
         // create a mock servlet request instance
         $mockServletRequest = $this->getMockBuilder($requestInterface = 'AppserverIo\Routlt\Mock\MockHttpServletRequestInterface')

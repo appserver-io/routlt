@@ -20,7 +20,7 @@
 
 namespace AppserverIo\Routlt\Annotations;
 
-use AppserverIo\Lang\Reflection\ReflectionAnnotation;
+use AppserverIo\Psr\EnterpriseBeans\Annotations\AbstractBeanAnnotation;
 
 /**
  * Annotation to map a request path info to an action class.
@@ -31,7 +31,7 @@ use AppserverIo\Lang\Reflection\ReflectionAnnotation;
  * @link       http://github.com/appserver-io/routlt
  * @link       http://www.appserver.io
  */
-class Path extends ReflectionAnnotation
+class Path extends AbstractBeanAnnotation
 {
 
     /**
@@ -50,17 +50,5 @@ class Path extends ReflectionAnnotation
     public static function __getClass()
     {
         return __CLASS__;
-    }
-
-    /**
-     * Returns the value of the name attribute.
-     *
-     * @return string|null The annotations name attribute
-     */
-    public function getName()
-    {
-        if (isset($this->values['name'])) {
-            return $this->values['name'];
-        }
     }
 }

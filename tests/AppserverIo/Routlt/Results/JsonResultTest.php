@@ -86,8 +86,11 @@ class JsonResultTest extends \PHPUnit_Framework_TestCase implements ActionInterf
             ->method('getResult')
             ->will($this->returnValue(null));
 
+        // set the descriptor instance
+        $this->result->setDescriptor($mockResultDescriptor);
+
         // invoke the init method
-        $this->result->init($mockResultDescriptor);
+        $this->result->init();
 
         // make some assertions
         $this->assertSame(ActionInterface::SUCCESS, $this->result->getName());
@@ -119,8 +122,11 @@ class JsonResultTest extends \PHPUnit_Framework_TestCase implements ActionInterf
             ->method('getResult')
             ->will($this->returnValue(null));
 
+        // set the descriptor instance
+        $this->result->setDescriptor($mockResultDescriptor);
+
         // invoke the init method
-        $this->result->init($mockResultDescriptor);
+        $this->result->init();
 
         // create a mock servlet request instance
         $mockServletRequest = $this->getMockBuilder($requestInterface = 'AppserverIo\Routlt\Mock\MockHttpServletRequestInterface')
@@ -185,8 +191,11 @@ class JsonResultTest extends \PHPUnit_Framework_TestCase implements ActionInterf
             ->method('getResult')
             ->will($this->returnValue(null));
 
+        // set the descriptor instance
+        $this->result->setDescriptor($mockResultDescriptor);
+
         // invoke the init method
-        $this->result->init($mockResultDescriptor);
+        $this->result->init();
 
         // create a mock servlet request instance
         $mockServletRequest = $this->getMockBuilder($requestInterface = 'AppserverIo\Routlt\Mock\MockHttpServletRequestInterface')

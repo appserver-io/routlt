@@ -102,8 +102,11 @@ class RawResultTest extends \PHPUnit_Framework_TestCase implements ActionInterfa
             ->method('getResult')
             ->will($this->returnValue(RawResultTest::RESULT));
 
+        // set the descriptor instance
+        $this->result->setDescriptor($mockResultDescriptor);
+
         // invoke the init method
-        $this->result->init($mockResultDescriptor);
+        $this->result->init();
 
         // make some assertions
         $this->assertSame(ActionInterface::SUCCESS, $this->result->getName());
@@ -135,8 +138,11 @@ class RawResultTest extends \PHPUnit_Framework_TestCase implements ActionInterfa
             ->method('getResult')
             ->will($this->returnValue(RawResultTest::RESULT));
 
+        // set the descriptor instance
+        $this->result->setDescriptor($mockResultDescriptor);
+
         // invoke the init method
-        $this->result->init($mockResultDescriptor);
+        $this->result->init();
 
         // we add a dummy result value
         $this->setAttribute(RawResultTest::RESULT, $result = array('key' => 'value'));
@@ -190,8 +196,11 @@ class RawResultTest extends \PHPUnit_Framework_TestCase implements ActionInterfa
             ->method('getResult')
             ->will($this->returnValue(RawResultTest::RESULT));
 
+        // set the descriptor instance
+        $this->result->setDescriptor($mockResultDescriptor);
+
         // invoke the init method
-        $this->result->init($mockResultDescriptor);
+        $this->result->init();
 
         // create a mock servlet request instance
         $mockServletRequest = $this->getMockBuilder($requestInterface = 'AppserverIo\Routlt\Mock\MockHttpServletRequestInterface')
@@ -249,8 +258,11 @@ class RawResultTest extends \PHPUnit_Framework_TestCase implements ActionInterfa
             ->method('getResult')
             ->will($this->returnValue(RawResultTest::RESULT));
 
+        // set the descriptor instance
+        $this->result->setDescriptor($mockResultDescriptor);
+
         // invoke the init method
-        $this->result->init($mockResultDescriptor);
+        $this->result->init();
 
         // create a mock servlet request instance
         $mockServletRequest = $this->getMockBuilder($requestInterface = 'AppserverIo\Routlt\Mock\MockHttpServletRequestInterface')

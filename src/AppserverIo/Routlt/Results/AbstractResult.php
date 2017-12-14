@@ -1,7 +1,7 @@
 <?php
 
 /**
- * AppserverIo\Routlt\Results\ResultTrait
+ * AppserverIo\Routlt\Results\AbstractResult
  *
  * NOTICE OF LICENSE
  *
@@ -21,10 +21,12 @@
 namespace AppserverIo\Routlt\Results;
 
 use AppserverIo\Routlt\ActionInterface;
-use AppserverIo\Routlt\Description\ResultDescriptorInterface;
+use AppserverIo\Routlt\Util\ActionAware;
+use AppserverIo\Routlt\Util\DescriptorAware;
+use AppserverIo\Psr\Deployment\DescriptorInterface;
 
 /**
- * Trait providing basic result functionality.
+ * Abstract result implementation that provides basic result functionality.
  *
  * @author     Tim Wagner <tw@techdivision.com>
  * @copyright  2015 TechDivision GmbH <info@techdivision.com>
@@ -32,8 +34,15 @@ use AppserverIo\Routlt\Description\ResultDescriptorInterface;
  * @link       http://github.com/appserver-io/routlt
  * @link       http://www.appserver.io
  */
-trait ResultTrait
+abstract class AbstractResult implements ResultInterface, ActionAware, DescriptorAware
 {
+
+    /**
+     * The descriptor instance.
+     *
+     * @var  \AppserverIo\Routlt\Description\ResultDescriptorInterface
+     */
+    protected $descriptor;
 
     /**
      * The action result name.
@@ -66,12 +75,16 @@ trait ResultTrait
     /**
      * Initializes the result from the result descriptor instance.
      *
-     * @param \AppserverIo\Routlt\Description\ResultDescriptorInterface $resultDescriptor The result descriptor instance
-     *
      * @return void
      */
-    public function init(ResultDescriptorInterface $resultDescriptor)
+    public function init()
     {
+
+        // load the injected descriptor instance
+        /** @var \AppserverIo\Routlt\Description\ResultDescriptorInterface $resultDescriptor */
+        $resultDescriptor = $this->getDescriptor();
+
+        // initialize the properites
         $this->name = $resultDescriptor->getName();
         $this->type = $resultDescriptor->getType();
         $this->code = $resultDescriptor->getCode();
@@ -138,5 +151,27 @@ trait ResultTrait
     public function getAction()
     {
         return $this->action;
+    }
+
+    /**
+     * Sets the descriptor instance.
+     *
+     * @param \AppserverIo\Psr\Deployment\DescriptorInterface $descriptor The descriptor instance
+     *
+     * @return void
+     */
+    public function setDescriptor(DescriptorInterface $descriptor)
+    {
+        $this->descriptor = $descriptor;
+    }
+
+    /**
+     * Returns the descriptor instance.
+     *
+     * @return \AppserverIo\Psr\Deployment\DescriptorInterface The descriptor instance
+     */
+    public function getDescriptor()
+    {
+        return $this->descriptor;
     }
 }
