@@ -32,6 +32,8 @@ use AppserverIo\Psr\Servlet\ServletResponseInterface;
  * @license    http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  * @link       http://github.com/appserver-io/routlt
  * @link       http://www.appserver.io
+ *
+ * @Result(shared=false)
  */
 class RedirectResult extends AbstractResult
 {

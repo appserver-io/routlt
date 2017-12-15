@@ -34,6 +34,8 @@ use AppserverIo\Psr\Servlet\ServletResponseInterface;
  * @link       http://github.com/appserver-io/routlt
  * @link       http://www.appserver.io
  * @deprecated Since 2.0.0-alpha5, use AppserverIo\Routlt\Results\RawResult instead
+ *
+ * @Result(shared=false)
  */
 class JsonResult extends AbstractResult
 {

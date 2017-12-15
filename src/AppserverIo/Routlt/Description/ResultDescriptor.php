@@ -199,7 +199,8 @@ class ResultDescriptor extends AbstractNameAwareDescriptor implements ResultDesc
 
         // query if we've an action
         if ($reflectionClass->implementsInterface('AppserverIo\Routlt\Results\ResultInterface') === false &&
-            $reflectionClass->toPhpReflectionClass()->isAbstract() === false) {
+            $reflectionClass->toPhpReflectionClass()->isAbstract() === false
+        ) {
             // if not, do nothing
             return;
         }
