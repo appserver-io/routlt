@@ -64,6 +64,13 @@ abstract class BaseAction extends Object implements ActionInterface, ValidationA
     protected $errors = array();
 
     /**
+     * The action specific attributes.
+     *
+     * @var array
+     */
+    protected $attributes = array();
+
+    /**
      * The array with the action results.
      *
      * @var array
@@ -138,20 +145,43 @@ abstract class BaseAction extends Object implements ActionInterface, ValidationA
     }
 
     /**
-     * Attaches the passed value with passed key in the context of the actual request.
+     * Returns the attributes of the action instance.
      *
-     * @param string $key   The key to attach the data under
+     * @return array The attributes of the action instance
+     */
+    public function getAttributes()
+    {
+        return $this->attributes;
+    }
+
+    /**
+     * Query's whether or not an attribute with the passed key has been
+     * attached to the action instance.
+     *
+     * @param string $key The key of the attribute to query for
+     *
+     * @return boolean TRUE if the attribute has been attached, else FALSE
+     */
+    public function hasAttribute($key)
+    {
+        return isset($this->attributes[$key]);
+    }
+
+    /**
+     * Attaches the passed value with passed key to the action instance.
+     *
+     * @param string $key   The key to attach the data with
      * @param mixed  $value The data to be attached
      *
      * @return void
      */
     public function setAttribute($key, $value)
     {
-        $this->getServletContext()->setAttribute($key, $value);
+        $this->attributes[$key] = $value;
     }
 
     /**
-     * Returns the data with the passed key from the context of the actual request.
+     * Returns the data with the passed key from the context of the action instance.
      *
      * @param string $key The key to return the data for
      *
@@ -159,7 +189,9 @@ abstract class BaseAction extends Object implements ActionInterface, ValidationA
      */
     public function getAttribute($key)
     {
-        return $this->getServletContext()->getAttribute($key);
+        if (isset($this->attributes[$key])) {
+            return $this->attributes[$key];
+        }
     }
 
     /**

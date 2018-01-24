@@ -81,32 +81,13 @@ class BaseActionTest extends \PHPUnit_Framework_TestCase
     public function testSetGetAttribute()
     {
 
-        // create a mock servlet context
-        $servletContextInterace = 'AppserverIo\Routlt\Mock\MockServletContextInterface';
-        $servletContext = $this->getMock($servletContextInterace, get_class_methods($servletContextInterace));
-
-        // mock the methods
-        $servletContext
-            ->expects($this->once())
-            ->method('setAttribute')
-            ->with($key = 'testKey', $value = 'testValue');
-        $servletContext->expects($this->once())
-            ->method('getAttribute')
-            ->with($key)
-            ->willReturn($value);
-
         // initialize the action
         $action = $this->getMockBuilder('AppserverIo\Routlt\BaseAction')
             ->setMethods(array('getServletContext'))
             ->getMockForAbstractClass();
 
-        // mock the methods
-        $action->expects($this->any())
-            ->method('getServletContext')
-            ->willReturn($servletContext);
-
         // add a value to the context
-        $action->setAttribute($key, $value);
+        $action->setAttribute($key = 'testKey', $value = 'testValue');
 
         // check that the values has been added
         $this->assertSame($value, $action->getAttribute($key));
