@@ -59,6 +59,16 @@ class JsonResultTest extends \PHPUnit_Framework_TestCase implements ActionInterf
      */
     public function setUp()
     {
+        $this->result = new JsonResult();
+    }
+
+    /**
+     * Tests the init() method.
+     *
+     * @return void
+     */
+    public function testInit()
+    {
 
         // create a mock result descriptor
         $mockResultDescriptor = $this->getMockBuilder($interface = 'AppserverIo\Routlt\Description\ResultDescriptorInterface')
@@ -76,17 +86,13 @@ class JsonResultTest extends \PHPUnit_Framework_TestCase implements ActionInterf
             ->method('getResult')
             ->will($this->returnValue(null));
 
-        // initialize the result
-        $this->result = new JsonResult($mockResultDescriptor);
-    }
+        // set the descriptor instance
+        $this->result->setDescriptor($mockResultDescriptor);
 
-    /**
-     * Tests the constructor intialization.
-     *
-     * @return void
-     */
-    public function testConstructor()
-    {
+        // invoke the init method
+        $this->result->init();
+
+        // make some assertions
         $this->assertSame(ActionInterface::SUCCESS, $this->result->getName());
         $this->assertSame('AppserverIo\Routlt\Results\JsonResult', $this->result->getType());
         $this->assertNull($this->result->getResult());
@@ -99,6 +105,28 @@ class JsonResultTest extends \PHPUnit_Framework_TestCase implements ActionInterf
      */
     public function testProcess()
     {
+
+        // create a mock result descriptor
+        $mockResultDescriptor = $this->getMockBuilder($interface = 'AppserverIo\Routlt\Description\ResultDescriptorInterface')
+            ->setMethods(get_class_methods($interface))
+            ->getMock();
+
+        // mock the methods
+        $mockResultDescriptor->expects($this->once())
+            ->method('getName')
+            ->will($this->returnValue(ActionInterface::SUCCESS));
+        $mockResultDescriptor->expects($this->once())
+            ->method('getType')
+            ->will($this->returnValue('AppserverIo\Routlt\Results\JsonResult'));
+        $mockResultDescriptor->expects($this->once())
+            ->method('getResult')
+            ->will($this->returnValue(null));
+
+        // set the descriptor instance
+        $this->result->setDescriptor($mockResultDescriptor);
+
+        // invoke the init method
+        $this->result->init();
 
         // create a mock servlet request instance
         $mockServletRequest = $this->getMockBuilder($requestInterface = 'AppserverIo\Routlt\Mock\MockHttpServletRequestInterface')
@@ -146,6 +174,28 @@ class JsonResultTest extends \PHPUnit_Framework_TestCase implements ActionInterf
      */
     public function testProcessWithErrors()
     {
+
+        // create a mock result descriptor
+        $mockResultDescriptor = $this->getMockBuilder($interface = 'AppserverIo\Routlt\Description\ResultDescriptorInterface')
+            ->setMethods(get_class_methods($interface))
+            ->getMock();
+
+        // mock the methods
+        $mockResultDescriptor->expects($this->once())
+            ->method('getName')
+            ->will($this->returnValue(ActionInterface::SUCCESS));
+        $mockResultDescriptor->expects($this->once())
+            ->method('getType')
+            ->will($this->returnValue('AppserverIo\Routlt\Results\JsonResult'));
+        $mockResultDescriptor->expects($this->once())
+            ->method('getResult')
+            ->will($this->returnValue(null));
+
+        // set the descriptor instance
+        $this->result->setDescriptor($mockResultDescriptor);
+
+        // invoke the init method
+        $this->result->init();
 
         // create a mock servlet request instance
         $mockServletRequest = $this->getMockBuilder($requestInterface = 'AppserverIo\Routlt\Mock\MockHttpServletRequestInterface')
@@ -280,7 +330,7 @@ class JsonResultTest extends \PHPUnit_Framework_TestCase implements ActionInterf
     /**
      * Returns the array with action errors.
      *
-     * @return The array with action errors
+     * @return array The array with action errors
      * @see \AppserverIo\Routlt\Util\ValidationAware::getErrors()
      */
     public function getErrors()

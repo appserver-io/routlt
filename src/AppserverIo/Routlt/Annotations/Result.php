@@ -20,7 +20,7 @@
 
 namespace AppserverIo\Routlt\Annotations;
 
-use AppserverIo\Lang\Reflection\ReflectionAnnotation;
+use AppserverIo\Psr\EnterpriseBeans\Annotations\AbstractBeanAnnotation;
 
 /**
  * Annotation to map a string to a action result.
@@ -31,7 +31,7 @@ use AppserverIo\Lang\Reflection\ReflectionAnnotation;
  * @link       http://github.com/appserver-io/routlt
  * @link       http://www.appserver.io
  */
-class Result extends ReflectionAnnotation
+class Result extends AbstractBeanAnnotation
 {
 
     /**
@@ -50,18 +50,6 @@ class Result extends ReflectionAnnotation
     public static function __getClass()
     {
         return __CLASS__;
-    }
-
-    /**
-     * Returns the value of the name attribute.
-     *
-     * @return string|null The annotations name attribute
-     */
-    public function getName()
-    {
-        if (isset($this->values['name'])) {
-            return $this->values['name'];
-        }
     }
 
     /**

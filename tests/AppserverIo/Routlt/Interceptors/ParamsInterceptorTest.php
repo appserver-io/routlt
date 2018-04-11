@@ -238,7 +238,7 @@ class ParamsInterceptorTest extends \PHPUnit_Framework_TestCase implements Actio
     /**
      * Returns the array with action errors.
      *
-     * @return The array with action errors
+     * @return array The array with action errors
      * @see \AppserverIo\Routlt\Util\ValidationAware::getErrors()
      */
     public function getErrors()

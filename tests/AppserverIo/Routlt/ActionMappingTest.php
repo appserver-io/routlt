@@ -35,7 +35,7 @@ class ActionMappingTest extends \PHPUnit_Framework_TestCase
     /**
      * The action mapping to test.
      *
-     * @var AppserverIo\Routlt\ActionMapping
+     * @var \AppserverIo\Routlt\ActionMapping
      */
     protected $actionMapping;
 

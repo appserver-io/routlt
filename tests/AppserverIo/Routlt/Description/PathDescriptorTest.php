@@ -271,11 +271,11 @@ class PathDescriptorTest extends \PHPUnit_Framework_TestCase implements ActionIn
         $result->setResult('/path/to/dummy.phtml');
 
         // create a resource descriptor
-        $resReference = new ResReferenceDescriptor();
+        $resReference = new ResReferenceDescriptor($this->descriptor);
         $resReference->setName('SomeResource');
 
         // create an EPB descriptor
-        $epbReference = new EpbReferenceDescriptor();
+        $epbReference = new EpbReferenceDescriptor($this->descriptor);
         $epbReference->getName('UserSessionBean');
 
         // mock the methods

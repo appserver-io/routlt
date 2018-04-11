@@ -57,6 +57,13 @@ interface ResultInterface
     public function getResult();
 
     /**
+     * Initializes the result from the result descriptor instance.
+     *
+     * @return void
+     */
+    public function init();
+
+    /**
      * Processes an action result by dispatching the configured servlet.
      *
      * @param \AppserverIo\Psr\Servlet\ServletRequestInterface  $servletRequest  The request instance

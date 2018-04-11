@@ -1,3 +1,13 @@
+# Version 2.2.0-beta6
+
+## Bugfixes
+
+* None
+
+## Features
+
+* Refactoring for usage with new DI implementation
+
 # Version 2.2.0-beta5
 
 ## Bugfixes

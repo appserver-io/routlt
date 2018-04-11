@@ -20,9 +20,8 @@
 
 namespace AppserverIo\Routlt\Mock;
 
+use AppserverIo\Psr\Deployment\DescriptorInterface;
 use AppserverIo\Psr\Servlet\ServletContextInterface;
-use AppserverIo\Psr\EnterpriseBeans\Description\EpbReferenceDescriptorInterface;
-use AppserverIo\Psr\EnterpriseBeans\Description\ResReferenceDescriptorInterface;
 
 /**
  * Mock interface for testing purposes only.
@@ -58,18 +57,28 @@ interface MockServletContextInterface extends ServletContextInterface
     /**
      * Registers the passed EPB reference in the applications directory.
      *
-     * @param \AppserverIo\Psr\EnterpriseBeans\Description\EpbReferenceDescriptorInterface $epbReference The EPB reference to register
+     * @param \AppserverIo\Psr\Deployment\DescriptorInterface $epbReference The EPB reference to register
      *
      * @return void
      */
-    public function registerEpbReference(EpbReferenceDescriptorInterface $epbReference);
+    public function registerReferences(DescriptorInterface $descriptor);
 
     /**
-     * Registers the passed resource reference in the applications directory.
+     * Registers the value with the passed key in the container.
      *
-     * @param \AppserverIo\Psr\EnterpriseBeans\Description\ResReferenceDescriptorInterface $resReference The resource reference to register
+     * @param string $key   The key to register the value with
+     * @param object $value The value to register
      *
      * @return void
      */
-    public function registerResReference(ResReferenceDescriptorInterface $resReference);
+    public function setAttribute($key, $value);
+
+    /**
+     * Returns the attribute with the passed key from the container.
+     *
+     * @param string $key The key the requested value is registered with
+     *
+     * @return mixed|null The requested value if available
+     */
+    public function getAttribute($key);
 }
