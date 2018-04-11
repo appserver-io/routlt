@@ -20,7 +20,6 @@
 
 namespace AppserverIo\Routlt\Results;
 
-use AppserverIo\Appserver\ServletEngine\Http\Response;
 use AppserverIo\Http\HttpProtocol;
 use AppserverIo\Routlt\ActionInterface;
 use AppserverIo\Routlt\Util\ValidationAware;
@@ -76,6 +75,16 @@ class RawResultTest extends \PHPUnit_Framework_TestCase implements ActionInterfa
      */
     public function setUp()
     {
+        $this->result = new RawResult();
+    }
+
+    /**
+     * Tests the init() method.
+     *
+     * @return void
+     */
+    public function testinit()
+    {
 
         // create a mock result descriptor
         $mockResultDescriptor = $this->getMockBuilder($interface = 'AppserverIo\Routlt\Description\ResultDescriptorInterface')
@@ -93,17 +102,13 @@ class RawResultTest extends \PHPUnit_Framework_TestCase implements ActionInterfa
             ->method('getResult')
             ->will($this->returnValue(RawResultTest::RESULT));
 
-        // initialize the result
-        $this->result = new RawResult($mockResultDescriptor);
-    }
+        // set the descriptor instance
+        $this->result->setDescriptor($mockResultDescriptor);
 
-    /**
-     * Tests the constructor intialization.
-     *
-     * @return void
-     */
-    public function testConstructor()
-    {
+        // invoke the init method
+        $this->result->init();
+
+        // make some assertions
         $this->assertSame(ActionInterface::SUCCESS, $this->result->getName());
         $this->assertSame(RawResultTest::RESULT, $this->result->getResult());
         $this->assertSame('AppserverIo\Routlt\Results\RawResult', $this->result->getType());
@@ -116,6 +121,28 @@ class RawResultTest extends \PHPUnit_Framework_TestCase implements ActionInterfa
      */
     public function testProcess()
     {
+
+        // create a mock result descriptor
+        $mockResultDescriptor = $this->getMockBuilder($interface = 'AppserverIo\Routlt\Description\ResultDescriptorInterface')
+            ->setMethods(get_class_methods($interface))
+            ->getMock();
+
+        // mock the methods
+        $mockResultDescriptor->expects($this->once())
+            ->method('getName')
+            ->will($this->returnValue(ActionInterface::SUCCESS));
+        $mockResultDescriptor->expects($this->once())
+            ->method('getType')
+            ->will($this->returnValue('AppserverIo\Routlt\Results\RawResult'));
+        $mockResultDescriptor->expects($this->once())
+            ->method('getResult')
+            ->will($this->returnValue(RawResultTest::RESULT));
+
+        // set the descriptor instance
+        $this->result->setDescriptor($mockResultDescriptor);
+
+        // invoke the init method
+        $this->result->init();
 
         // we add a dummy result value
         $this->setAttribute(RawResultTest::RESULT, $result = array('key' => 'value'));
@@ -152,6 +179,28 @@ class RawResultTest extends \PHPUnit_Framework_TestCase implements ActionInterfa
      */
     public function testProcessWithErrors()
     {
+
+        // create a mock result descriptor
+        $mockResultDescriptor = $this->getMockBuilder($interface = 'AppserverIo\Routlt\Description\ResultDescriptorInterface')
+            ->setMethods(get_class_methods($interface))
+            ->getMock();
+
+        // mock the methods
+        $mockResultDescriptor->expects($this->once())
+            ->method('getName')
+            ->will($this->returnValue(ActionInterface::SUCCESS));
+        $mockResultDescriptor->expects($this->once())
+            ->method('getType')
+            ->will($this->returnValue('AppserverIo\Routlt\Results\RawResult'));
+        $mockResultDescriptor->expects($this->once())
+            ->method('getResult')
+            ->will($this->returnValue(RawResultTest::RESULT));
+
+        // set the descriptor instance
+        $this->result->setDescriptor($mockResultDescriptor);
+
+        // invoke the init method
+        $this->result->init();
 
         // create a mock servlet request instance
         $mockServletRequest = $this->getMockBuilder($requestInterface = 'AppserverIo\Routlt\Mock\MockHttpServletRequestInterface')
@@ -192,6 +241,28 @@ class RawResultTest extends \PHPUnit_Framework_TestCase implements ActionInterfa
      */
     public function testProcessWithoutAnyData()
     {
+
+        // create a mock result descriptor
+        $mockResultDescriptor = $this->getMockBuilder($interface = 'AppserverIo\Routlt\Description\ResultDescriptorInterface')
+            ->setMethods(get_class_methods($interface))
+            ->getMock();
+
+        // mock the methods
+        $mockResultDescriptor->expects($this->once())
+            ->method('getName')
+            ->will($this->returnValue(ActionInterface::SUCCESS));
+        $mockResultDescriptor->expects($this->once())
+            ->method('getType')
+            ->will($this->returnValue('AppserverIo\Routlt\Results\RawResult'));
+        $mockResultDescriptor->expects($this->once())
+            ->method('getResult')
+            ->will($this->returnValue(RawResultTest::RESULT));
+
+        // set the descriptor instance
+        $this->result->setDescriptor($mockResultDescriptor);
+
+        // invoke the init method
+        $this->result->init();
 
         // create a mock servlet request instance
         $mockServletRequest = $this->getMockBuilder($requestInterface = 'AppserverIo\Routlt\Mock\MockHttpServletRequestInterface')
@@ -319,7 +390,7 @@ class RawResultTest extends \PHPUnit_Framework_TestCase implements ActionInterfa
     /**
      * Returns the array with action errors.
      *
-     * @return The array with action errors
+     * @return array The array with action errors
      * @see \AppserverIo\Routlt\Util\ValidationAware::getErrors()
      */
     public function getErrors()
@@ -357,7 +428,7 @@ class RawResultTest extends \PHPUnit_Framework_TestCase implements ActionInterfa
      *
      * @param string $data The data to be encoded
      *
-     * @return The encoded data.
+     * @return array The encoded data.
      */
     public function encode($data)
     {
@@ -377,7 +448,7 @@ class RawResultTest extends \PHPUnit_Framework_TestCase implements ActionInterfa
     /**
      * Returns the array with action's default headers.
      *
-     * @return The array with action's default headers
+     * @return array The array with action's default headers
      */
     public function getDefaultHeaders()
     {

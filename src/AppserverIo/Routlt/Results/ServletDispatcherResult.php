@@ -33,16 +33,11 @@ use AppserverIo\Psr\Servlet\ServletResponseInterface;
  * @license    http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  * @link       http://github.com/appserver-io/routlt
  * @link       http://www.appserver.io
+ *
+ * @Result(shared=false)
  */
-class ServletDispatcherResult implements ResultInterface, ServletContextAware
+class ServletDispatcherResult extends AbstractResult implements ServletContextAware
 {
-
-    /**
-     * Trait proving basic result functionality.
-     *
-     * @var \AppserverIo\Routlt\Results\ResultTrait
-     */
-    use ResultTrait;
 
     /**
      * The servlet context instance.

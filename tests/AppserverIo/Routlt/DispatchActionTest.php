@@ -20,7 +20,6 @@
 
 namespace AppserverIo\Routlt;
 
-use AppserverIo\Routlt\Mock\MockDispatchAction;
 use AppserverIo\Routlt\Util\ContextKeys;
 
 /**
@@ -49,12 +48,7 @@ class DispatchActionTest extends \PHPUnit_Framework_TestCase
      */
     public function setUp()
     {
-        $this->action = $this->getMockForAbstractClass(
-            'AppserverIo\Routlt\DispatchAction',
-            array(
-                $this->getMock('AppserverIo\Psr\Context\ContextInterface')
-            )
-        );
+        $this->action = $this->getMockForAbstractClass('AppserverIo\Routlt\DispatchAction');
     }
 
     /**
@@ -66,17 +60,10 @@ class DispatchActionTest extends \PHPUnit_Framework_TestCase
     {
 
         // create a new mock action implementation
-        $action = $this->getMock(
-            'AppserverIo\Routlt\Mock\MockDispatchAction',
-            array('getAttribute'),
-            array($this->getMock('AppserverIo\Psr\Context\ContextInterface'))
-        );
+        $action = $this->getMock('AppserverIo\Routlt\Mock\MockDispatchAction', array('getServletContext'));
 
-        // mock the methods
-        $action->expects($this->once())
-            ->method('getAttribute')
-            ->with(ContextKeys::METHOD_NAME)
-            ->will($this->returnValue('indexAction'));
+        // set the method name
+        $action->setAttribute(ContextKeys::METHOD_NAME, 'indexAction');
 
         // create a mock servlet request
         $servletRequest = $this->getMock('AppserverIo\Psr\Servlet\Http\HttpServletRequestInterface');

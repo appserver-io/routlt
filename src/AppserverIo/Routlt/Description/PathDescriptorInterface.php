@@ -77,6 +77,20 @@ interface PathDescriptorInterface extends DescriptorInterface
     public function getResReferences();
 
     /**
+     * The array with the persistence unit references.
+     *
+     * @return array The persistence unit references
+     */
+    public function getPersistenceUnitReferences();
+
+    /**
+     * The array with the bean references.
+     *
+     * @return array The bean references
+     */
+    public function getBeanReferences();
+
+    /**
      * Merges the passed configuration into this one. Configuration values
      * of the passed configuration will overwrite the this one.
      *

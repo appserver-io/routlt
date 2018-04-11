@@ -46,18 +46,7 @@ class BaseActionTest extends \PHPUnit_Framework_TestCase
      */
     public function setUp()
     {
-        $this->action = $this->getMockForAbstractClass('AppserverIo\Routlt\BaseAction', array($this->getMock('AppserverIo\Psr\Context\ContextInterface')));
-    }
-
-    /**
-     * This test checks the resolved class name.
-     *
-     * @return void
-     */
-    public function testGetConstructorAndGetContext()
-    {
-        $action = $this->getMockForAbstractClass('AppserverIo\Routlt\BaseAction', array($context = $this->getMock('AppserverIo\Psr\Context\ContextInterface')));
-        $this->assertSame($context, $action->getContext());
+        $this->action = $this->getMockForAbstractClass('AppserverIo\Routlt\BaseAction');
     }
 
     /**
@@ -92,22 +81,13 @@ class BaseActionTest extends \PHPUnit_Framework_TestCase
     public function testSetGetAttribute()
     {
 
-        // initialize a context
-        $context = $this->getMock('AppserverIo\Psr\Context\ArrayContext');
-        $context
-            ->expects($this->once())
-            ->method('setAttribute')
-            ->with($key = 'testKey', $value = 'testValue');
-        $context
-            ->expects($this->once())
-            ->method('getAttribute')
-            ->will($this->returnValue($value));
-
         // initialize the action
-        $action = $this->getMockForAbstractClass('AppserverIo\Routlt\BaseAction', array($context));
+        $action = $this->getMockBuilder('AppserverIo\Routlt\BaseAction')
+            ->setMethods(array('getServletContext'))
+            ->getMockForAbstractClass();
 
         // add a value to the context
-        $action->setAttribute($key, $value);
+        $action->setAttribute($key = 'testKey', $value = 'testValue');
 
         // check that the values has been added
         $this->assertSame($value, $action->getAttribute($key));
@@ -128,7 +108,7 @@ class BaseActionTest extends \PHPUnit_Framework_TestCase
      * Check that the method findResult() didn't return a value if the requested one
      * is not available.
      *
-     * @return sting
+     * @return void
      */
     public function testFindResultWithoutResult()
     {

@@ -21,9 +21,12 @@
 namespace AppserverIo\Routlt;
 
 use AppserverIo\Lang\Object;
-use AppserverIo\Routlt\Util\ValidationAware;
 use AppserverIo\Routlt\Results\ResultInterface;
-use AppserverIo\Psr\Context\ContextInterface;
+use AppserverIo\Routlt\Util\ValidationAware;
+use AppserverIo\Routlt\Util\DescriptorAware;
+use AppserverIo\Routlt\Util\ServletContextAware;
+use AppserverIo\Psr\Deployment\DescriptorInterface;
+use AppserverIo\Psr\Servlet\ServletContextInterface;
 use AppserverIo\Psr\Servlet\Http\HttpServletRequestInterface;
 use AppserverIo\Psr\Servlet\Http\HttpServletResponseInterface;
 
@@ -36,7 +39,7 @@ use AppserverIo\Psr\Servlet\Http\HttpServletResponseInterface;
  * @link      http://github.com/appserver-io/routlt
  * @link      http://www.appserver.io
  */
-abstract class BaseAction extends Object implements ActionInterface, ValidationAware
+abstract class BaseAction extends Object implements ActionInterface, ValidationAware, ServletContextAware, DescriptorAware
 {
 
     /**
@@ -49,9 +52,9 @@ abstract class BaseAction extends Object implements ActionInterface, ValidationA
     /**
      * The context for the actual request.
      *
-     * @var \AppserverIo\Psr\Context\ContextInterface
+     * @var \AppserverIo\Psr\Servlet\ServletContextInterface
      */
-    protected $context = null;
+    protected $servletContext = null;
 
     /**
      * The array with the action errors.
@@ -61,6 +64,13 @@ abstract class BaseAction extends Object implements ActionInterface, ValidationA
     protected $errors = array();
 
     /**
+     * The action specific attributes.
+     *
+     * @var array
+     */
+    protected $attributes = array();
+
+    /**
      * The array with the action results.
      *
      * @var array
@@ -68,14 +78,32 @@ abstract class BaseAction extends Object implements ActionInterface, ValidationA
     protected $results = array();
 
     /**
-     * Initializes the action with the context for the
-     * actual request.
+     * The descriptor instance.
      *
-     * @param \AppserverIo\Psr\Context\ContextInterface $context The context for the actual request
+     * @var \AppserverIo\Psr\Deployment\DescriptorInterface
      */
-    public function __construct(ContextInterface $context)
+    protected $descriptor;
+
+    /**
+     * Sets the actual servlet context instance.
+     *
+     * @param \AppserverIo\Psr\Servlet\ServletContextInterface $servletContext The servlet context instance
+     *
+     * @return void
+     */
+    public function setServletContext(ServletContextInterface $servletContext)
     {
-        $this->context = $context;
+        $this->servletContext = $servletContext;
+    }
+
+    /**
+     * Returns the servlet context instance.
+     *
+     * @return \AppserverIo\Psr\Servlet\ServletContextInterface The servlet context instance
+     */
+    public function getServletContext()
+    {
+        return $this->servletContext;
     }
 
     /**
@@ -117,30 +145,43 @@ abstract class BaseAction extends Object implements ActionInterface, ValidationA
     }
 
     /**
-     * Returns the context for the actual request.
+     * Returns the attributes of the action instance.
      *
-     * @return \AppserverIo\Psr\Context\ContextInterface The context for the actual request
+     * @return array The attributes of the action instance
      */
-    public function getContext()
+    public function getAttributes()
     {
-        return $this->context;
+        return $this->attributes;
     }
 
     /**
-     * Attaches the passed value with passed key in the context of the actual request.
+     * Query's whether or not an attribute with the passed key has been
+     * attached to the action instance.
      *
-     * @param string $key   The key to attach the data under
+     * @param string $key The key of the attribute to query for
+     *
+     * @return boolean TRUE if the attribute has been attached, else FALSE
+     */
+    public function hasAttribute($key)
+    {
+        return isset($this->attributes[$key]);
+    }
+
+    /**
+     * Attaches the passed value with passed key to the action instance.
+     *
+     * @param string $key   The key to attach the data with
      * @param mixed  $value The data to be attached
      *
      * @return void
      */
     public function setAttribute($key, $value)
     {
-        $this->getContext()->setAttribute($key, $value);
+        $this->attributes[$key] = $value;
     }
 
     /**
-     * Returns the data with the passed key from the context of the actual request.
+     * Returns the data with the passed key from the context of the action instance.
      *
      * @param string $key The key to return the data for
      *
@@ -148,7 +189,9 @@ abstract class BaseAction extends Object implements ActionInterface, ValidationA
      */
     public function getAttribute($key)
     {
-        return $this->getContext()->getAttribute($key);
+        if (isset($this->attributes[$key])) {
+            return $this->attributes[$key];
+        }
     }
 
     /**
@@ -213,5 +256,27 @@ abstract class BaseAction extends Object implements ActionInterface, ValidationA
     public function getErrors()
     {
         return $this->errors;
+    }
+
+    /**
+     * Sets the descriptor instance.
+     *
+     * @param \AppserverIo\Psr\Deployment\DescriptorInterface $descriptor The descriptor instance
+     *
+     * @return void
+     */
+    public function setDescriptor(DescriptorInterface $descriptor)
+    {
+        $this->descriptor = $descriptor;
+    }
+
+    /**
+     * Returns the descriptor instance.
+     *
+     * @return \AppserverIo\Psr\Deployment\DescriptorInterface The descriptor instance
+     */
+    public function getDescriptor()
+    {
+        return $this->descriptor;
     }
 }
