@@ -65,6 +65,7 @@ interface ActionInterface
      * @param \AppserverIo\Routlt\Results\ResultInterface $result The result that has to be added
      *
      * @return void
+     * @see \AppserverIo\Routlt\ActionInterface::addResult()
      */
     public function addResult(ResultInterface $result);
 

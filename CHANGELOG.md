@@ -1,3 +1,13 @@
+# Version 2.2.0-beta7
+
+## Bugfixes
+
+* Fixed invalid ResultDescriptor usage
+
+## Features
+
+* None
+
 # Version 2.2.0-beta6
 
 ## Bugfixes

@@ -1,7 +1,7 @@
 <?php
 
 /**
- * AppserverIo\Routlt\Results\ResultInterface
+ * AppserverIo\Routlt\Description\ResultConfigurationDescriptorInterface
  *
  * NOTICE OF LICENSE
  *
@@ -18,14 +18,12 @@
  * @link       http://www.appserver.io
  */
 
-namespace AppserverIo\Routlt\Results;
+namespace AppserverIo\Routlt\Description;
 
-use AppserverIo\Psr\Servlet\ServletRequestInterface;
-use AppserverIo\Psr\Servlet\ServletResponseInterface;
-use AppserverIo\Routlt\Description\ResultConfigurationDescriptorInterface;
+use AppserverIo\Psr\Deployment\DescriptorInterface;
 
 /**
- * The interface for all result implementations.
+ * Interface for a result configuration descriptor implementation.
  *
  * @author     Tim Wagner <tw@techdivision.com>
  * @copyright  2015 TechDivision GmbH <info@techdivision.com>
@@ -33,13 +31,13 @@ use AppserverIo\Routlt\Description\ResultConfigurationDescriptorInterface;
  * @link       http://github.com/appserver-io/routlt
  * @link       http://www.appserver.io
  */
-interface ResultInterface
+interface ResultConfigurationDescriptorInterface extends DescriptorInterface
 {
 
     /**
-     * Returns the result name.
+     * Returns the action result name.
      *
-     * @return string The result name
+     * @return string The action result name
      */
     public function getName();
 
@@ -58,21 +56,20 @@ interface ResultInterface
     public function getResult();
 
     /**
-     * Initializes the result from the result configuration descriptor instance.
+     * Returns the HTTP response code that has to be send.
      *
-     * @param \AppserverIo\Routlt\Description\ResultConfigurationDescriptorInterface $resultConfigurationDescriptor The result configuration descriptor
-     *
-     * @return void
+     * @return integer The HTTP response code
      */
-    public function init(ResultConfigurationDescriptorInterface $resultConfigurationDescriptor);
+    public function getCode();
 
     /**
-     * Processes an action result by dispatching the configured servlet.
+     * Merges the passed configuration into this one. Configuration values
+     * of the passed configuration will overwrite the this one.
      *
-     * @param \AppserverIo\Psr\Servlet\ServletRequestInterface  $servletRequest  The request instance
-     * @param \AppserverIo\Psr\Servlet\ServletResponseInterface $servletResponse The response sent back to the client
+     * @param \AppserverIo\Routlt\Description\ResultConfigurationDescriptorInterface $resultConfigurationDescriptor The configuration to merge
      *
      * @return void
+     * @throws \AppserverIo\Routlt\Description\DescriptorException Is thrown if the passed descriptor has a different method name
      */
-    public function process(ServletRequestInterface $servletRequest, ServletResponseInterface $servletResponse);
+    public function merge(ResultConfigurationDescriptorInterface $resultConfigurationDescriptor);
 }

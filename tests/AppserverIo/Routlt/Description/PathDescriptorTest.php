@@ -264,8 +264,8 @@ class PathDescriptorTest extends \PHPUnit_Framework_TestCase implements ActionIn
         $action->setName('/test');
         $action->setMethodName('someMethod');
 
-        // create a result descriptor
-        $result = new ResultDescriptor();
+        // create a result configuration descriptor
+        $result = new ResultConfigurationDescriptor();
         $result->setName('failure');
         $result->setType('DummyType');
         $result->setResult('/path/to/dummy.phtml');

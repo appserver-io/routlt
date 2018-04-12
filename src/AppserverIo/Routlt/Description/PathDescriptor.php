@@ -130,11 +130,11 @@ class PathDescriptor extends AbstractNameAwareDescriptor implements PathDescript
     /**
      * Adds a result action configuration.
      *
-     * @param \AppserverIo\Routlt\Description\ResultDescriptorInterface $result The action result configuration
+     * @param \AppserverIo\Routlt\Description\ResultConfigurationDescriptorInterface $result The action result configuration
      *
      * @return void
      */
-    public function addResult(ResultDescriptorInterface $result)
+    public function addResult(ResultConfigurationDescriptorInterface $result)
     {
         $this->results[$result->getName()] = $result;
     }
@@ -254,7 +254,7 @@ class PathDescriptor extends AbstractNameAwareDescriptor implements PathDescript
 
             // load the results
             foreach ($resultsAnnotationInstance->getResults() as $resultAnnotation) {
-                $this->addResult(ResultDescriptor::newDescriptorInstance()->fromReflectionAnnotation($resultAnnotation));
+                $this->addResult(ResultConfigurationDescriptor::newDescriptorInstance()->fromReflectionAnnotation($resultAnnotation));
             }
         }
 
