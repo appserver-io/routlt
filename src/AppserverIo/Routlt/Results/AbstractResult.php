@@ -23,6 +23,7 @@ namespace AppserverIo\Routlt\Results;
 use AppserverIo\Routlt\ActionInterface;
 use AppserverIo\Routlt\Util\ActionAware;
 use AppserverIo\Routlt\Util\DescriptorAware;
+use AppserverIo\Routlt\Description\ResultConfigurationDescriptorInterface;
 use AppserverIo\Psr\Deployment\DescriptorInterface;
 
 /**
@@ -73,22 +74,20 @@ abstract class AbstractResult implements ResultInterface, ActionAware, Descripto
     protected $code = 200;
 
     /**
-     * Initializes the result from the result descriptor instance.
+     * Initializes the result from the result configuration descriptor instance.
+     *
+     * @param \AppserverIo\Routlt\Description\ResultConfigurationDescriptorInterface $resultConfigurationDescriptor The result configuration descriptor
      *
      * @return void
      */
-    public function init()
+    public function init(ResultConfigurationDescriptorInterface $resultConfigurationDescriptor)
     {
 
-        // load the injected descriptor instance
-        /** @var \AppserverIo\Routlt\Description\ResultDescriptorInterface $resultDescriptor */
-        $resultDescriptor = $this->getDescriptor();
-
         // initialize the properites
-        $this->name = $resultDescriptor->getName();
-        $this->type = $resultDescriptor->getType();
-        $this->code = $resultDescriptor->getCode();
-        $this->result = $resultDescriptor->getResult();
+        $this->name = $resultConfigurationDescriptor->getName();
+        $this->type = $resultConfigurationDescriptor->getType();
+        $this->code = $resultConfigurationDescriptor->getCode();
+        $this->result = $resultConfigurationDescriptor->getResult();
     }
 
     /**

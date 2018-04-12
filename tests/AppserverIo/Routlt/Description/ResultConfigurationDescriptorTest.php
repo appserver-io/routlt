@@ -1,7 +1,7 @@
 <?php
 
 /**
- * AppserverIo\Routlt\Description\ResultDescriptorTest
+ * AppserverIo\Routlt\Description\ResultConfigurationDescriptorTest
  *
  * NOTICE OF LICENSE
  *
@@ -21,7 +21,7 @@
 namespace AppserverIo\Routlt\Description;
 
 /**
- * Test implementation for the ResultDescriptor implementation.
+ * Test implementation for the ResultConfigurationDescriptor implementation.
  *
  * @author    Tim Wagner <tw@techdivision.com>
  * @copyright 2015 TechDivision GmbH <info@techdivision.com>
@@ -29,13 +29,13 @@ namespace AppserverIo\Routlt\Description;
  * @link      http://github.com/appserver-io/routlt
  * @link      http://www.appserver.io
  */
-class ResultDescriptorTest extends \PHPUnit_Framework_TestCase
+class ResultConfigurationDescriptorTest extends \PHPUnit_Framework_TestCase
 {
 
     /**
      * The result descriptor instance to test.
      *
-     * @var \AppserverIo\Routlt\Description\ResultDescriptor
+     * @var \AppserverIo\Routlt\Description\ResultConfigurationDescriptor
      */
     protected $descriptor;
 
@@ -46,7 +46,7 @@ class ResultDescriptorTest extends \PHPUnit_Framework_TestCase
      */
     public function setUp()
     {
-        $this->descriptor = new ResultDescriptor();
+        $this->descriptor = new ResultConfigurationDescriptor();
     }
 
     /**
@@ -138,7 +138,7 @@ class ResultDescriptorTest extends \PHPUnit_Framework_TestCase
         $this->descriptor->fromReflectionAnnotation($mockReflectionAnnotation);
 
         // create the descriptor we want to merge
-        $descriptor = new ResultDescriptor();
+        $descriptor = new ResultConfigurationDescriptor();
         $descriptor->setName('success');
         $descriptor->setType('OtherResult');
         $descriptor->setResult('/phtml/another_test.phtml');
@@ -192,7 +192,7 @@ class ResultDescriptorTest extends \PHPUnit_Framework_TestCase
         $this->descriptor->fromReflectionAnnotation($mockReflectionAnnotation);
 
         // create the descriptor we want to merge
-        $descriptor = new ResultDescriptor();
+        $descriptor = new ResultConfigurationDescriptor();
         $descriptor->setName('failure');
         $descriptor->setType('OtherResult');
         $descriptor->setResult('/phtml/another_test.phtml');

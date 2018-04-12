@@ -42,27 +42,6 @@ interface ResultDescriptorInterface extends DescriptorInterface
     public function getName();
 
     /**
-     * Returns the action result type.
-     *
-     * @return string The action result type
-     */
-    public function getType();
-
-    /**
-     * Returns the action result value.
-     *
-     * @return string The action result value
-     */
-    public function getResult();
-
-    /**
-     * Returns the HTTP response code that has to be send.
-     *
-     * @return integer The HTTP response code
-     */
-    public function getCode();
-
-    /**
      * Merges the passed configuration into this one. Configuration values
      * of the passed configuration will overwrite the this one.
      *

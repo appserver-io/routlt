@@ -212,8 +212,8 @@ class ControllerServletTest extends \PHPUnit_Framework_TestCase
                          ->willReturn(array());
 
         // create an result descriptor
-        $resultDescriptor = $this->getMockBuilder('AppserverIo\Routlt\Description\ResultDescriptorInterface')
-            ->setMethods(get_class_methods('AppserverIo\Routlt\Description\ResultDescriptorInterface'))
+        $mockResultConfigurationDescriptor = $this->getMockBuilder('AppserverIo\Routlt\Description\ResultConfigurationDescriptorInterface')
+            ->setMethods(get_class_methods('AppserverIo\Routlt\Description\ResultConfigurationDescriptorInterface'))
             ->getMock();
 
         // mock the action
@@ -227,7 +227,7 @@ class ControllerServletTest extends \PHPUnit_Framework_TestCase
         // create a mock instance of the servlet manager instance
         $servletManagerInterface = 'AppserverIo\Routlt\Mock\MockServletContextInterface';
         $servletManager = $this->getMock($servletManagerInterface, get_class_methods($servletManagerInterface));
-        $servletManager->expects($this->exactly(2))
+        $servletManager->expects($this->once())
             ->method('registerReferences');
 
         // initialize a path descriptor mock instance
@@ -241,7 +241,7 @@ class ControllerServletTest extends \PHPUnit_Framework_TestCase
             ->will($this->returnValue(array(HttpProtocol::METHOD_GET => array($actionDescriptor))));
         $pathDescriptor->expects($this->once())
             ->method('getResults')
-            ->will($this->returnValue(array($resultDescriptor)));
+            ->will($this->returnValue(array($mockResultConfigurationDescriptor)));
 
         // add it to the array with return values
         $objectDescriptors = array($pathDescriptor);
@@ -266,7 +266,7 @@ class ControllerServletTest extends \PHPUnit_Framework_TestCase
         $controller->expects($this->once())
             ->method('getObjectManager')
             ->will($this->returnValue($objectManager));
-        $controller->expects($this->exactly(2))
+        $controller->expects($this->once())
             ->method('getServletContext')
             ->will($this->returnValue($servletManager));
 

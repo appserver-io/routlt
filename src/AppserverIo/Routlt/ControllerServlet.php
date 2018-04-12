@@ -36,6 +36,7 @@ use AppserverIo\Routlt\Results\ResultInterface;
 use AppserverIo\Routlt\Description\PathDescriptorInterface;
 use AppserverIo\Routlt\Description\ResultDescriptorInterface;
 use AppserverIo\Routlt\Util\DescriptorAware;
+use AppserverIo\Routlt\Description\ResultConfigurationDescriptorInterface;
 
 /**
  * Abstract example implementation that provides some kind of basic MVC functionality
@@ -253,7 +254,7 @@ class ControllerServlet extends HttpServlet implements ControllerInterface
         // load the action namespace
         $actionNamespace = strtolower($this->getInitParameter(ControllerServlet::INIT_PARAMETER_ACTION_NAMESPACE));
 
-        // register the beans located by annotations and the XML configuration
+        // register the actions located by annotations and the XML configuration
         foreach ($this->getObjectManager()->getObjectDescriptors() as $descriptor) {
             // check if we've found a servlet descriptor
             if ($descriptor instanceof PathDescriptorInterface) {
@@ -262,13 +263,10 @@ class ControllerServlet extends HttpServlet implements ControllerInterface
                 // initialize a new action instance
                 $action = $this->initActionInstance($descriptor);
 
-                // prepare the action's the result descriptors
-                /** @var \AppserverIo\Routlt\Description\ResultDescriptorInterface $resultDescriptor */
-                foreach ($descriptor->getResults() as $resultDescriptor) {
-                    // register the result's references
-                    $this->getServletContext()->registerReferences($resultDescriptor);
-                    // initialize a new result instance and add it to the action
-                    $action->addResult($this->initResultInstance($resultDescriptor, $action));
+                // prepare the action's the result configuration descriptors
+                /** @var \AppserverIo\Routlt\Description\ResultConfigurationDescriptorInterface $resultConfigurationDescriptor */
+                foreach ($descriptor->getResults() as $resultConfigurationDescriptor) {
+                    $action->addResult($this->initResultInstance($resultConfigurationDescriptor, $action));
                 }
 
                 // prepare the route, e. g. /index/index
@@ -350,16 +348,29 @@ class ControllerServlet extends HttpServlet implements ControllerInterface
     /**
      * Creates a new instance of the action result the passed descriptor.
      *
-     * @param \AppserverIo\Routlt\Description\ResultDescriptorInterface $resultDescriptor The action result descriptor
-     * @param \AppserverIo\Routlt\ActionInterface                       $action           The action instance the result is bound to
+     * @param \AppserverIo\Routlt\Description\ResultConfigurationDescriptorInterface $resultConfigurationDescriptor The action result configuration descriptor
+     * @param \AppserverIo\Routlt\ActionInterface                                    $action                        The action instance the result is bound to
      *
      * @return \AppserverIo\Routlt\Results\ResultInterface The result instance
      */
-    protected function initResultInstance(ResultDescriptorInterface $resultDescriptor, ActionInterface $action)
+    protected function initResultInstance(ResultConfigurationDescriptorInterface $resultConfigurationDescriptor, ActionInterface $action)
     {
 
-        // create the result instance
-        $resultInstance = $this->getProvider()->get($resultDescriptor->getType());
+        // load the object manager instance
+        $objectManager = $this->getObjectManager();
+
+        // query whether or not we've a real deployment descriptor or not
+        if ($objectManager->hasObjectDescriptor($lookupName = $resultConfigurationDescriptor->getType())) {
+            // if not replqce it with the real one
+            $objectDescriptor = $objectManager->getObjectDescriptor($lookupName);
+            // register the result's references
+            $this->getServletContext()->registerReferences($objectDescriptor);
+            // now use the result descriptors name for lookup
+            $lookupName = $objectDescriptor->getName();
+        }
+
+        // initialize the result instance by the lookup name
+        $resultInstance = $this->getProvider()->get($lookupName);
 
         // if the result is action aware
         if ($resultInstance instanceof ActionAware) {
@@ -367,8 +378,8 @@ class ControllerServlet extends HttpServlet implements ControllerInterface
         }
 
         // if the result is descriptor aware
-        if ($resultInstance instanceof DescriptorAware) {
-            $resultInstance->setDescriptor($resultDescriptor);
+        if ($resultInstance instanceof DescriptorAware && $objectDescriptor instanceof ResultDescriptorInterface) {
+            $resultInstance->setDescriptor($objectDescriptor);
         }
 
         // if the result is servlet context aware
@@ -377,7 +388,7 @@ class ControllerServlet extends HttpServlet implements ControllerInterface
         }
 
         // initialize the instance from the result descriptor
-        $resultInstance->init($resultDescriptor);
+        $resultInstance->init($resultConfigurationDescriptor);
 
         // return the result instance
         return $resultInstance;
@@ -526,8 +537,8 @@ class ControllerServlet extends HttpServlet implements ControllerInterface
                     // process the result if available
                     if (($instance = $action->findResult($result)) instanceof ResultInterface) {
                         // query whether or not the result has a descriptor
-                        if ($instance instanceof DescriptorAware) {
-                            $provider->injectDependencies($instance->getDescriptor(), $instance);
+                        if ($instance instanceof DescriptorAware && $descriptor = $instance->getDescriptor()) {
+                            $provider->injectDependencies($descriptor, $instance);
                         }
 
                         // query whether or not the result is action aware
