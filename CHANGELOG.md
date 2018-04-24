@@ -1,3 +1,13 @@
+# Version 2.2.0-beta9
+
+## Bugfixes
+
+* None
+
+## Features
+
+* Remove dependency to appserver-io/configuration because of implicity dependency by appserver-io/description library
+
 # Version 2.2.0-beta8
 
 ## Bugfixes
