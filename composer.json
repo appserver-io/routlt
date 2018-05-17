@@ -18,7 +18,7 @@
         "appserver-io/properties": "~2.0",
         "appserver-io/description": "~10.0",
         "appserver-io-psr/di": "~3.0",
-        "appserver-io-psr/epb": "~5.0",
+        "appserver-io-psr/epb": "~6.0",
         "appserver-io-psr/mop": "~1.0",
         "appserver-io-psr/naming": "~1.0",
         "appserver-io-psr/servlet": "~3.0",
