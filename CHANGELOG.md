@@ -1,3 +1,13 @@
+# Version 2.2.0-beta11
+
+## Bugfixes
+
+* None
+
+## Features
+
+* Switch to appserver-io/description version 11.0.0
+
 # Version 2.2.0-beta10
 
 ## Bugfixes
