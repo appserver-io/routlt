@@ -99,12 +99,8 @@ class ServletDispatcherResult extends AbstractResult implements ServletContextAw
         // prepare the request with the new data
         $servletRequest->prepare();
 
-        // load the servlet path and session-ID
-        $servletPath = $servletRequest->getServletPath();
-        $sessionId = $servletRequest->getProposedSessionId();
-
-        // load and process the servlet
-        $servlet = $this->getServletContext()->lookup($servletPath, $sessionId);
+        // load the servlet and process it
+        $servlet = $this->getServletContext()->lookup($servletRequest->getServletPath());
         $servlet->service($servletRequest, $servletResponse);
     }
 }

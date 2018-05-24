@@ -1,3 +1,13 @@
+# Version 2.2.0
+
+## Bugfixes
+
+* Remove invalid sessionId parameter when invoking ServletManager::lookup() method by ServletDispatcherResult::process()
+
+## Features
+
+* None
+
 # Version 2.2.0-beta11
 
 ## Bugfixes

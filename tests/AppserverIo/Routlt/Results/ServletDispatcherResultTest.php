@@ -125,9 +125,6 @@ class ServletDispatcherResultTest extends \PHPUnit_Framework_TestCase
 
         // mock the necessary request methods
         $mockServletRequest->expects($this->once())
-            ->method('getProposedSessionId')
-            ->will($this->returnValue($sessionId = md5(time())));
-        $mockServletRequest->expects($this->once())
             ->method('getServletPath')
             ->will($this->returnValue('/path/to/my_template.dhtml'));
         $mockServletRequest->expects($this->once())
@@ -162,7 +159,7 @@ class ServletDispatcherResultTest extends \PHPUnit_Framework_TestCase
         // mock the necessary servlet context method
         $mockServletContext->expects($this->once())
                            ->method('lookup')
-                           ->with('/path/to/my_template.dhtml', $sessionId)
+                           ->with('/path/to/my_template.dhtml')
                            ->will($this->returnValue($mockServlet));
 
         // set the servlet context instance
