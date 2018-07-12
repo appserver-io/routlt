@@ -1,3 +1,13 @@
+# Version 2.3.0
+
+## Bugfixes
+
+* None
+
+## Features
+
+* Add annotation classes for request methods
+
 # Version 2.2.0
 
 ## Bugfixes
