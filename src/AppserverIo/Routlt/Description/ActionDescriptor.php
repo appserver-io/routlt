@@ -149,7 +149,7 @@ class ActionDescriptor extends AbstractNameAwareDescriptor implements ActionDesc
     /**
      * Add's the passed key => value pair as restriction.
      *
-     * @param string $key   The parameter name to add the restriction for
+     * @param string $name  The parameter name to add the restriction for
      * @param string $value The restriction value itself
      *
      * @return void
@@ -184,7 +184,7 @@ class ActionDescriptor extends AbstractNameAwareDescriptor implements ActionDesc
     /**
      * Add's the passed key => value pair as default.
      *
-     * @param string $key   The parameter name to add the default for
+     * @param string $name  The parameter name to add the default for
      * @param string $value The default value itself
      *
      * @return void
