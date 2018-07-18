@@ -46,7 +46,13 @@ class ResultConfigurationDescriptorTest extends \PHPUnit_Framework_TestCase
      */
     public function setUp()
     {
-        $this->descriptor = new ResultConfigurationDescriptor();
+
+        // initialize the descriptor
+        $descriptor = new ResultConfigurationDescriptor();
+        $descriptor->getAnnotationReader()->addGlobalIgnoredName('expectedException');
+
+        // set the descriptor
+        $this->descriptor = $descriptor;
     }
 
     /**
@@ -59,6 +65,7 @@ class ResultConfigurationDescriptorTest extends \PHPUnit_Framework_TestCase
 
         // create a mock annotation
         $mockAnnotation = $this->getMockBuilder('AppserverIo\Routlt\Annotations\Result')
+            ->setMethods(array('getName', 'getType', 'getResult'))
             ->disableOriginalConstructor()
             ->getMock();
 
@@ -73,18 +80,8 @@ class ResultConfigurationDescriptorTest extends \PHPUnit_Framework_TestCase
             ->method('getResult')
             ->will($this->returnValue('success'));
 
-        // create a mock reflection annotation
-        $mockReflectionAnnotation = $this->getMockBuilder('AppserverIo\Lang\Reflection\ReflectionAnnotation')
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        // mock the methods
-        $mockReflectionAnnotation->expects($this->once())
-            ->method('newInstance')
-            ->will($this->returnValue($mockAnnotation));
-
         // initialize the descriptor instance
-        $this->descriptor->fromReflectionAnnotation($mockReflectionAnnotation);
+        $this->descriptor->fromAnnotation($mockAnnotation);
 
         // check the name parsed from the reflection method
         $this->assertSame('success', $this->descriptor->getName());
@@ -110,6 +107,7 @@ class ResultConfigurationDescriptorTest extends \PHPUnit_Framework_TestCase
 
         // create a mock annotation
         $mockAnnotation = $this->getMockBuilder('AppserverIo\Routlt\Annotations\Result')
+            ->setMethods(array('getName', 'getType', 'getResult'))
             ->disableOriginalConstructor()
             ->getMock();
 
@@ -124,18 +122,8 @@ class ResultConfigurationDescriptorTest extends \PHPUnit_Framework_TestCase
             ->method('getResult')
             ->will($this->returnValue('/phtml/test.phtml'));
 
-        // create a mock reflection annotation
-        $mockReflectionAnnotation = $this->getMockBuilder('AppserverIo\Lang\Reflection\ReflectionAnnotation')
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        // mock the methods
-        $mockReflectionAnnotation->expects($this->once())
-            ->method('newInstance')
-            ->will($this->returnValue($mockAnnotation));
-
         // initialize the descriptor instance
-        $this->descriptor->fromReflectionAnnotation($mockReflectionAnnotation);
+        $this->descriptor->fromAnnotation($mockAnnotation);
 
         // create the descriptor we want to merge
         $descriptor = new ResultConfigurationDescriptor();
@@ -178,18 +166,8 @@ class ResultConfigurationDescriptorTest extends \PHPUnit_Framework_TestCase
             ->method('getResult')
             ->will($this->returnValue('/phtml/test.phtml'));
 
-        // create a mock reflection annotation
-        $mockReflectionAnnotation = $this->getMockBuilder('AppserverIo\Lang\Reflection\ReflectionAnnotation')
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        // mock the methods
-        $mockReflectionAnnotation->expects($this->once())
-            ->method('newInstance')
-            ->will($this->returnValue($mockAnnotation));
-
         // initialize the descriptor instance
-        $this->descriptor->fromReflectionAnnotation($mockReflectionAnnotation);
+            $this->descriptor->fromAnnotation($mockAnnotation);
 
         // create the descriptor we want to merge
         $descriptor = new ResultConfigurationDescriptor();

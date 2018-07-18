@@ -46,7 +46,7 @@ class ResultTest extends \PHPUnit_Framework_TestCase
      */
     public function setUp()
     {
-        $this->annotation = new Result('Result', array('name' => 'success', 'type' => 'AppserverIo\Routlt\Results\JsonResult', 'result' => '/phtml/my_template.phtml'));
+        $this->annotation = new Result(array('name' => 'success', 'type' => 'AppserverIo\Routlt\Results\JsonResult', 'result' => '/phtml/my_template.phtml'));
     }
 
     /**
@@ -86,7 +86,7 @@ class ResultTest extends \PHPUnit_Framework_TestCase
      */
     public function testGetNameWithoutValue()
     {
-        $annotation = new Result('Result', array());
+        $annotation = new Result(array());
         $this->assertNull($annotation->getName());
     }
 
@@ -97,7 +97,7 @@ class ResultTest extends \PHPUnit_Framework_TestCase
      */
     public function testGetTypeWithoutValue()
     {
-        $annotation = new Result('Result', array());
+        $annotation = new Result(array());
         $this->assertNull($annotation->getType());
     }
 
@@ -108,17 +108,7 @@ class ResultTest extends \PHPUnit_Framework_TestCase
      */
     public function testGetResultWithoutValue()
     {
-        $annotation = new Result('Result', array());
+        $annotation = new Result(array());
         $this->assertNull($annotation->getResult());
-    }
-
-    /**
-     * This test checks the resolved class name.
-     *
-     * @return void
-     */
-    public function testGetClass()
-    {
-        $this->assertSame('AppserverIo\Routlt\Annotations\Result', $this->annotation->__getClass());
     }
 }

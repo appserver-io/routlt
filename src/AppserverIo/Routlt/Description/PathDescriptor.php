@@ -21,8 +21,6 @@
 namespace AppserverIo\Routlt\Description;
 
 use AppserverIo\Routlt\Annotations\Path;
-use AppserverIo\Routlt\Annotations\Result;
-use AppserverIo\Routlt\Annotations\Results;
 use AppserverIo\Lang\Reflection\ClassInterface;
 use AppserverIo\Configuration\Interfaces\NodeInterface;
 use AppserverIo\Description\DescriptorReferencesTrait;
@@ -99,7 +97,11 @@ class PathDescriptor extends AbstractNameAwareDescriptor implements PathDescript
      */
     public function addAction(ActionDescriptorInterface $action)
     {
+
+        // extract the action name
         $name = $action->getName();
+
+        // set the action for all request methods
         foreach ($action->getRequestMethods() as $method) {
             $this->actions[$name][$method] = $action;
         }
@@ -193,11 +195,6 @@ class PathDescriptor extends AbstractNameAwareDescriptor implements PathDescript
     public function fromReflectionClass(ClassInterface $reflectionClass)
     {
 
-        // add the annotation alias to the reflection class
-        $reflectionClass->addAnnotationAlias(Path::ANNOTATION, Path::__getClass());
-        $reflectionClass->addAnnotationAlias(Result::ANNOTATION, Result::__getClass());
-        $reflectionClass->addAnnotationAlias(Results::ANNOTATION, Results::__getClass());
-
         // query if we've an action
         if ($reflectionClass->implementsInterface('AppserverIo\Routlt\ActionInterface') === false &&
             $reflectionClass->toPhpReflectionClass()->isAbstract() === false) {
@@ -205,23 +202,17 @@ class PathDescriptor extends AbstractNameAwareDescriptor implements PathDescript
             return;
         }
 
+        // try to load the annotation instance
+        $annotationInstance = $this->getClassAnnotation($reflectionClass, Path::class);
+
         // query if we've a servlet with a @Path annotation
-        if ($reflectionClass->hasAnnotation(Path::ANNOTATION) === false) {
+        if ($annotationInstance === null) {
             // if not, do nothing
             return;
         }
 
-        // create a new annotation instance
-        $reflectionAnnotation = $this->newAnnotationInstance($reflectionClass);
-
         // load class name
         $this->setClassName($reflectionClass->getName());
-
-        // initialize the annotation instance
-        $annotationInstance = $reflectionAnnotation->newInstance(
-            $reflectionAnnotation->getAnnotationName(),
-            $reflectionAnnotation->getValues()
-        );
 
         // load the default name to register in naming directory
         if ($nameAttribute = $annotationInstance->getName()) {
@@ -241,21 +232,9 @@ class PathDescriptor extends AbstractNameAwareDescriptor implements PathDescript
             }
         }
 
-        // we've to check for result annotations
-        if ($reflectionClass->hasAnnotation(Results::ANNOTATION)) {
-            // create the reflection annotation instance
-            $resultsAnnotation = $reflectionClass->getAnnotation(Results::ANNOTATION);
-
-            // initialize the @Results annotation instance
-            $resultsAnnotationInstance = $resultsAnnotation->newInstance(
-                $resultsAnnotation->getAnnotationName(),
-                $resultsAnnotation->getValues()
-            );
-
-            // load the results
-            foreach ($resultsAnnotationInstance->getResults() as $resultAnnotation) {
-                $this->addResult(ResultConfigurationDescriptor::newDescriptorInstance()->fromReflectionAnnotation($resultAnnotation));
-            }
+        // load the results
+        foreach ($annotationInstance->getResults() as $resultAnnotation) {
+            $this->addResult(ResultConfigurationDescriptor::newDescriptorInstance()->fromAnnotation($resultAnnotation));
         }
 
         // initialize the shared flag @Path(shared=true)

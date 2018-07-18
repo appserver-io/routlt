@@ -107,9 +107,6 @@ class ResultDescriptor extends AbstractNameAwareDescriptor implements ResultDesc
     public function fromReflectionClass(ClassInterface $reflectionClass)
     {
 
-        // add the annotation alias to the reflection class
-        $reflectionClass->addAnnotationAlias(Result::ANNOTATION, Result::__getClass());
-
         // query if we've an action
         if ($reflectionClass->implementsInterface('AppserverIo\Routlt\Results\ResultInterface') === false &&
             $reflectionClass->toPhpReflectionClass()->isAbstract() === false
@@ -118,23 +115,17 @@ class ResultDescriptor extends AbstractNameAwareDescriptor implements ResultDesc
             return;
         }
 
+        // create a new annotation instance
+        $annotationInstance = $this->getClassAnnotation($reflectionClass, Result::class);
+
         // query if we've a servlet with a @Path annotation
-        if ($reflectionClass->hasAnnotation(Result::ANNOTATION) === false) {
+        if ($annotationInstance === null) {
             // if not, do nothing
             return;
         }
 
-        // create a new annotation instance
-        $reflectionAnnotation = $this->newAnnotationInstance($reflectionClass);
-
         // load class name
         $this->setClassName($reflectionClass->getName());
-
-        // initialize the annotation instance
-        $annotationInstance = $reflectionAnnotation->newInstance(
-            $reflectionAnnotation->getAnnotationName(),
-            $reflectionAnnotation->getValues()
-        );
 
         // load the default name to register in naming directory
         if ($nameAttribute = $annotationInstance->getName()) {

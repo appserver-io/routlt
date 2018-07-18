@@ -21,6 +21,7 @@
 namespace AppserverIo\Routlt\Description\Mock;
 
 use AppserverIo\Routlt\ActionInterface;
+use AppserverIo\Routlt\Annotations as RLT;
 use AppserverIo\Routlt\Results\ResultInterface;
 use AppserverIo\Psr\Servlet\Http\HttpServletRequestInterface;
 use AppserverIo\Psr\Servlet\Http\HttpServletResponseInterface;
@@ -34,7 +35,7 @@ use AppserverIo\Psr\Servlet\Http\HttpServletResponseInterface;
  * @link      http://github.com/appserver-io/routlt
  * @link      http://www.appserver.io
  *
- * @Path
+ * @RLT\Path
  */
 class MockAction implements ActionInterface
 {

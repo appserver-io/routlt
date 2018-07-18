@@ -30,26 +30,60 @@ use AppserverIo\Psr\EnterpriseBeans\Annotations\AbstractBeanAnnotation;
  * @license    http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  * @link       http://github.com/appserver-io/routlt
  * @link       http://www.appserver.io
+ *
+ * @Annotation
+ * @Target({"CLASS", "ANNOTATION"})
  */
 class Result extends AbstractBeanAnnotation
 {
 
     /**
-     * The annotation to define a servlets routing.
+     * The value of the type attribute.
      *
      * @var string
      */
-    const ANNOTATION = 'Result';
+    protected $type;
 
     /**
-     * This method returns the class name as
-     * a string.
+     * The value of the code attribute.
      *
-     * @return string
+     * @var string
      */
-    public static function __getClass()
+    protected $code;
+
+    /**
+     * The value of the result attribute.
+     *
+     * @var string
+     */
+    protected $result;
+
+    /**
+     * The constructor the initializes the instance with the
+     * data passed with the token.
+     *
+     * @param array $values The annotation values
+     */
+    public function __construct(array $values = array())
     {
-        return __CLASS__;
+
+        // set the type attribute, if available
+        if (isset($values[AnnotationKeys::TYPE])) {
+            $this->type = $values[AnnotationKeys::TYPE];
+        }
+
+        // set the code attribute, if available
+        if (isset($values[AnnotationKeys::CODE])) {
+            $this->code = $values[AnnotationKeys::CODE];
+        }
+
+        // set the result attribute, if available
+        if (isset($values[AnnotationKeys::RESULT])) {
+            $this->result = $values[AnnotationKeys::RESULT];
+        }
+
+        // pass the arguements through to the parent instance
+        parent::__construct($values);
     }
 
     /**
@@ -59,9 +93,7 @@ class Result extends AbstractBeanAnnotation
      */
     public function getType()
     {
-        if (isset($this->values['type'])) {
-            return $this->values['type'];
-        }
+        return $this->type;
     }
 
     /**
@@ -71,9 +103,7 @@ class Result extends AbstractBeanAnnotation
      */
     public function getResult()
     {
-        if (isset($this->values['result'])) {
-            return $this->values['result'];
-        }
+        return $this->result;
     }
 
     /**
@@ -83,8 +113,6 @@ class Result extends AbstractBeanAnnotation
      */
     public function getCode()
     {
-        if (isset($this->values['code'])) {
-            return $this->values['code'];
-        }
+        return $this->code;
     }
 }

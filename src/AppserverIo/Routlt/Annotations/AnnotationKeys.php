@@ -1,7 +1,7 @@
 <?php
 
 /**
- * AppserverIo\Routlt\Annotations\Results
+ * AppserverIo\Routlt\Annotations\AnnotationKeys
  *
  * NOTICE OF LICENSE
  *
@@ -20,47 +20,68 @@
 
 namespace AppserverIo\Routlt\Annotations;
 
-use AppserverIo\Lang\Reflection\ReflectionAnnotation;
+use Prophecy\Doubler\Generator\ClassCodeGenerator;
 
 /**
- * Annotation to define results available for an action.
+ * Utility with annotation keys.
  *
  * @author     Tim Wagner <tw@techdivision.com>
  * @copyright  2015 TechDivision GmbH <info@techdivision.com>
  * @license    http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  * @link       http://github.com/appserver-io/routlt
  * @link       http://www.appserver.io
+ *
+ * @Annotation
  */
-class Results extends ReflectionAnnotation
+class AnnotationKeys
 {
 
     /**
-     * The annotation to define a servlets routing.
+     * Key for the annotation property 'name'.
      *
      * @var string
      */
-    const ANNOTATION = 'Results';
+    const NAME = 'name';
 
     /**
-     * This method returns the class name as
-     * a string.
+     * Key for the annotation property 'restrictions'.
      *
-     * @return string
+     * @var string
      */
-    public static function __getClass()
-    {
-        return __CLASS__;
-    }
+    const RESTRICTIONS = 'restrictions';
 
     /**
-     * Returns the array with the inner @Result annotations.
+     * Key for the annotation property 'defaults'.
      *
-     * @return array|null The inner @Result annotations
+     * @var string
      */
-    public function getResults()
-    {
-        if (isset($this->values[0]) && is_array($this->values[0])) {
-            return $this->values[0];
-        }
-    }
+    const DEFAULTS = 'defaults';
+
+    /**
+     * Key for the annotation property 'type'.
+     *
+     * @var string
+     */
+    const TYPE = 'type';
+
+    /**
+     * Key for the annotation property 'result'.
+     *
+     * @var string
+     */
+    const RESULT = 'result';
+
+    /**
+     * Key for the annotation property 'results'.
+     *
+     * @var string
+     */
+    const RESULTS = 'results';
+
+    /**
+     * Key for the annotation property 'code'.
+     *
+     * @var string
+     */
+    const CODE = 'code';
 }

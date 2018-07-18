@@ -20,6 +20,7 @@
 
 namespace AppserverIo\Routlt\Results;
 
+use AppserverIo\Routlt\Annotations\Result;
 use AppserverIo\Routlt\Util\EncodingAware;
 use AppserverIo\Routlt\Util\ValidationAware;
 use AppserverIo\Routlt\Util\DefaultHeadersAware;

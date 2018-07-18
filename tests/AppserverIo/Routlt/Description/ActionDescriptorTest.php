@@ -21,6 +21,7 @@
 namespace AppserverIo\Routlt\Description;
 
 use AppserverIo\Http\HttpProtocol;
+use AppserverIo\Routlt\Annotations as RLT;
 use AppserverIo\Lang\Reflection\ReflectionClass;
 
 /**
@@ -153,8 +154,8 @@ class ActionDescriptorTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @Action(name="/test")
-     * @Post
+     * @RLT\Action(name="/test")
+     * @RLT\Post
      */
     public function nonameAction()
     {
@@ -162,7 +163,7 @@ class ActionDescriptorTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @Action
+     * @RLT\Action
      */
     public function someAction()
     {

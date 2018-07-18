@@ -46,7 +46,7 @@ class ActionTest extends \PHPUnit_Framework_TestCase
      */
     public function setUp()
     {
-        $this->annotation = new Action('Action', array('name' => '/index'));
+        $this->annotation = new Action(array('name' => '/index'));
     }
 
     /**
@@ -57,15 +57,5 @@ class ActionTest extends \PHPUnit_Framework_TestCase
     public function testGetName()
     {
         $this->assertSame('/index', $this->annotation->getName());
-    }
-
-    /**
-     * This test checks the resolved class name.
-     *
-     * @return void
-     */
-    public function testGetClass()
-    {
-        $this->assertSame('AppserverIo\Routlt\Annotations\Action', $this->annotation->__getClass());
     }
 }
