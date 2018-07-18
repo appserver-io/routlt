@@ -20,18 +20,16 @@
 
 namespace AppserverIo\Routlt\Description;
 
+use AppserverIo\Http\HttpProtocol;
 use AppserverIo\Routlt\ActionInterface;
+use AppserverIo\Routlt\Annotations as RLT;
 use AppserverIo\Routlt\Results\ResultInterface;
 use AppserverIo\Lang\Reflection\ReflectionClass;
 use AppserverIo\Description\EpbReferenceDescriptor;
 use AppserverIo\Description\ResReferenceDescriptor;
 use AppserverIo\Psr\Servlet\Http\HttpServletRequestInterface;
 use AppserverIo\Psr\Servlet\Http\HttpServletResponseInterface;
-use AppserverIo\Psr\EnterpriseBeans\Annotations\Resource;
-use AppserverIo\Psr\EnterpriseBeans\Annotations\EnterpriseBean;
-use AppserverIo\Routlt\Annotations\Result;
-use AppserverIo\Routlt\Annotations\Results;
-use AppserverIo\Http\HttpProtocol;
+use AppserverIo\Psr\EnterpriseBeans\Annotations as EPB;
 
 /**
  * Test implementation for the PathDescriptor implementation.
@@ -42,10 +40,12 @@ use AppserverIo\Http\HttpProtocol;
  * @link      http://github.com/appserver-io/routlt
  * @link      http://www.appserver.io
  *
- * @Path(name="/index")
- * @Results({
- *     @Result(name="success", result="/phtml/my_template.phtml", type="AppserverIo\Routlt\Results\JsonResult")
- * })
+ * @RLT\Path(
+ *     name="/index",
+ *     results={
+ *         @RLT\Result(name="success", result="/phtml/my_template.phtml", type="AppserverIo\Routlt\Results\JsonResult")
+ *     }
+ * )
  */
 class PathDescriptorTest extends \PHPUnit_Framework_TestCase implements ActionInterface
 {
@@ -60,14 +60,14 @@ class PathDescriptorTest extends \PHPUnit_Framework_TestCase implements ActionIn
     /**
      * Dummy bean reference.
      *
-     * @EnterpriseBean(name="SessionBean")
+     * @EPB\EnterpriseBean(name="SessionBean")
      */
     protected $dummyEnterpriseBean;
 
     /**
      * Dummy resource reference.
      *
-     * @Resource(name="Application")
+     * @EPB\Resource(name="Application")
      */
     protected $dummyResource;
 
@@ -78,7 +78,13 @@ class PathDescriptorTest extends \PHPUnit_Framework_TestCase implements ActionIn
      */
     public function setUp()
     {
-        $this->descriptor = new PathDescriptor();
+
+        // initialize the descriptor
+        $descriptor = new PathDescriptor();
+        $descriptor->getAnnotationReader()->addGlobalIgnoredName('expectedException');
+
+        // set the descriptor
+        $this->descriptor = $descriptor;
     }
 
     /**
@@ -87,7 +93,7 @@ class PathDescriptorTest extends \PHPUnit_Framework_TestCase implements ActionIn
      * @param mixed $dummyEnterpriseBean The dummy bean
      *
      * @return void
-     * @EnterpriseBean(name="SessionBean")
+     * @EPB\EnterpriseBean(name="SessionBean")
      */
     public function injectDummyEnterpriseBean($dummyEnterpriseBean)
     {
@@ -100,7 +106,7 @@ class PathDescriptorTest extends \PHPUnit_Framework_TestCase implements ActionIn
      * @param mixed $dummyResource The dummy resource
      *
      * @return void
-     * @Resource(name="Application")
+     * @EPB\Resource(name="Application")
      */
     public function injectDummyResource($dummyResource)
     {
@@ -138,14 +144,8 @@ class PathDescriptorTest extends \PHPUnit_Framework_TestCase implements ActionIn
     public function testFromReflectionClass()
     {
 
-        // initialize the annotation aliases
-        $aliases = array(
-            Resource::ANNOTATION => Resource::__getClass(),
-            EnterpriseBean::ANNOTATION => EnterpriseBean::__getClass()
-        );
-
         // create a reflection class
-        $reflectionClass = new ReflectionClass(__CLASS__, array(), $aliases);
+        $reflectionClass = new ReflectionClass(__CLASS__, array(), array());
 
         // initialize the descriptor instance from the reflection class
         $this->descriptor->fromReflectionClass($reflectionClass);
@@ -155,7 +155,7 @@ class PathDescriptorTest extends \PHPUnit_Framework_TestCase implements ActionIn
     }
 
     /**
-     * Tests if the deployment initialization from a reflection class with a @Path
+     * Tests if the deployment initialization from a reflection class with a Path
      * annotation without name attribute works as expected.
      *
      * @return void
@@ -163,14 +163,8 @@ class PathDescriptorTest extends \PHPUnit_Framework_TestCase implements ActionIn
     public function testFromReflectionClassWithAnnotationWithMissingNameAttribute()
     {
 
-        // initialize the annotation aliases
-        $aliases = array(
-            Resource::ANNOTATION => Resource::__getClass(),
-            EnterpriseBean::ANNOTATION => EnterpriseBean::__getClass()
-        );
-
         // create a reflection class from a mock controller with a @Path annotation without name attribute
-        $reflectionClass = new ReflectionClass('AppserverIo\Routlt\Description\Mock\MockAction', array(), $aliases);
+        $reflectionClass = new ReflectionClass('AppserverIo\Routlt\Description\Mock\MockAction', array(), array());
 
         // initialize the descriptor instance from the reflection class
         $this->descriptor->fromReflectionClass($reflectionClass);
@@ -181,21 +175,15 @@ class PathDescriptorTest extends \PHPUnit_Framework_TestCase implements ActionIn
 
     /**
      * Tests if the deployment initialization from a reflection class with
-     * a missing @Path annotation doesn't work.
+     * a missing Path annotation doesn't work.
      *
      * @return void
      */
     public function testFromReflectionClassWithMissingAnnotation()
     {
 
-        // initialize the annotation aliases
-        $aliases = array(
-            Resource::ANNOTATION => Resource::__getClass(),
-            EnterpriseBean::ANNOTATION => EnterpriseBean::__getClass()
-        );
-
         // create a reflection class from the BaseAction
-        $reflectionClass = new ReflectionClass('AppserverIo\Routlt\BaseAction', array(), $aliases);
+        $reflectionClass = new ReflectionClass('AppserverIo\Routlt\BaseAction', array(), array());
 
         // check that the descriptor has not been initialized
         $this->assertNull($this->descriptor->fromReflectionClass($reflectionClass));
@@ -210,14 +198,8 @@ class PathDescriptorTest extends \PHPUnit_Framework_TestCase implements ActionIn
     public function testFromReflectionClassWithNoActionImplementation()
     {
 
-        // initialize the annotation aliases
-        $aliases = array(
-            Resource::ANNOTATION => Resource::__getClass(),
-            EnterpriseBean::ANNOTATION => EnterpriseBean::__getClass()
-        );
-
         // create a reflection class from the \stdClass
-        $reflectionClass = new ReflectionClass('\stdClass', array(), $aliases);
+        $reflectionClass = new ReflectionClass('\stdClass', array(), array());
 
         // check that the descriptor has not been initialized
         $this->assertNull($this->descriptor->fromReflectionClass($reflectionClass));
@@ -231,16 +213,8 @@ class PathDescriptorTest extends \PHPUnit_Framework_TestCase implements ActionIn
     public function testMerge()
     {
 
-        // initialize the annotation aliases
-        $aliases = array(
-            Result::ANNOTATION => Result::__getClass(),
-            Results::ANNOTATION => Results::__getClass(),
-            Resource::ANNOTATION => Resource::__getClass(),
-            EnterpriseBean::ANNOTATION => EnterpriseBean::__getClass()
-        );
-
         // create a reflection class
-        $reflectionClass = new ReflectionClass(__CLASS__, array(), $aliases);
+        $reflectionClass = new ReflectionClass(__CLASS__, array(), array());
 
         // initialize the descriptor instance from reflection class
         $this->descriptor->fromReflectionClass($reflectionClass);
@@ -327,14 +301,8 @@ class PathDescriptorTest extends \PHPUnit_Framework_TestCase implements ActionIn
     public function testMergeWithNotMatchingDescriptor()
     {
 
-        // initialize the annotation aliases
-        $aliases = array(
-            Resource::ANNOTATION => Resource::__getClass(),
-            EnterpriseBean::ANNOTATION => EnterpriseBean::__getClass()
-        );
-
         // create a reflection class
-        $reflectionClass = new ReflectionClass(__CLASS__, array(), $aliases);
+        $reflectionClass = new ReflectionClass(__CLASS__, array(), array());
 
         // initialize the descriptor instance from reflection class
         $this->descriptor->fromReflectionClass($reflectionClass);
@@ -475,7 +443,8 @@ class PathDescriptorTest extends \PHPUnit_Framework_TestCase implements ActionIn
     }
 
     /**
-     * @Action(name="/test")
+     * @RLT\Action(name="/test")
+     * @RLT\Get
      */
     public function nonameAction()
     {
@@ -483,7 +452,7 @@ class PathDescriptorTest extends \PHPUnit_Framework_TestCase implements ActionIn
     }
 
     /**
-     * @Action
+     * @RLT\Action
      */
     public function someAction()
     {

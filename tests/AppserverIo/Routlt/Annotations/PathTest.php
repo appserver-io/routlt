@@ -46,7 +46,7 @@ class PathTest extends \PHPUnit_Framework_TestCase
      */
     public function setUp()
     {
-        $this->annotation = new Path('Path', array('name' => '/index'));
+        $this->annotation = new Path(array('name' => '/index'));
     }
 
     /**
@@ -57,15 +57,5 @@ class PathTest extends \PHPUnit_Framework_TestCase
     public function testGetName()
     {
         $this->assertSame('/index', $this->annotation->getName());
-    }
-
-    /**
-     * This test checks the resolved class name.
-     *
-     * @return void
-     */
-    public function testGetClass()
-    {
-        $this->assertSame('AppserverIo\Routlt\Annotations\Path', $this->annotation->__getClass());
     }
 }

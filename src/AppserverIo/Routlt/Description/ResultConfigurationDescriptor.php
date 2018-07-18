@@ -22,7 +22,6 @@ namespace AppserverIo\Routlt\Description;
 
 use AppserverIo\Routlt\Annotations\Result;
 use AppserverIo\Lang\Reflection\ClassInterface;
-use AppserverIo\Lang\Reflection\AnnotationInterface;
 use AppserverIo\Configuration\Interfaces\NodeInterface;
 use AppserverIo\Description\AbstractNameAwareDescriptor;
 
@@ -159,28 +158,22 @@ class ResultConfigurationDescriptor extends AbstractNameAwareDescriptor implemen
     }
 
     /**
-     * Initializes the result configuration instance from the passed reflection annotation instance.
+     * Initializes the result configuration instance from the passed result annotation instance.
      *
-     * @param \AppserverIo\Lang\Reflection\AnnotationInterface $reflectionAnnotation The reflection annotation with the result configuration
+     * @param \AppserverIo\Routlt\Annotations\Result $annotation The result annotation with the result configuration
      *
      * @return \AppserverIo\Routlt\Description\ResultDescriptorInterface The initialized descriptor
      */
-    public function fromReflectionAnnotation(AnnotationInterface $reflectionAnnotation)
+    public function fromAnnotation(Result $annotation)
     {
 
-        // initialize the annotation instance
-        $annotationInstance = $reflectionAnnotation->newInstance(
-            $reflectionAnnotation->getAnnotationName(),
-            $reflectionAnnotation->getValues()
-        );
-
         // initialize the descriptor properties from the annotation values
-        $this->setName($annotationInstance->getName());
-        $this->setType($annotationInstance->getType());
-        $this->setResult($annotationInstance->getResult());
+        $this->setName($annotation->getName());
+        $this->setType($annotation->getType());
+        $this->setResult($annotation->getResult());
 
         // set the HTTP response code if given
-        if ($code = $annotationInstance->getCode()) {
+        if ($code = $annotation->getCode()) {
             $this->setCode($code);
         }
 

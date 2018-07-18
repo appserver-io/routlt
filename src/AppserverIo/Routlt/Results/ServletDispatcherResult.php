@@ -20,6 +20,7 @@
 
 namespace AppserverIo\Routlt\Results;
 
+use AppserverIo\Routlt\Annotations\Result;
 use AppserverIo\Routlt\Util\ServletContextAware;
 use AppserverIo\Psr\Servlet\ServletContextInterface;
 use AppserverIo\Psr\Servlet\ServletRequestInterface;

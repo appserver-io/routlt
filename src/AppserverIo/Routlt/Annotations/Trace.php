@@ -20,8 +20,6 @@
 
 namespace AppserverIo\Routlt\Annotations;
 
-use AppserverIo\Lang\Reflection\ReflectionAnnotation;
-
 /**
  * Annotation for the TRACE request method.
  *
@@ -30,25 +28,10 @@ use AppserverIo\Lang\Reflection\ReflectionAnnotation;
  * @license    http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
  * @link       http://github.com/appserver-io/routlt
  * @link       http://www.appserver.io
+ *
+ * @Annotation
+ * @Target({"METHOD"})
  */
-class Trace extends ReflectionAnnotation
+class Trace
 {
-
-    /**
-     * The annotation to define request method.
-     *
-     * @var string
-     */
-    const ANNOTATION = 'Trace';
-
-    /**
-     * This method returns the class name as
-     * a string.
-     *
-     * @return string
-     */
-    public static function __getClass()
-    {
-        return __CLASS__;
-    }
 }

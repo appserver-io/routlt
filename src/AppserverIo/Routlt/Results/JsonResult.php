@@ -21,6 +21,7 @@
 namespace AppserverIo\Routlt\Results;
 
 use AppserverIo\Http\HttpProtocol;
+use AppserverIo\Routlt\Annotations\Result;
 use AppserverIo\Routlt\Util\ValidationAware;
 use AppserverIo\Psr\Servlet\ServletRequestInterface;
 use AppserverIo\Psr\Servlet\ServletResponseInterface;

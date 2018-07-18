@@ -20,6 +20,7 @@
 
 namespace AppserverIo\Routlt\Results;
 
+use AppserverIo\Routlt\Annotations\Result;
 use AppserverIo\Psr\HttpMessage\Protocol;
 use AppserverIo\Psr\Servlet\ServletRequestInterface;
 use AppserverIo\Psr\Servlet\ServletResponseInterface;

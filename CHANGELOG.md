@@ -1,3 +1,13 @@
+# Version 2.4.0
+
+## Bugfixes
+
+* None
+
+## Features
+
+* Switch to Doctrine Annotation library
+
 # Version 2.3.0
 
 ## Bugfixes

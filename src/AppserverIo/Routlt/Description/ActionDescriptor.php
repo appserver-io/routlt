@@ -22,8 +22,16 @@ namespace AppserverIo\Routlt\Description;
 
 use AppserverIo\Http\HttpProtocol;
 use AppserverIo\Routlt\Annotations\Action;
+use AppserverIo\Routlt\Annotations\Connect;
+use AppserverIo\Routlt\Annotations\Delete;
+use AppserverIo\Routlt\Annotations\Get;
+use AppserverIo\Routlt\Annotations\Head;
+use AppserverIo\Routlt\Annotations\Options;
+use AppserverIo\Routlt\Annotations\Patch;
+use AppserverIo\Routlt\Annotations\Post;
+use AppserverIo\Routlt\Annotations\Put;
+use AppserverIo\Routlt\Annotations\Trace;
 use AppserverIo\Lang\Reflection\MethodInterface;
-use AppserverIo\Lang\Reflection\ReflectionAnnotation;
 use AppserverIo\Configuration\Interfaces\NodeInterface;
 use AppserverIo\Description\AbstractNameAwareDescriptor;
 
@@ -51,7 +59,19 @@ class ActionDescriptor extends AbstractNameAwareDescriptor implements ActionDesc
      *
      * @var array
      */
-    protected $requestMethods;
+    protected $requestMethods = array();
+
+    protected $mappedRequestMethods = array(
+        HttpProtocol::METHOD_CONNECT => Connect::class,
+        HttpProtocol::METHOD_DELETE  => Delete::class,
+        HttpProtocol::METHOD_GET     => Get::class,
+        HttpProtocol::METHOD_HEAD    => Head::class,
+        HttpProtocol::METHOD_OPTIONS => Options::class,
+        HttpProtocol::METHOD_POST    => Post::class,
+        HttpProtocol::METHOD_PUT     => Put::class,
+        HttpProtocol::METHOD_TRACE   => Trace::class,
+        HttpProtocol::METHOD_PATCH   => Patch::class
+    );
 
     /**
      * The restrictions for the route placeholders.
@@ -79,17 +99,7 @@ class ActionDescriptor extends AbstractNameAwareDescriptor implements ActionDesc
         $this->restrictions = array();
 
         // initialize the request methods
-        $this->requestMethods = array(
-            HttpProtocol::METHOD_CONNECT,
-            HttpProtocol::METHOD_DELETE,
-            HttpProtocol::METHOD_GET,
-            HttpProtocol::METHOD_HEAD,
-            HttpProtocol::METHOD_OPTIONS,
-            HttpProtocol::METHOD_POST,
-            HttpProtocol::METHOD_PUT,
-            HttpProtocol::METHOD_TRACE,
-            HttpProtocol::METHOD_PATCH
-        );
+        $this->requestMethods = array_keys($this->getMappedRequestMethods());
     }
 
     /**
@@ -137,6 +147,19 @@ class ActionDescriptor extends AbstractNameAwareDescriptor implements ActionDesc
     }
 
     /**
+     * Add's the passed key => value pair as restriction.
+     *
+     * @param string $key   The parameter name to add the restriction for
+     * @param string $value The restriction value itself
+     *
+     * @return void
+     */
+    public function addRestriction($name, $value)
+    {
+        $this->restrictions[$name] = $value;
+    }
+
+    /**
      * Sets the restrictions for the route placeholders.
      *
      * @param array $restrictions The restrictions for the route placeholders
@@ -156,6 +179,19 @@ class ActionDescriptor extends AbstractNameAwareDescriptor implements ActionDesc
     public function getRestrictions()
     {
         return $this->restrictions;
+    }
+
+    /**
+     * Add's the passed key => value pair as default.
+     *
+     * @param string $key   The parameter name to add the default for
+     * @param string $value The default value itself
+     *
+     * @return void
+     */
+    public function addDefault($name, $value)
+    {
+        $this->defaults[$name] = $value;
     }
 
     /**
@@ -191,15 +227,13 @@ class ActionDescriptor extends AbstractNameAwareDescriptor implements ActionDesc
     }
 
     /**
-     * Returns a new annotation instance for the passed reflection method.
+     * Return's the array with the reqeust method => annotation class mapping.
      *
-     * @param \AppserverIo\Lang\Reflection\MethodInterface $reflectionMethod The reflection method with the action configuration
-     *
-     * @return \AppserverIo\Lang\Reflection\AnnotationInterface The reflection annotation
+     * @return array The mapping
      */
-    protected function newAnnotationInstance(MethodInterface $reflectionMethod)
+    protected function getMappedRequestMethods()
     {
-        return $reflectionMethod->getAnnotation(Action::ANNOTATION);
+        return $this->mappedRequestMethods;
     }
 
     /**
@@ -212,34 +246,23 @@ class ActionDescriptor extends AbstractNameAwareDescriptor implements ActionDesc
     public function fromReflectionMethod(MethodInterface $reflectionMethod)
     {
 
-        // add the annotation alias to the reflection method
-        $reflectionMethod->addAnnotationAlias(Action::ANNOTATION, Action::__getClass());
+        // create a new annotation instance
+        $annotationInstance = $this->getMethodAnnotation($reflectionMethod, Action::class);
 
         // query if we've a method with a @Action annotation
-        if ($reflectionMethod->hasAnnotation(Action::ANNOTATION) === false &&
-            $reflectionMethod->getMethodName() !== 'perform') {
+        if ($annotationInstance === null && $reflectionMethod->getMethodName() !== 'perform') {
             // if not, do nothing
             return;
+        }
 
         // query whether we've the default perform() method WITHOUT an @Action annotation
-        } elseif ($reflectionMethod->hasAnnotation(Action::ANNOTATION) === false &&
-            $reflectionMethod->getMethodName() === 'perform') {
-            // create an annotation instance manually
-            $reflectionAnnotation = new ReflectionAnnotation(Action::__getClass());
-
-        } else {
-            // create a new annotation instance by default
-            $reflectionAnnotation = $this->newAnnotationInstance($reflectionMethod);
+        if ($annotationInstance === null && $reflectionMethod->getMethodName() === 'perform') {
+            // create a new annotation instance
+            $annotationInstance = new Action(array('name' => $reflectionMethod->getMethodName()));
         }
 
         // load method name
         $this->setMethodName($reflectionMethod->getMethodName());
-
-        // initialize the annotation instance
-        $annotationInstance = $reflectionAnnotation->newInstance(
-            $reflectionAnnotation->getAnnotationName(),
-            $reflectionAnnotation->getValues()
-        );
 
         // load the default name to register in naming directory
         if (($nameAttribute = $annotationInstance->getName()) || $nameAttribute === '') {
@@ -253,12 +276,9 @@ class ActionDescriptor extends AbstractNameAwareDescriptor implements ActionDesc
         $annotatedRequestMethods = array();
 
         // parse the method for annotated request methods
-        foreach ($this->getRequestMethods() as $requestMethod) {
-            // prepare the annotation name, e. g. POST -> Post
-            $annotationName = ucfirst(strtolower($requestMethod));
-
+        foreach ($this->getMappedRequestMethods() as $requestMethod => $annotationName) {
             // query whether the reflection method has been annotated
-            if ($reflectionMethod->hasAnnotation($annotationName)) {
+            if ($this->getMethodAnnotation($reflectionMethod, $annotationName)) {
                 array_push($annotatedRequestMethods, $requestMethod);
             }
         }
@@ -273,7 +293,7 @@ class ActionDescriptor extends AbstractNameAwareDescriptor implements ActionDesc
         if (is_array($restrictions = $annotationInstance->getRestrictions())) {
             foreach ($restrictions as $restriction) {
                 list($name, $value) = $restriction;
-                $this->restrictions[$name] = $value;
+                $this->addRestriction($name, $value);
             }
         }
 
@@ -281,7 +301,7 @@ class ActionDescriptor extends AbstractNameAwareDescriptor implements ActionDesc
         if (is_array($defaults = $annotationInstance->getDefaults())) {
             foreach ($defaults as $default) {
                 list($name, $value) = $default;
-                $this->defaults[$name] = $value;
+                $this->addDefault($name, $value);
             }
         }
 
@@ -313,7 +333,7 @@ class ActionDescriptor extends AbstractNameAwareDescriptor implements ActionDesc
 
     /**
      * Merges the passed configuration into this one. Configuration values
-     * of the passed configuration will overwrite the this one.
+     * of the passed configuration will overwrite this one.
      *
      * @param \AppserverIo\Routlt\Description\ActionDescriptorInterface $actionDescriptor The configuration to merge
      *
@@ -326,7 +346,7 @@ class ActionDescriptor extends AbstractNameAwareDescriptor implements ActionDesc
         // check if the classes are equal
         if ($this->getMethodName() !== $actionDescriptor->getMethodName()) {
             throw new DescriptorException(
-                sprintf('You try to merge a action configuration for % with %s', $actionDescriptor->getMethodName(), $this->getMethodName())
+                sprintf('You try to merge a action configuration for %s with %s', $actionDescriptor->getMethodName(), $this->getMethodName())
             );
         }
 
