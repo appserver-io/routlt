@@ -1,3 +1,13 @@
+# Version 2.4.1
+
+## Bugfixes
+
+* None
+
+## Features
+
+* Now invoke an actions postDispatch() method immediately after invoking its perform() method
+
 # Version 2.4.0
 
 ## Bugfixes

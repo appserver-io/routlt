@@ -534,6 +534,9 @@ class ControllerServlet extends HttpServlet implements ControllerInterface
                         $result = $newResult;
                     }
 
+                    // post-dispatch the action instance
+                    $action->postDispatch($servletRequest, $servletResponse);
+
                     // process the result if available
                     if (($instance = $action->findResult($result)) instanceof ResultInterface) {
                         // query whether or not the result has a descriptor
@@ -549,9 +552,6 @@ class ControllerServlet extends HttpServlet implements ControllerInterface
                         // process the result
                         $instance->process($servletRequest, $servletResponse);
                     }
-
-                    // post-dispatch the action instance
-                    $action->postDispatch($servletRequest, $servletResponse);
 
                     // stop processing
                     return;
