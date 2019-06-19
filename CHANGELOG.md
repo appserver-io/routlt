@@ -1,3 +1,13 @@
+# Version 2.4.2
+
+## Bugfixes
+
+* None
+
+## Features
+
+* Passing exceptions as parent exception to wrapping ServletException
+
 # Version 2.4.1
 
 ## Bugfixes

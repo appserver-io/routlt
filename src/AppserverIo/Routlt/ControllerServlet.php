@@ -572,7 +572,7 @@ class ControllerServlet extends HttpServlet implements ControllerInterface
 
         } catch (DispatchException $de) {
             // results in a 4xx error
-            throw new ServletException($de->__toString(), $de->getCode());
+            throw new ServletException($de->__toString(), $de->getCode(), $de);
         } catch (\Exception $e) {
             // results in a 500 error page
             throw new ServletException($e->__toString(), 500, $e);
