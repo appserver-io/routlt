@@ -575,7 +575,7 @@ class ControllerServlet extends HttpServlet implements ControllerInterface
             throw new ServletException($de->__toString(), $de->getCode());
         } catch (\Exception $e) {
             // results in a 500 error page
-            throw new ServletException($e->__toString(), 500);
+            throw new ServletException($e->__toString(), 500, $e);
         }
     }
 }
