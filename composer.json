@@ -16,7 +16,7 @@
         "appserver-io/http": "~2.0",
         "appserver-io/lang": "~3.0",
         "appserver-io/properties": "~2.0",
-        "appserver-io/description": "~12.0",
+        "appserver-io/description": "~13.0",
         "appserver-io-psr/di": "~3.0",
         "appserver-io-psr/epb": "~7.0",
         "appserver-io-psr/mop": "~2.0",
