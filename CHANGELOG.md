@@ -1,3 +1,13 @@
+# Version 2.4.3
+
+## Bugfixes
+
+* None
+
+## Features
+
+* Switched to appserver-io/description ~13.0 as dependency
+
 # Version 2.4.2
 
 ## Bugfixes
