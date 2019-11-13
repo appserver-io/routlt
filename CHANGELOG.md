@@ -1,3 +1,13 @@
+# Version 2.4.4
+
+## Bugfixes
+
+* Always apply default headers if available 
+
+## Features
+
+* None
+
 # Version 2.4.3
 
 ## Bugfixes
