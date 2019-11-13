@@ -58,11 +58,6 @@ class RawResult extends AbstractResult
         // add the actions default headers to the response
         if ($action instanceof DefaultHeadersAware && $action->hasDefaultHeaders()) {
             foreach ($action->getDefaultHeaders() as $name => $value) {
-                // query whether or not a header with the given name has already been set
-                if ($servletResponse->hasHeader($name)) {
-                    continue;
-                }
-
                 // if not, set the default header
                 $servletResponse->addHeader($name, $value);
             }
